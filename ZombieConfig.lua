@@ -57,7 +57,7 @@ ZombieConfig.Types = {
 			Interval = 60,
 			SinglePoisonPct = 0.40,
 			Duration = 4,
-			SpecialTimeout = 30,
+			SpecialTimeout = 300,
 			SpecialDuration = 10
 		},
 		-- radiasi (kolom sempit, vertikal tinggi)
@@ -72,7 +72,7 @@ ZombieConfig.Types = {
 		ChanceToSpawn = 0.3
 	},
 	Boss2 = {
-		MaxHealth = 1000,  -- Diperbesar untuk Boss
+		MaxHealth = 100000,  -- Diperbesar untuk Boss
 		WalkSpeed = 8,  -- Dipercepat sedikit
 		AttackDamage = 50,
 		AttackCooldown = 2.0,
@@ -122,7 +122,7 @@ ZombieConfig.Types = {
 	},
 	Boss3 = {
 		-- “Maestro Nekrosis”
-		MaxHealth = 1250,
+		MaxHealth = 125000,
 		WalkSpeed = 8,
 		AttackDamage = 55,
 		AttackCooldown = 2.0,
