@@ -12,8 +12,16 @@ local RemoteFunctions = ReplicatedStorage.RemoteFunctions
 local ModuleScriptReplicatedStorage = ReplicatedStorage.ModuleScript
 local ModuleScriptServerScriptService = ServerScriptService.ModuleScript
 
-local PerkModule = require(ModuleScriptReplicatedStorage:WaitForChild("PerkConfig"))
+local PerkConfig = require(ModuleScriptReplicatedStorage:WaitForChild("PerkConfig"))
 local PointsSystem = require(ModuleScriptServerScriptService:WaitForChild("PointsModule"))
+
+local PerkCosts = {
+	HPPlus = 3000,
+	StaminaPlus = 3000,
+	ReloadPlus = 3000,
+	RevivePlus = 3000,
+	RateBoost = 3000
+}
 
 local purchasePerkRF = RemoteFunctions:WaitForChild("PurchasePerk")
 local perkUpdateEvent = RemoteEvents:WaitForChild("PerkUpdate")
@@ -86,13 +94,18 @@ purchasePerkRF.OnServerInvoke = function(player, perkName)
 		return {Success = false, Message = "Not near perk machine"}
 	end
 
-	local perkConfig = PerkModule.Perks[perkName]
-	if not perkConfig then
+	local perkDetails = PerkConfig.Perks[perkName]
+	if not perkDetails then
 		return {Success = false, Message = "Invalid perk"}
 	end
 
+	local cost = PerkCosts[perkName]
+	if not cost then
+		return {Success = false, Message = "Perk cost not found"}
+	end
+
 	local points = PointsSystem.GetPoints(player) or 0
-	if points < perkConfig.Cost then
+	if points < cost then
 		return {Success = false, Message = "Not enough points"}
 	end
 
@@ -102,7 +115,7 @@ purchasePerkRF.OnServerInvoke = function(player, perkName)
 	end
 
 	-- Potong points
-	PointsSystem.AddPoints(player, -perkConfig.Cost)
+	PointsSystem.AddPoints(player, -cost)
 
 	-- Kirim update ke client
 	perkUpdateEvent:FireClient(player, getPlayerPerks(player))
@@ -149,7 +162,19 @@ end
 -- Handler untuk membuka UI shop perk
 requestOpenPerkShopEvent.OnServerEvent:Connect(function(player)
 	if isPlayerNearPerkMachine(player) then
-		openPerkShopEvent:FireClient(player, PerkModule.Perks)
+		-- Create a new table to send to the client, merging perk details and costs
+		local perksForClient = {}
+		for perkName, perkDetails in pairs(PerkConfig.Perks) do
+			local cost = PerkCosts[perkName]
+			if cost then
+				perksForClient[perkName] = {
+					Description = perkDetails.Description,
+					Icon = perkDetails.Icon,
+					Cost = cost
+				}
+			end
+		end
+		openPerkShopEvent:FireClient(player, perksForClient)
 	end
 end)
 

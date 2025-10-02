@@ -12,8 +12,6 @@ local RemoteEvents = game.ReplicatedStorage.RemoteEvents
 local RemoteFunctions = ReplicatedStorage.RemoteFunctions
 local ModuleScriptReplicatedStorage = ReplicatedStorage.ModuleScript
 
-local PerkModule = require(ModuleScriptReplicatedStorage:WaitForChild("PerkConfig"))
-
 local openEv = RemoteEvents:WaitForChild("OpenPerkShop")
 local perkUpdateEv = RemoteEvents:WaitForChild("PerkUpdate")
 local requestOpenEvent = RemoteEvents:WaitForChild("RequestOpenPerkShop")
