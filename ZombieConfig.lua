@@ -67,9 +67,9 @@ ZombieConfig.Types = {
 			DamagePerSecondPct = 0.01,  -- % dari MaxHealth per detik
 			Tick = 0.5                  -- interval cek & tick damage
 		},
-		ChanceWaveMin = 1,
-		ChanceWaveMax = 1,
-		ChanceToSpawn = 1
+		ChanceWaveMin = 10,
+		ChanceWaveMax = 15,
+		ChanceToSpawn = 0.3
 	},
 	Boss2 = {
 		MaxHealth = 1000,  -- Diperbesar untuk Boss
@@ -116,9 +116,9 @@ ZombieConfig.Types = {
 			DamagePct = 0.15,        -- persentase MaxHealth pemain sebagai damage
 		},
 		-- Spawn window & chance
-		ChanceWaveMin = 5,
-		ChanceWaveMax = 5,
-		ChanceToSpawn = 1,
+		ChanceWaveMin = 30,
+		ChanceWaveMax = 35,
+		ChanceToSpawn = 0.3,
 	},
 	Boss3 = {
 		-- “Maestro Nekrosis”
