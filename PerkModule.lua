@@ -15,6 +15,11 @@ local ModuleScriptServerScriptService = ServerScriptService.ModuleScript
 local PerkConfig = require(ModuleScriptReplicatedStorage:WaitForChild("PerkConfig"))
 local PointsSystem = require(ModuleScriptServerScriptService:WaitForChild("PointsModule"))
 
+local purchasePerkRF = RemoteFunctions:WaitForChild("PurchasePerk")
+local perkUpdateEvent = RemoteEvents:WaitForChild("PerkUpdate")
+local openPerkShopEvent = RemoteEvents:WaitForChild("OpenPerkShop")
+local requestOpenPerkShopEvent = RemoteEvents:WaitForChild("RequestOpenPerkShop")
+
 local PerkCosts = {
 	HPPlus = 3000,
 	StaminaPlus = 3000,
@@ -22,11 +27,6 @@ local PerkCosts = {
 	RevivePlus = 3000,
 	RateBoost = 3000
 }
-
-local purchasePerkRF = RemoteFunctions:WaitForChild("PurchasePerk")
-local perkUpdateEvent = RemoteEvents:WaitForChild("PerkUpdate")
-local openPerkShopEvent = RemoteEvents:WaitForChild("OpenPerkShop")
-local requestOpenPerkShopEvent = RemoteEvents:WaitForChild("RequestOpenPerkShop")
 
 local function isPlayerNearPerkMachine(player)
 	local perkPart = workspace:FindFirstChild("Perks")
