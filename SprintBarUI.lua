@@ -519,8 +519,7 @@ local function refreshSprintButtonStyle()
 end
 
 -- === Logika Sprint ===
--- Rebind saat karakter respawn supaya referensi Humanoid dan state reset aman
-player.CharacterAdded:Connect(function(char)
+local function onCharacterAdded(char)
 	-- ambil humanoid baru
 	humanoid = char:WaitForChild("Humanoid")
 	-- reset state sprint lokal (biar tidak nyangkut)
@@ -538,13 +537,22 @@ player.CharacterAdded:Connect(function(char)
 	humanoid.StateChanged:Connect(function(oldState, newState)
 		if newState == Enum.HumanoidStateType.Jumping then
 			if stamina >= MIN_TO_JUMP then
+				print("Jump detected on client, reducing stamina and firing server event!")
 				stamina = math.max(0, stamina - JUMP_STAMINA_COST)
 				pcall(function() jumpEvent:FireServer() end)
 				updateBar() -- Perbarui UI segera
 			end
 		end
 	end)
-end)
+end
+
+-- Rebind saat karakter respawn supaya referensi Humanoid dan state reset aman
+player.CharacterAdded:Connect(onCharacterAdded)
+
+-- Tangani kasus di mana karakter sudah ada saat skrip berjalan (penting untuk Studio)
+if player.Character then
+	onCharacterAdded(player.Character)
+end
 
 local function ensureHumanoid()
 	if not player.Character then return end
