@@ -18,6 +18,8 @@ local ReloadEvent = RemoteEvents:WaitForChild("ReloadEvent")
 local AmmoUpdateEvent = RemoteEvents:WaitForChild("AmmoUpdateEvent")
 local HitmarkerEvent = RemoteEvents:WaitForChild("HitmarkerEvent")
 local BulletholeEvent = RemoteEvents:WaitForChild("BulletholeEvent")
+local DamageDisplayEvent = ReplicatedStorage.RemoteEvents:FindFirstChild("DamageDisplayEvent") or Instance.new("RemoteEvent", ReplicatedStorage.RemoteEvents)
+DamageDisplayEvent.Name = "DamageDisplayEvent"
 
 -- Anti-spam tembak: catat waktu tembak terakhir per-player per-senjata
 local lastFireTime = {}
@@ -199,6 +201,9 @@ ShootEvent.OnServerEvent:Connect(function(player, tool, hitPosition, isAiming)
 						finalDamage = ElementModule.OnPlayerHit(player, hitModel, damage) or damage
 					end
 					targetHumanoid:TakeDamage(finalDamage)
+					if finalDamage > 0 and hitModel:FindFirstChild("IsZombie") then
+						DamageDisplayEvent:FireAllClients(finalDamage, hitModel, isHeadshotPellet)
+					end
 					local creatorTag = hitModel:FindFirstChild("creator")
 					if not creatorTag then
 						creatorTag = Instance.new("ObjectValue")
@@ -282,7 +287,9 @@ ShootEvent.OnServerEvent:Connect(function(player, tool, hitPosition, isAiming)
 					end
 				end
 				targetHumanoid:TakeDamage(finalDamage)
-
+				if finalDamage > 0 and hitModel:FindFirstChild("IsZombie") then
+					DamageDisplayEvent:FireAllClients(finalDamage, hitModel, isHeadshot)
+				end
 				local creatorTag = hitModel:FindFirstChild("creator")
 				if not creatorTag then
 					creatorTag = Instance.new("ObjectValue")
