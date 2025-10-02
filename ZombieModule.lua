@@ -29,6 +29,40 @@ local GameOverEvent = RemoteEvents:WaitForChild("GameOverEvent")
 
 local ZombieDiedEvent = BindableEvents:WaitForChild("ZombieDiedEvent")
 
+-- Helper function for a "hard wipe" mechanic used by bosses on timeout.
+local function _executeHardWipe(zombie, humanoid)
+	local bossPos = (zombie.PrimaryPart and zombie.PrimaryPart.Position) or zombie:GetModelCFrame().p
+
+	-- Make the boss immune and freeze them to signify the start of the wipe.
+	zombie:SetAttribute("Immune", true)
+	zombie:SetAttribute("MechanicFreeze", true) -- Prevent anti-stuck from interfering
+	if humanoid then
+		humanoid.WalkSpeed = 0
+		humanoid.AutoRotate = false
+	end
+	zombie:SetAttribute("AttackRange", 0)
+
+	-- Play a generic, intense VFX to warn players.
+	-- We reuse Boss2's timeout VFX as it's suitable for a general wipe.
+	Boss2VFXModule.PlayTimeoutVFX(bossPos)
+
+	-- A short delay to let the VFX play out before the wipe.
+	task.wait(3)
+
+	-- Kill all players in the game.
+	for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
+		local h = plr.Character and plr.Character:FindFirstChildOfClass("Humanoid")
+		if h then
+			h.Health = 0
+		end
+	end
+
+	-- Stop the boss from moving permanently after the wipe.
+	if humanoid then
+		humanoid.WalkSpeed = 0
+	end
+end
+
 function ZombieModule.SpawnZombie(spawnPoint, typeName, playerCount)
 	-- choose template:
 	typeName = typeName or "Base"
@@ -123,26 +157,8 @@ function ZombieModule.SpawnZombie(spawnPoint, typeName, playerCount)
 					BossTimerEvent:FireAllClients(remaining, specialTimeout)
 				end
 				if remaining <= 0 then
-					-- Wipe out: hentikan boss, mainkan VFX, lalu bunuh semua pemain
-					local bossPos = (zombie.PrimaryPart and zombie.PrimaryPart.Position) or zombie:GetModelCFrame().p
-
-					-- Freeze boss
-					if humanoid then
-						humanoid.WalkSpeed = 0
-						humanoid.AutoRotate = false
-					end
-					zombie:SetAttribute("AttackRange", 0)
-
-					-- Pakai VFX timeout milik Boss2 (reuse)
-					Boss2VFXModule.PlayTimeoutVFX(bossPos)
-
-					-- Delay sedikit supaya VFX terlihat
-					task.wait(3)
-
-					for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
-						local h = plr.Character and plr.Character:FindFirstChildOfClass("Humanoid")
-						if h then h.Health = 0 end
-					end
+					-- WIPE OUT using the new helper function.
+					_executeHardWipe(zombie, humanoid)
 					break
 				end
 				task.wait(1)
@@ -615,30 +631,8 @@ function ZombieModule.SpawnZombie(spawnPoint, typeName, playerCount)
 				local remaining = math.max(0, specialTimeout - (tick() - bossStartTime))
 				BossTimerEvent:FireAllClients(remaining, specialTimeout)
 				if remaining <= 0 then
-					-- WIPE OUT dengan special timeout VFX
-					local bossPos = (zombie.PrimaryPart and zombie.PrimaryPart.Position) or zombie:GetModelCFrame().p
-					zombie:SetAttribute("Immune", true) -- [NEW] Boss menjadi immune
-					-- [FREEZE BOSS SAAT TIMEOUT]
-					local oldWS = humanoid and humanoid.WalkSpeed
-					local oldAutoRotate = humanoid and humanoid.AutoRotate
-					local oldAttackRange = zombie:GetAttribute("AttackRange")
-
-					if humanoid then
-						humanoid.WalkSpeed = 0          -- hentikan pergerakan
-						humanoid.AutoRotate = false     -- hentikan rotasi/aim
-					end
-					zombie:SetAttribute("AttackRange", 0) -- cegah trigger serangan jarak dekat
-
-					-- Mainkan VFX timeout khusus
-					Boss2VFXModule.PlayTimeoutVFX(bossPos)
-
-					-- Tunggu 3 detik untuk VFX sebelum membunuh pemain
-					task.wait(3)
-
-					for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
-						local h = plr.Character and plr.Character:FindFirstChildOfClass("Humanoid")
-						if h then h.Health = 0 end
-					end
+					-- WIPE OUT using the new helper function.
+					_executeHardWipe(zombie, humanoid)
 					break
 				end
 				task.wait(1)
@@ -902,7 +896,7 @@ function ZombieModule.SpawnZombie(spawnPoint, typeName, playerCount)
 		-- Send initial timer to all clients
 		BossTimerEvent:FireAllClients(specialTimeout, specialTimeout)
 
-		-- Update timer every second
+		-- Update timer every second and trigger wipe on timeout.
 		spawn(function()
 			while zombie.Parent and humanoid and humanoid.Health > 0 do
 				local elapsed = tick() - bossStartTime
@@ -910,6 +904,8 @@ function ZombieModule.SpawnZombie(spawnPoint, typeName, playerCount)
 				BossTimerEvent:FireAllClients(remaining, specialTimeout)
 
 				if remaining <= 0 then
+					-- WIPE OUT using the new helper function.
+					_executeHardWipe(zombie, humanoid)
 					break
 				end
 
@@ -917,7 +913,6 @@ function ZombieModule.SpawnZombie(spawnPoint, typeName, playerCount)
 			end
 		end)
 
-		-- Boss poison skill
 		-- Boss radiation damage (kolom sempit, vertikal besar)
 		spawn(function()
 			local rconf = ZombieConfig.Types.Boss.Radiation
@@ -932,7 +927,7 @@ function ZombieModule.SpawnZombie(spawnPoint, typeName, playerCount)
 					local char = plr.Character
 					if char and not ElementModule.IsPlayerInvincible(plr) then
 						local hum = char:FindFirstChildOfClass("Humanoid")
-						local hrp = char:FindFirstChild("HumanoidRootRootPart")
+						local hrp = char:FindFirstChild("HumanoidRootPart")
 						if hum and hum.Health > 0 and hrp then
 							-- hitung jarak horizontal (XZ) & beda tinggi (Y)
 							local dxz = (Vector2.new(hrp.Position.X, hrp.Position.Z) - Vector2.new(bossPos.X, bossPos.Z)).Magnitude
@@ -951,6 +946,8 @@ function ZombieModule.SpawnZombie(spawnPoint, typeName, playerCount)
 				task.wait(tickTime)
 			end
 		end)
+
+		-- Boss poison skill (only initial attacks, timeout is handled above)
 		spawn(function()
 			local pconf = ZombieConfig.Types.Boss.Poison
 
@@ -1012,120 +1009,6 @@ function ZombieModule.SpawnZombie(spawnPoint, typeName, playerCount)
 					task.wait(pconf.Interval or 60)
 				end
 			end
-
-			-- set special timeout: if boss alive after SpecialTimeout => special poison
-			local startTick = tick()
-			-- NOTE: gunakan bossStartTime (bukan startTick) agar sinkron dengan timer UI
-			while zombie.Parent and humanoid and humanoid.Health > 0 do
-				if tick() - bossStartTime >= (pconf.SpecialTimeout or 300) then
-					-- Create special poison VFX
-					BossVFXModule.CreateBossPoisonEffect(zombie.PrimaryPart.Position, true)
-
-					-- DELAY 5 detik sebelum efek spesial mengenai pemain, dan hentikan boss sementara
-					local delaySeconds = 5
-
-					-- Simpan state gerak boss, lalu hentikan selama delay
-					local oldWS = humanoid and humanoid.WalkSpeed or nil
-					local oldAutoRotate = humanoid and humanoid.AutoRotate or nil
-					if humanoid then
-						humanoid.WalkSpeed = 0
-						humanoid.AutoRotate = false
-					end
-
-					-- Kembalikan gerak boss setelah delay
-					task.delay(delaySeconds, function()
-						if humanoid then
-							if oldWS then humanoid.WalkSpeed = oldWS end
-							if oldAutoRotate ~= nil then humanoid.AutoRotate = oldAutoRotate end
-						end
-					end)
-
-					-- TUNGGU 5 detik sebelum efek ke pemain
-					task.wait(delaySeconds)
-
-					-- BARU: Terapkan efek spesial poison ke semua pemain setelah delay
-					for _, plr in pairs(game.Players:GetPlayers()) do
-						task.spawn(function()
-							if plr.Character and not ElementModule.IsPlayerInvincible(plr) then
-								BossVFXModule.ApplyPlayerPoisonEffect(plr.Character, true, pconf.SpecialDuration)
-								local h = plr.Character:FindFirstChildOfClass("Humanoid")
-								if h and h.Health > 0 then
-									-- Bekukan pemain selama efek spesial aktif
-									h.WalkSpeed = 0
-									h.JumpPower = 0
-									h.PlatformStand = true
-
-									-- Damage bertahap (sama seperti sebelumnya)
-									local totalDuration = pconf.SpecialDuration or 10
-									local tickSize = pconf.SpecialTick or 0.5
-									local ticks = math.max(1, math.floor(totalDuration / tickSize))
-									local totalDamage = h.MaxHealth
-									local dmgPerTick = totalDamage / ticks
-
-									for i = 1, ticks do
-										if not plr.Character or h.Health <= 0 then break end
-										if not ElementModule.IsPlayerInvincible(plr) then
-											local dmg = ElementModule.ApplyDamageReduction(plr, dmgPerTick)
-											h:TakeDamage(dmg)
-										end
-										task.wait(tickSize)
-									end
-
-									-- Pulihkan kontrol jika masih hidup
-									if h and h.Health > 0 then
-										h.PlatformStand = false
-									end
-								end
-							end
-						end)
-					end
-
-					-- Tunggu sampai semua player mati/knock sebelum Game Over
-					spawn(function()
-						local Players = game:GetService("Players")
-						local function allPlayersDown()
-							for _, plr in ipairs(Players:GetPlayers()) do
-								local char = plr.Character
-								if char then
-									local h = char:FindFirstChildOfClass("Humanoid")
-									local knocked = char:FindFirstChild("Knocked")
-									-- Jika masih ada yang hidup dan tidak knock, belum game over
-									if h and h.Health > 0 and not knocked then
-										return false
-									end
-								end
-							end
-							return true
-						end
-
-						-- Polling ringan sampai semua down
-						while zombie.Parent and humanoid and humanoid.Health > 0 do
-							if allPlayersDown() then
-								-- Baru kirim Game Over ke klien
-								if GameOverEvent then
-									GameOverEvent:FireAllClients()
-								end
-
-								-- (Opsional) Sinkronkan pembersihan UI Knock setelah Game Over
-								local KnockEvent = ReplicatedStorage.RemoteEvents:FindFirstChild("KnockEvent")
-								local ReviveProgressEvent = ReplicatedStorage.RemoteEvents:FindFirstChild("ReviveProgressEvent")
-								for _, plr in ipairs(Players:GetPlayers()) do
-									if plr.Character then
-										local tag = plr.Character:FindFirstChild("Knocked")
-										if tag then tag:Destroy() end
-										if KnockEvent then KnockEvent:FireClient(plr, false) end
-										if ReviveProgressEvent then ReviveProgressEvent:FireClient(plr, 0, true, 0) end
-									end
-								end
-								break
-							end
-							task.wait(0.5)
-						end
-					end)
-				end
-				task.wait(0.2)
-			end
-
 		end)
 	end
 
