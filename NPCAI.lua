@@ -1,5 +1,5 @@
 -- NPCAI.lua (Script)
--- PENTING: Skrip ini harus ditempatkan di dalam model "AllyNPC" di ServerStorage.
+-- Path: ServerStorage/AllyNPC/NPCAI.lua
 
 local npc = script.Parent
 local humanoid = npc:WaitForChild("Humanoid")
