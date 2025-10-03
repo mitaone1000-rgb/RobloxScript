@@ -1,5 +1,5 @@
--- LoadingScript.lua (LocalScript)
--- ReplicatedFirst/LoadingScript.lua
+-- LoadingUI.lua (LocalScript)
+-- ReplicatedFirst/LoadingUI.lua
 
 --// Services
 local Players = game:GetService("Players")
