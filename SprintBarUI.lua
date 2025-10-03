@@ -186,13 +186,6 @@ highlight.BackgroundTransparency = 0.7
 highlight.BorderSizePixel = 0
 highlight.Parent = fill
 
--- Animated particles effect for fill
-local particles = Instance.new("Frame")
-particles.Name = "Particles"
-particles.BackgroundTransparency = 1
-particles.Size = UDim2.new(1, 0, 1, 0)
-particles.Parent = fill
-
 -- Ticks (penanda 25/50/75%)
 local tickContainer = Instance.new("Frame")
 tickContainer.Name = "Ticks"
@@ -235,27 +228,6 @@ percentLabel.Parent = track
 local activeTween; local colorTween; local shakeConn; local particleConn
 local LOW_THRESHOLD = 0.2   -- 20%
 local LAST_WARN = 0
-
--- Function to create particle effect
-local function createParticle()
-	local particle = Instance.new("Frame")
-	particle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	particle.BorderSizePixel = 0
-	particle.Size = UDim2.new(0, math.random(2, 4), 0, math.random(2, 4))
-	particle.Position = UDim2.new(math.random(), 0, math.random(), 0)
-	particle.AnchorPoint = Vector2.new(0.5, 0.5)
-	particle.Parent = particles
-
-	local corner = Instance.new("UICorner", particle)
-	corner.CornerRadius = UDim.new(1, 0)
-
-	TweenService:Create(particle, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-		Position = UDim2.new(math.random(), 0, -0.2, 0),
-		BackgroundTransparency = 1
-	}):Play()
-
-	game.Debris:AddItem(particle, 0.5)
-end
 
 local function colorForPct(p)
 	-- lerp: merah (<=20%) -> kuning (50%) -> hijau (>=80%)
@@ -335,15 +307,6 @@ local function tweenToPct(pct)
 			-- pulse panel stroke
 			panelStroke.Color = Color3.fromRGB(255, 90, 90)
 			TweenService:Create(panelStroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(60, 60, 80)}):Play()
-
-			-- Add particle effect when low
-			if not particleConn then
-				particleConn = RunService.Heartbeat:Connect(function()
-					if math.random() < 0.3 then
-						createParticle()
-					end
-				end)
-			end
 		end
 		shakeWarning(true)
 	else
