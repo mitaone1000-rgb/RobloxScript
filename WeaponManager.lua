@@ -199,6 +199,13 @@ ShootEvent.OnServerEvent:Connect(function(player, tool, hitPosition, isAiming)
 					local finalDamage = damage
 					if hitModel:FindFirstChild("IsZombie") then
 						finalDamage = ElementModule.OnPlayerHit(player, hitModel, damage) or damage
+						-- TAMBAHKAN BLOK INI untuk memeriksa imunitas dan DR
+						if immune then
+							finalDamage = 0
+						else
+							local dr = hitModel:GetAttribute("DamageReductionPct") or 0
+							finalDamage = finalDamage * (1 - math.clamp(dr, 0, 0.95))
+						end					
 					end
 					targetHumanoid:TakeDamage(finalDamage)
 					if finalDamage > 0 and hitModel:FindFirstChild("IsZombie") then
