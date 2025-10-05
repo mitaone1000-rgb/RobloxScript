@@ -1024,7 +1024,7 @@ function ZombieModule.SpawnZombie(spawnPoint, typeName, playerCount)
 		-- Variables to track the current path and target's position
 		local currentWaypoints = {}
 		local currentWaypointIndex = 1
-		local lastTargetPosition = Vector3.new() 
+		local lastTargetPosition = Vector3.new()
 
 		-- Cooldowns to manage behavior frequency
 		local attackCooldown = (cfg and cfg.AttackCooldown) or ZombieConfig.BaseZombie.AttackCooldown or 1.5
@@ -1086,52 +1086,58 @@ function ZombieModule.SpawnZombie(spawnPoint, typeName, playerCount)
 				continue -- Do not proceed to movement logic this cycle
 			end
 
-			-- 2. PATHFINDING LOGIC: If out of attack range, decide if a new path is needed.
-			local needsNewPath = false
-			-- Reason a) Target has moved a significant distance since last path calculation
-			if (targetPos - lastTargetPosition).Magnitude > 10 then
-				needsNewPath = true
-				-- Reason b) We don't have a path, or we've reached the end of our current one
-			elseif not currentWaypoints or currentWaypointIndex >= #currentWaypoints then
-				needsNewPath = true
-				-- Reason c) Check if we've arrived at the current waypoint to advance the index
-			else
-				local nextWaypointPos = currentWaypoints[currentWaypointIndex].Position
-				if (Vector2.new(nextWaypointPos.X, nextWaypointPos.Z) - Vector2.new(currentPos.X, currentPos.Z)).Magnitude < 4 then
-					-- We are close enough to the waypoint, so advance to the next one
-					currentWaypointIndex += 1
-				end
-			end
-
-			if needsNewPath then
-				local success, err = pcall(function()
-					path:ComputeAsync(currentPos, targetPos)
-				end)
-
-				if success and path.Status == Enum.PathStatus.Success and #path:GetWaypoints() > 1 then
-					currentWaypoints = path:GetWaypoints()
-					currentWaypointIndex = 2 -- Start with the second waypoint (first is current location)
-					lastTargetPosition = targetPos -- Update last known target position
-				else
-					-- Path failed, clear old path and attempt to move directly as a fallback
-					currentWaypoints = {}
-					humanoid:MoveTo(targetPos)
-					continue
-				end
-			end
-
-			-- 3. MOVEMENT EXECUTION: Follow the current path.
-			if currentWaypoints and currentWaypoints[currentWaypointIndex] then
-				local waypoint = currentWaypoints[currentWaypointIndex]
-				humanoid:MoveTo(waypoint.Position)
-
-				-- If the path requires a jump, make the humanoid jump
-				if waypoint.Action == Enum.PathWaypointAction.Jump then
-					humanoid.Jump = true
-				end
-			else
-				-- Fallback if something is wrong with the path
+			-- 2. MOVEMENT LOGIC: Diverge based on whether it's a boss
+			if zombie:FindFirstChild("IsBoss") then
+				-- BOSS MOVEMENT: Simple, direct chase.
 				humanoid:MoveTo(targetPos)
+			else
+				-- NON-BOSS MOVEMENT: Use existing pathfinding.
+				local needsNewPath = false
+				-- Reason a) Target has moved a significant distance since last path calculation
+				if (targetPos - lastTargetPosition).Magnitude > 10 then
+					needsNewPath = true
+				-- Reason b) We don't have a path, or we've reached the end of our current one
+				elseif not currentWaypoints or currentWaypointIndex >= #currentWaypoints then
+					needsNewPath = true
+				-- Reason c) Check if we've arrived at the current waypoint to advance the index
+				else
+					local nextWaypointPos = currentWaypoints[currentWaypointIndex].Position
+					if (Vector2.new(nextWaypointPos.X, nextWaypointPos.Z) - Vector2.new(currentPos.X, currentPos.Z)).Magnitude < 4 then
+						-- We are close enough to the waypoint, so advance to the next one
+						currentWaypointIndex += 1
+					end
+				end
+
+				if needsNewPath then
+					local success, err = pcall(function()
+						path:ComputeAsync(currentPos, targetPos)
+					end)
+
+					if success and path.Status == Enum.PathStatus.Success and #path:GetWaypoints() > 1 then
+						currentWaypoints = path:GetWaypoints()
+						currentWaypointIndex = 2 -- Start with the second waypoint (first is current location)
+						lastTargetPosition = targetPos -- Update last known target position
+					else
+						-- Path failed, clear old path and attempt to move directly as a fallback
+						currentWaypoints = {}
+						humanoid:MoveTo(targetPos)
+						continue -- Skip to the next iteration
+					end
+				end
+
+				-- 3. MOVEMENT EXECUTION: Follow the current path.
+				if currentWaypoints and currentWaypoints[currentWaypointIndex] then
+					local waypoint = currentWaypoints[currentWaypointIndex]
+					humanoid:MoveTo(waypoint.Position)
+
+					-- If the path requires a jump, make the humanoid jump
+					if waypoint.Action == Enum.PathWaypointAction.Jump then
+						humanoid.Jump = true
+					end
+				else
+					-- Fallback if something is wrong with the path
+					humanoid:MoveTo(targetPos)
+				end
 			end
 		end
 	end)
