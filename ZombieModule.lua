@@ -8,6 +8,7 @@ local Debris = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local ServerScriptService = game:GetService("ServerScriptService")
+local PathfindingService = game:GetService("PathfindingService")
 
 local RemoteEvents = game.ReplicatedStorage.RemoteEvents
 local RemoteFunctions = ReplicatedStorage.RemoteFunctions
@@ -1012,41 +1013,126 @@ function ZombieModule.SpawnZombie(spawnPoint, typeName, playerCount)
 		end)
 	end
 
-	-- chase loop (existing)
+	-- [[ REVISED ZOMBIE CHASE AND PATHFINDING LOOP ]]
 	spawn(function()
-		-- NEW: Anti-stuck state
-		local lastPos = zombie.PrimaryPart and zombie.PrimaryPart.Position or nil
-		local lastMoveTime = tick()
-		local stuckCooldown = 0
+		local path = PathfindingService:CreatePath({
+			AgentRadius = 3,
+			AgentHeight = 6,
+			AgentCanJump = true
+		})
+
+		-- Variables to track the current path and target's position
+		local currentWaypoints = {}
+		local currentWaypointIndex = 1
+		local lastTargetPosition = Vector3.new() 
+
+		-- Cooldowns to manage behavior frequency
+		local attackCooldown = (cfg and cfg.AttackCooldown) or ZombieConfig.BaseZombie.AttackCooldown or 1.5
+		local lastAttackTime = 0
+
 		while zombie.Parent and humanoid and humanoid.Health > 0 do
-			local target = ZombieModule.GetNearestPlayer(zombie)
-			if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-				ZombieModule.Chase(zombie, target)
-				-- Anti-stuck: cek apakah zombie bergerak
-				if zombie.PrimaryPart then
-					local currentPos = zombie.PrimaryPart.Position
-					if lastPos then
-						local movedDist = (currentPos - lastPos).Magnitude
-						if movedDist < 0.5 then
-							-- Zombie stuck, sudah tidak bergerak cukup jauh
-							if tick() - lastMoveTime > 2 and stuckCooldown <= 0 then
-								-- Teleport sedikit ke arah target
-								local targetPos = target.Character.HumanoidRootPart.Position
-								local direction = (targetPos - currentPos).Unit
-								local offset = direction * 2
-								local newPos = currentPos + offset
-								zombie:SetPrimaryPartCFrame(CFrame.new(newPos))
-								stuckCooldown = 2 -- cooldown agar tidak spam teleport
-							end
-						else
-							lastMoveTime = tick()
-							stuckCooldown = math.max(0, stuckCooldown - 0.1)
-						end
-					end
-					lastPos = currentPos
+			task.wait(0.2) -- The main logic loop runs 5 times per second
+
+			-- Handle special states like being stunned or frozen by a mechanic
+			if zombie:GetAttribute("MechanicFreeze") or zombie:GetAttribute("Stunned") then
+				if humanoid.WalkSpeed > 0 then humanoid.WalkSpeed = 0 end
+				continue -- Skip all logic below
+			else
+				-- Restore speed if it was zeroed out by a mechanic or an attack
+				if humanoid.WalkSpeed == 0 and not zombie:GetAttribute("Attacking") then
+					humanoid.WalkSpeed = cfg.WalkSpeed or 16
 				end
 			end
-			task.wait(0.1)
+
+			-- Find the nearest player
+			local target = ZombieModule.GetNearestPlayer(zombie)
+			if not target or not target.Character or not target.Character.PrimaryPart then
+				continue -- No target, wait for the next cycle
+			end
+
+			local currentPos = zombie.PrimaryPart.Position
+			local targetPos = target.Character.PrimaryPart.Position
+			local distanceToTarget = (targetPos - currentPos).Magnitude
+			local attackRange = zombie:GetAttribute("AttackRange") or 4
+
+			-- 1. ATTACK LOGIC: Highest priority. If in range, attack.
+			if distanceToTarget <= attackRange then
+				-- Clear any existing path since we've reached the target
+				currentWaypoints = {}
+
+				-- Check attack cooldown
+				if tick() - lastAttackTime > attackCooldown then
+					lastAttackTime = tick()
+					zombie:SetAttribute("Attacking", true)
+					humanoid.WalkSpeed = 0 -- Stop moving to attack
+
+					-- Face the target for the attack
+					zombie:SetPrimaryPartCFrame(CFrame.new(currentPos, Vector3.new(targetPos.X, currentPos.Y, targetPos.Z)))
+
+					-- Perform the attack damage in a separate thread
+					task.spawn(function()
+						local playerHumanoid = target.Character:FindFirstChildOfClass("Humanoid")
+						if playerHumanoid and not target.Character:FindFirstChild("Knocked") and not ElementModule.IsPlayerInvincible(target) then
+							local damage = (cfg and cfg.AttackDamage) or ZombieConfig.BaseZombie.AttackDamage
+							damage = ElementModule.ApplyDamageReduction(target, damage)
+							playerHumanoid:TakeDamage(damage)
+						end
+
+						-- Brief delay after attacking before moving again
+						task.wait(0.5) 
+						zombie:SetAttribute("Attacking", false)
+					end)
+				end
+				continue -- Do not proceed to movement logic this cycle
+			end
+
+			-- 2. PATHFINDING LOGIC: If out of attack range, decide if a new path is needed.
+			local needsNewPath = false
+			-- Reason a) Target has moved a significant distance since last path calculation
+			if (targetPos - lastTargetPosition).Magnitude > 10 then
+				needsNewPath = true
+				-- Reason b) We don't have a path, or we've reached the end of our current one
+			elseif not currentWaypoints or currentWaypointIndex >= #currentWaypoints then
+				needsNewPath = true
+				-- Reason c) Check if we've arrived at the current waypoint to advance the index
+			else
+				local nextWaypointPos = currentWaypoints[currentWaypointIndex].Position
+				if (Vector2.new(nextWaypointPos.X, nextWaypointPos.Z) - Vector2.new(currentPos.X, currentPos.Z)).Magnitude < 4 then
+					-- We are close enough to the waypoint, so advance to the next one
+					currentWaypointIndex += 1
+				end
+			end
+
+			if needsNewPath then
+				local success, err = pcall(function()
+					path:ComputeAsync(currentPos, targetPos)
+				end)
+
+				if success and path.Status == Enum.PathStatus.Success and #path:GetWaypoints() > 1 then
+					currentWaypoints = path:GetWaypoints()
+					currentWaypointIndex = 2 -- Start with the second waypoint (first is current location)
+					lastTargetPosition = targetPos -- Update last known target position
+				else
+					-- Path failed, clear old path and attempt to move directly as a fallback
+					currentWaypoints = {}
+					humanoid:MoveTo(targetPos)
+					continue
+				end
+			end
+
+			-- 3. MOVEMENT EXECUTION: Follow the current path.
+			if currentWaypoints and currentWaypoints[currentWaypointIndex] then
+				local waypoint = currentWaypoints[currentWaypointIndex]
+				humanoid:MoveTo(waypoint.Position)
+
+				-- If the path requires a jump, make the humanoid jump
+				if waypoint.Action == Enum.PathWaypointAction.Jump then
+					humanoid.Jump = true
+				end
+			else
+				-- Fallback if something is wrong with the path
+				humanoid:MoveTo(targetPos)
+			end
 		end
 	end)
 
@@ -1099,57 +1185,5 @@ function ZombieModule.GetNearestPlayer(zombie)
 	end
 	return closestPlayer
 end
-
-function ZombieModule.Chase(zombie, player)
-	local humanoid = zombie:FindFirstChild("Humanoid")
-	if not humanoid then return end
-	if not player.Character then return end
-
-	local targetPos = player.Character.HumanoidRootPart.Position
-	-- MoveTo anti-stuck: gunakan MoveToFinished dengan timeout
-	local moveFinished = false
-	local function onMoveToFinished(reached)
-		moveFinished = true
-	end
-	humanoid.MoveToFinished:Connect(onMoveToFinished)
-	humanoid:MoveTo(targetPos)
-
-	local origin = zombie.PrimaryPart.Position
-	local dist = (targetPos - origin).Magnitude
-
-	-- NEW: Use AttackRange attribute instead of fixed value
-	local attackRange = zombie:GetAttribute("AttackRange") or 4
-
-	if dist < attackRange then
-		if not zombie:GetAttribute("Attacking") then
-			zombie:SetAttribute("Attacking", true)
-			task.spawn(function()
-				local playerHumanoid = player.Character:FindFirstChild("Humanoid")
-				if playerHumanoid and not player.Character:FindFirstChild("Knocked") then
-					if not ElementModule.IsPlayerInvincible(player) then
-						local damage = ZombieConfig.BaseZombie.AttackDamage
-						-- Apply Earth element damage reduction
-						damage = ElementModule.ApplyDamageReduction(player, damage)
-						playerHumanoid:TakeDamage(damage)
-					end
-				end
-				task.wait(ZombieConfig.BaseZombie.AttackCooldown)
-				zombie:SetAttribute("Attacking", false)
-			end)
-		end
-	end
-
-	-- Fallback: jika MoveTo tidak selesai dalam 1.5 detik, coba offset
-	local startTick = tick()
-	while not moveFinished and tick() - startTick < 1.5 do
-		task.wait(0.05)
-	end
-	if not moveFinished then
-		-- MoveTo gagal, coba offset ke samping
-		local offsetVec = Vector3.new(math.random(-2,2), 0, math.random(-2,2))
-		humanoid:MoveTo(targetPos + offsetVec)
-	end
-end
-
 
 return ZombieModule
