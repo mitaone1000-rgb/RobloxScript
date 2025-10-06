@@ -293,6 +293,4 @@ end
 player.CharacterAdded:Connect(onCharacterAdded)
 if player.Character then
 	onCharacterAdded(player.Character)
-
 end
-
