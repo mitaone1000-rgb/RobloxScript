@@ -1,5 +1,6 @@
 -- Boss3VFXModule.lua (ModuleScript)
 -- Path: ReplicatedStorage/ZombieVFX/Boss3VFXModule.lua
+-- Script Place: ACT 1: Village
 
 local Boss3VFXModule = {}
 
@@ -1502,5 +1503,6 @@ function Boss3VFXModule.CleanupGraspingSoul(soul)
 		Debris:AddItem(soul, 0.4)
 	end
 end
+
 
 return Boss3VFXModule
