@@ -457,5 +457,4 @@ local function init()
 	localPlayer.CharacterAdded:Connect(onCharacterAdded)
 end
 
-
 init()
