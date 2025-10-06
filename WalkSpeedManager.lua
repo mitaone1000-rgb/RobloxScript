@@ -75,5 +75,4 @@ RunService.Heartbeat:Connect(function()
 	for _, player in ipairs(Players:GetPlayers()) do
 		updatePlayerSpeed(player)
 	end
-
 end)
