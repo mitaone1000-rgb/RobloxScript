@@ -22,4 +22,3 @@ TracerEvent.OnServerEvent:Connect(function(player, startPos, endPos, weaponName)
 	-- Broadcast ke semua client untuk render tracer di sisi client
 	TracerBroadcast:FireAllClients(player, startPos, endPos, weaponName)
 end)
-
