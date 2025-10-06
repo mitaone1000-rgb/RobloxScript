@@ -10,7 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 
-local PlaceData = require(script.Parent.ModuleScript.PlaceData)
+local PlaceData = require(script.Parent.Parent.ModuleScript.PlaceDataConfig)
 
 --==============================================================================
 --// NETWORKING
