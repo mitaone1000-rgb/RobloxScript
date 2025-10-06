@@ -1,5 +1,6 @@
 -- ChromaticRequiemClient.lua (LocalScript)
 -- Path: StarterPlayer/StarterPlayerScripts/ChromaticRequiemClient.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -98,5 +99,6 @@ local function onEvent(command, data, boss)
 		end
 	end
 end
+
 
 uiEvent.OnClientEvent:Connect(onEvent)
