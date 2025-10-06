@@ -1,5 +1,6 @@
 -- RandomWeaponConfig.lua (ModuleScript)
 -- Path: ServerScriptService/ModuleScript/RandomWeaponConfig.lua
+-- Script Place: ACT 1: Village
 
 local RandomWeaponConfig = {}
 
@@ -27,5 +28,6 @@ RandomWeaponConfig.AvailableWeapons = {
 	"PKP",
 	"M249"
 }
+
 
 return RandomWeaponConfig
