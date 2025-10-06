@@ -1,5 +1,6 @@
 -- WeaponManager.lua (Script)
 -- Path: ServerScriptService/Script/WeaponManager.lua
+-- Script Place: ACT 1: Village
 
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
