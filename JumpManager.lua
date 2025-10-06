@@ -1,5 +1,6 @@
 -- JumpManager.lua (Script) 
 -- Path: ServerScriptService/Script/JumpManager.lua
+-- Script Place: ACT 1: Village
 
 local Players = game:GetService("Players")
 
@@ -40,3 +41,4 @@ for _, player in ipairs(Players:GetPlayers()) do
 		onPlayerAdded(player)
 	end)
 end
+
