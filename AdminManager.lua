@@ -7,7 +7,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Players = game:GetService("Players")
 
 -- Memuat modul yang diperlukan
-local LevelManager = require(ServerScriptService.ModuleScript:WaitForChild("LevelManager"))
+local LevelManager = require(ServerScriptService.ModuleScript:WaitForChild("LevelModule"))
 local AdminConfig = require(ServerScriptService.ModuleScript:WaitForChild("AdminConfig"))
 
 -- Membuat folder untuk event admin jika belum ada
