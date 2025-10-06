@@ -231,5 +231,4 @@ end)
 exitBtn.MouseButton1Click:Connect(function()
 	hideGameOver()
 	ExitGameEvent:FireServer()
-
 end)
