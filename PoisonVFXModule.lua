@@ -1,5 +1,6 @@
 -- PoisonVFXModule.lua (ModuleScript)
 -- Path: ReplicatedStorage/ElementVFX/PoisonVFXModule.lua
+-- Script Place: ACT 1: Village
 
 local PoisonVFX = {}
 
@@ -329,3 +330,4 @@ function PoisonVFX.PlaySound(part: BasePart)
 end
 
 return PoisonVFX
+
