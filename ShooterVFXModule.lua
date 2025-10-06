@@ -1,5 +1,6 @@
 -- ShooterVFXModule.lua (ModuleScript)
 -- Path: ReplicatedStorage/ZombieVFX/ShooterVFXModule.lua
+-- Script Place: ACT 1: Village
 
 local ShooterVFXModule = {}
 
@@ -183,5 +184,6 @@ function ShooterVFXModule.ShootAcidProjectile(fromPos, targetPos, speed, shooter
 	end)
 	Debris:AddItem(proj, 6)
 end
+
 
 return ShooterVFXModule
