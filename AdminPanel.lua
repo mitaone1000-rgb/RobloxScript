@@ -1,5 +1,6 @@
 -- AdminPanel.lua (LocalScript)
 -- Path: StarterGui/AdminPanel.lua
+-- Script Place: Lobby
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
