@@ -1,5 +1,6 @@
 -- WeaponModule.lua (ModuleScript)
 -- Path: ReplicatedStorage/ModuleScript/WeaponModule.lua
+-- Script Place: ACT 1: Village
 
 local WeaponModule = {}
 
@@ -1186,5 +1187,6 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	}
 }
+
 
 return WeaponModule
