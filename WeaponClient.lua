@@ -1,5 +1,6 @@
 -- WeaponClient.lua (LocalScript)
 -- Path: StarterPlayer/StarterPlayerScripts/WeaponClient.lua
+-- Script Place: ACT 1: Village
 
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -645,3 +646,4 @@ do
 		end)
 	end
 end
+
