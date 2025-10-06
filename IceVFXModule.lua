@@ -258,4 +258,3 @@ function IceVFX.PlaySound(part: BasePart)
 end
 
 return IceVFX
-
