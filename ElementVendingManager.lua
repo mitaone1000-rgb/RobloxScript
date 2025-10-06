@@ -121,5 +121,4 @@ end
 Players.PlayerRemoving:Connect(function(player)
 	-- Tutup UI shop jika terbuka
 	CloseElementShopEvent:FireClient(player)
-
 end)
