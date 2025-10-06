@@ -233,9 +233,6 @@ ReviveEvent.OnServerEvent:Connect(function(player, target)
 					-- PULIHKAN GERAK SETELAH REVIVE
 					humanoid.PlatformStand = false
 					humanoid.WalkSpeed = 16
-					if PointsSystem and PointsSystem.AddRevive then
-						PointsSystem.AddRevive(player) -- player = reviver
-					end
 					-- atur sesuai desainmu
 					humanoid.UseJumpPower = true
 					humanoid.JumpPower = 30              -- samakan dengan JumpPower.lua

@@ -210,6 +210,7 @@ ShootEvent.OnServerEvent:Connect(function(player, tool, hitPosition, isAiming)
 					end
 					targetHumanoid:TakeDamage(finalDamage)
 					if finalDamage > 0 and hitModel:FindFirstChild("IsZombie") then
+						PointsSystem.AddDamage(player, finalDamage)
 						DamageDisplayEvent:FireAllClients(finalDamage, hitModel, isHeadshotPellet)
 					end
 					local creatorTag = hitModel:FindFirstChild("creator")
@@ -296,6 +297,7 @@ ShootEvent.OnServerEvent:Connect(function(player, tool, hitPosition, isAiming)
 				end
 				targetHumanoid:TakeDamage(finalDamage)
 				if finalDamage > 0 and hitModel:FindFirstChild("IsZombie") then
+					PointsSystem.AddDamage(player, finalDamage)
 					DamageDisplayEvent:FireAllClients(finalDamage, hitModel, isHeadshot)
 				end
 				local creatorTag = hitModel:FindFirstChild("creator")

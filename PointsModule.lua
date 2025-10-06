@@ -37,10 +37,10 @@ function PointsSystem.SetupPlayer(player)
 		knocks.Value = 0
 		knocks.Parent = leaderstats
 		
-		local revive = Instance.new("IntValue")
-		revive.Name = "Revive"
-		revive.Value = 0
-		revive.Parent = leaderstats
+		local totalDamage = Instance.new("IntValue")
+		totalDamage.Name = "TotalDamage"
+		totalDamage.Value = 0
+		totalDamage.Parent = leaderstats
 	end
 end
 
@@ -96,12 +96,14 @@ function PointsSystem.AddKnock(player)
 	end
 end
 
-function PointsSystem.AddRevive(player)
+function PointsSystem.AddDamage(player, damageAmount)
 	if not player or not player:IsA("Player") then return end
 	local ls = player:FindFirstChild("leaderstats")
 	if ls then
-		local v = ls:FindFirstChild("Revive")
-		if v then v.Value = v.Value + 1 end
+		local v = ls:FindFirstChild("TotalDamage")
+		if v then
+			v.Value = v.Value + damageAmount
+		end
 	end
 end
 
