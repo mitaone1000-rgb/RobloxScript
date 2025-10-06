@@ -109,4 +109,3 @@ function WindVFX.PlaySound(part: BasePart)
 end
 
 return WindVFX
-
