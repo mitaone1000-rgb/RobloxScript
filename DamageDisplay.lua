@@ -1,5 +1,6 @@
 -- DamageDisplay.lua (LocalScript)
 -- Path: StarterPlayer/StarterPlayerScripts/DamageDisplay.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
