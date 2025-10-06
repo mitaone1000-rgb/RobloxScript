@@ -1,6 +1,6 @@
 -- AmmoUI.lua (LocalScript)
 -- Path: StarterGui/AmmoUI.lua
--- Script Place: ACT 1: Village
+-- Script Place = ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -295,3 +295,4 @@ if player.Character then
 	onCharacterAdded(player.Character)
 
 end
+
