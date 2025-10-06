@@ -27,5 +27,4 @@ PerkConfig.Perks = {
 	}
 }
 
-
 return PerkConfig
