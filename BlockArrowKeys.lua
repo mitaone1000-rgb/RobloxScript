@@ -1,5 +1,6 @@
 -- BlockArrowKeys.lua (LocalScript)
 -- Path: StarterPlayer/StarterPlayerScripts/BlockArrowKeys.lua
+-- Script Place: ACT 1: Village
 
 local ContextActionService = game:GetService("ContextActionService")
 local UserInputService = game:GetService("UserInputService")
@@ -28,4 +29,5 @@ ContextActionService:BindActionAtPriority(
 	Enum.KeyCode.Right,
 	Enum.KeyCode.Up,
 	Enum.KeyCode.Down
+
 )
