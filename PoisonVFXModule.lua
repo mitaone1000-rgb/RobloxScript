@@ -330,4 +330,3 @@ function PoisonVFX.PlaySound(part: BasePart)
 end
 
 return PoisonVFX
-
