@@ -29,5 +29,4 @@ ContextActionService:BindActionAtPriority(
 	Enum.KeyCode.Right,
 	Enum.KeyCode.Up,
 	Enum.KeyCode.Down
-
 )
