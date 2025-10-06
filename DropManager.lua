@@ -367,5 +367,4 @@ workspace.ChildAdded:Connect(function(child)
 	pcall(function() watchZombie(child) end)
 end)
 
-
 print("[DropManager] aktif - drop chance:", DROP_CHANCE)
