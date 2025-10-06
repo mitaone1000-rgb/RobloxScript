@@ -571,5 +571,4 @@ GameOverEvent.OnClientEvent:Connect(function()
 			containerGui.Enabled = false
 		end
 	end
-
 end)
