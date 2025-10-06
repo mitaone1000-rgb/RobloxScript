@@ -79,5 +79,4 @@ end
 
 HitmarkerEvent.OnClientEvent:Connect(function(isHeadshot)
 	createHitmarker(isHeadshot)
-
 end)
