@@ -1,5 +1,6 @@
 -- ViewmodelModule.lua (ModuleScript)
 -- Path: ReplicatedStorage/ModuleScript/ViewmodelModule.lua
+-- Script Place: ACT 1: Village
 
 local ViewmodelModule = {}
 ViewmodelModule.__index = ViewmodelModule
@@ -274,3 +275,4 @@ function ViewmodelModule:updateViewmodel(dt, isAiming)
 end
 
 return ViewmodelModule
+
