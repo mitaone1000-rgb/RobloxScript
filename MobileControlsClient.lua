@@ -286,5 +286,4 @@ end)
 
 -- Inisialisasi pertama
 refreshButtonsVisibility()
-
 setAdsStyle()
