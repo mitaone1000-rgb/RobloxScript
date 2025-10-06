@@ -1,5 +1,6 @@
 -- ZombieConfig.lua (ModuleScript)
 -- Path: ReplicatedStorage/ModuleScript/ZombieConfig.lua
+-- Script Place: ACT 1: Village
 
 local ZombieConfig = {}
 
@@ -184,3 +185,4 @@ ZombieConfig.Types = {
 }
 
 return ZombieConfig
+
