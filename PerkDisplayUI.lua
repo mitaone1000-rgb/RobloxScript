@@ -1,5 +1,6 @@
 -- PerkDisplayUI.lua (LocalScript)
 -- Path: StarterGui/PerkDisplayUI.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -321,4 +322,5 @@ perkUpdateEv.OnClientEvent:Connect(function(perks)
 end)
 
 -- Inisialisasi
+
 updatePerksDisplay({})
