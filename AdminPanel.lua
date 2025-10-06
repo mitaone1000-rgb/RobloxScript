@@ -1,6 +1,5 @@
 -- AdminPanel.lua (LocalScript)
--- LOKASI: StarterGui
--- FUNGSI: Membuat UI Panel Admin yang rapi, fungsional, dengan daftar pemain.
+-- Path: StarterGui/AdminPanel.lua
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
