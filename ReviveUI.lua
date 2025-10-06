@@ -227,5 +227,4 @@ end)
 
 -- Cancel if button is released
 mobileReviveBtn.MouseButton1Up:Connect(cancelRevive)
-
 mobileReviveBtn.MouseLeave:Connect(cancelRevive)
