@@ -1,5 +1,6 @@
 -- EarthVFXModule.lua (ModuleScript)
 -- Path: ReplicatedStorage/ElementVFX/EarthVFXModule.lua
+-- Script Place: ACT 1: Village
 
 local EarthVFX = {}
 
@@ -285,3 +286,4 @@ function EarthVFX.PlaySoundAt(part)
 end
 
 return EarthVFX
+
