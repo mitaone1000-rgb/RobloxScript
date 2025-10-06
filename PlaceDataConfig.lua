@@ -1,5 +1,5 @@
--- PlaceData.lua (ModuleScript)
--- Path: ServerScriptService/ModuleScript/PlaceData.lua
+-- PlaceDataConfig.lua (ModuleScript)
+-- Path: ServerScriptService/ModuleScript/PlaceDataConfig.lua
 -- Script Place: Lobby, ACT 1: Village
 
 local PlaceData = {
