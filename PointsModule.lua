@@ -8,7 +8,7 @@ local playerPoints = {}
 
 -- Tambahkan ini di atas
 local ServerScriptService = game:GetService("ServerScriptService")
-local LevelManager = require(ServerScriptService.ModuleScript:WaitForChild("LevelManager"))
+local LevelManager = require(ServerScriptService.ModuleScript:WaitForChild("LevelModule"))
 
 function PointsSystem.SetupPlayer(player)
 	-- simpan poin internal
