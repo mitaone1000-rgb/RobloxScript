@@ -1,5 +1,6 @@
 -- GameOverUI.lua (LocalScript)
 -- Path: StarterGui/GameOverUI.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -230,4 +231,5 @@ end)
 exitBtn.MouseButton1Click:Connect(function()
 	hideGameOver()
 	ExitGameEvent:FireServer()
+
 end)
