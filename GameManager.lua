@@ -10,7 +10,7 @@ local BindableEvents = game.ReplicatedStorage.BindableEvents
 local RemoteEvents = game.ReplicatedStorage.RemoteEvents
 local ModuleScriptServerScriptService = ServerScriptService.ModuleScript
 
-local PlaceData = require(ModuleScriptServerScriptService:WaitForChild("PlaceData"))
+local PlaceData = require(ModuleScriptServerScriptService:WaitForChild("PlaceDataConfig"))
 local SpawnerModule = require(ModuleScriptServerScriptService:WaitForChild("SpawnerModule"))
 local BuildingManager = require(ModuleScriptServerScriptService:WaitForChild("BuildingModule"))
 local PointsSystem = require(ModuleScriptServerScriptService:WaitForChild("PointsModule"))
