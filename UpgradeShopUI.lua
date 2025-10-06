@@ -1,5 +1,6 @@
 -- UpgradeShopUI.lua (LocalScript)
 -- Path: StarterGui/UpgradeShopUI.lua
+-- Script Place: ACT 1: Village
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -674,4 +675,5 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt, plr)
 	else
 		showNotification(result.message, Color3.fromRGB(255, 100, 100), 3)
 	end
+
 end)
