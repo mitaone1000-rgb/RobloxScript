@@ -543,5 +543,4 @@ ActivateElementEvent.OnServerEvent:Connect(function(player, elementName)
 	ElementModule.ActivateElement(player, elementName)
 end)
 
-
 return ElementModule
