@@ -1,5 +1,6 @@
 -- ElementConfigModule.lua (ModuleScript)
 -- Path: ServerScriptService/ModuleScript/ElementConfigModule.lua
+-- Script Place: ACT 1: Village
 
 local ElementModule = {}
 
@@ -541,5 +542,6 @@ end)
 ActivateElementEvent.OnServerEvent:Connect(function(player, elementName)
 	ElementModule.ActivateElement(player, elementName)
 end)
+
 
 return ElementModule
