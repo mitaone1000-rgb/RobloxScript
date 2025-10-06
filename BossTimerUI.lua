@@ -1,5 +1,6 @@
 -- BossTimerUI.lua (LocalScript)
 -- Path: StarterGui/BossTimerUI.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -129,4 +130,5 @@ BossTimerEvent.OnClientEvent:Connect(function(remainingTime, totalTime)
 		end
 		updateTimerUI(remainingTime, totalTime)
 	end
+
 end)
