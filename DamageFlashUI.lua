@@ -1,5 +1,6 @@
 -- DamageFlashUI.lua (LocalScript)
 -- Path: StarterGui/DamageFlashUI.lua
+-- Script Place: ACT 1: Village
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -217,3 +218,4 @@ RunService.Stepped:Connect(function()
 		createOverlay()
 	end
 end)
+
