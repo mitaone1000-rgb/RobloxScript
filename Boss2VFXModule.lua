@@ -1,5 +1,6 @@
 -- Boss2VFXModule.lua (ModuleScript)
 -- Path: ReplicatedStorage/ZombieVFX/Boss2VFXModule.lua
+-- Script Place: ACT 1: Village
 
 local Boss2VFXModule = {}
 
@@ -1541,5 +1542,6 @@ function Boss2VFXModule.SpawnCoopPads(center, required, duration, limitPerPlayer
 
 	return pads
 end
+
 
 return Boss2VFXModule
