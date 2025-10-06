@@ -4,11 +4,13 @@
 
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TeleportService = game:GetService("TeleportService")
 
 local BindableEvents = game.ReplicatedStorage.BindableEvents
 local RemoteEvents = game.ReplicatedStorage.RemoteEvents
 local ModuleScriptServerScriptService = ServerScriptService.ModuleScript
 
+local PlaceData = require(ModuleScriptServerScriptService:WaitForChild("PlaceData"))
 local SpawnerModule = require(ModuleScriptServerScriptService:WaitForChild("SpawnerModule"))
 local BuildingManager = require(ModuleScriptServerScriptService:WaitForChild("BuildingModule"))
 local PointsSystem = require(ModuleScriptServerScriptService:WaitForChild("PointsModule"))
@@ -411,10 +413,13 @@ end)
 -- Exit Game
 ExitGameEvent.OnServerEvent:Connect(function(player)
 	print(player.Name .. " memilih Exit")
-	game.Players.CharacterAutoLoads = true
-	-- Respawn player ke lobby
-	player:LoadCharacter()
-	PointsSystem.SetupPlayer(player)
+	local lobbyId = PlaceData["Lobby"]
+	if lobbyId then
+		TeleportService:TeleportAsync(lobbyId, {player})
+		print("Mencoba memindahkan " .. player.Name .. " ke Lobby (ID: " .. lobbyId .. ")")
+	else
+		warn("Lobby place ID not found in PlaceData.")
+	end
 
 	-- Reset game
 	ResetGame()
