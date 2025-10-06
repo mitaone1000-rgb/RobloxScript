@@ -1,5 +1,6 @@
 -- KnockManager.lua (Script) 
 -- Path: ServerScriptService/Script/KnockManager.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
@@ -257,4 +258,5 @@ end)
 
 game.Players.PlayerRemoving:Connect(function(player)
 	cancelRevive(player)
+
 end)
