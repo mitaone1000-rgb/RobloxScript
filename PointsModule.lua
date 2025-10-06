@@ -1,5 +1,6 @@
 -- PointsModule.lua (ModuleScript)
 -- Path: ServerScriptService/ModuleScript/PointsModule.lua
+-- Script Place: ACT 1: Village
 
 local PointsSystem = {}
 
@@ -103,5 +104,6 @@ function PointsSystem.AddRevive(player)
 		if v then v.Value = v.Value + 1 end
 	end
 end
+
 
 return PointsSystem
