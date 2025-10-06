@@ -1,5 +1,6 @@
 -- KnockUI.lua (LocalScript)
 -- Path: StarterGui/KnockUI.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -445,4 +446,5 @@ KnockEvent.OnClientEvent:Connect(function(isKnocked, reviveTime)
 		stopKnockdownAnimations()
 		hideReviveProgress()
 	end
+
 end)
