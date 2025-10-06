@@ -236,5 +236,4 @@ screenGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		bloodContainer.Size = UDim2.new(0, 280, 0, 120)
 		PointsLabel.TextSize = 36
 	end
-
 end)
