@@ -130,5 +130,4 @@ BossTimerEvent.OnClientEvent:Connect(function(remainingTime, totalTime)
 		end
 		updateTimerUI(remainingTime, totalTime)
 	end
-
 end)
