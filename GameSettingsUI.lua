@@ -552,5 +552,4 @@ playerGui.ChildAdded:Connect(function(child)
 			loadButtonSettings(child)
 		end
 	end
-
 end)
