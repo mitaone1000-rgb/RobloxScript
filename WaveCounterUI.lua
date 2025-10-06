@@ -1,5 +1,6 @@
 -- WaveCounterUI.lua (LocalScript)
 -- Path: StarterGui/WaveCounterUI.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -93,4 +94,5 @@ WaveCountdownEvent.OnClientEvent:Connect(function(seconds)
 	else
 		countdownLabel.Visible = false
 	end
+
 end)
