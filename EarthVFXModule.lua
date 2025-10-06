@@ -286,4 +286,3 @@ function EarthVFX.PlaySoundAt(part)
 end
 
 return EarthVFX
-
