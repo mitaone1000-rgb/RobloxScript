@@ -1,5 +1,6 @@
 -- IceVFXModule.lua (ModuleScript)
 -- Path: ReplicatedStorage/ElementVFX/IceVFXModule.lua
+-- Script Place: ACT 1: Village
 
 local IceVFX = {}
 
@@ -257,3 +258,4 @@ function IceVFX.PlaySound(part: BasePart)
 end
 
 return IceVFX
+
