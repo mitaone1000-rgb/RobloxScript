@@ -177,5 +177,4 @@ end
 
 BulletholeEvent.OnClientEvent:Connect(function(position, normal)
 	createBullethole(position, normal)
-
 end)
