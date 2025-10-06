@@ -1,6 +1,6 @@
 -- LevelManager.lua
 -- Path: ServerScriptService/ModuleScript/LevelManager.lua
--- Script Place: Lobby, ACT 1: Village
+-- Script Place: Lobby
 
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
