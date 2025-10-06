@@ -185,5 +185,4 @@ function ShooterVFXModule.ShootAcidProjectile(fromPos, targetPos, speed, shooter
 	Debris:AddItem(proj, 6)
 end
 
-
 return ShooterVFXModule
