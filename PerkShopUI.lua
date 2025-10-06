@@ -1,5 +1,6 @@
 -- PerkShopUI.lua (LocalScript)
 -- Path: StarterGui/PerkShopUI.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
