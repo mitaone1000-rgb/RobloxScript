@@ -1,5 +1,6 @@
 -- TeleportManager.lua (Script)
 -- Path: ServerScriptService/Script/TeleportManager.lua
+-- Script Place: Lobby, ACT 1: Village
 
 -- Layanan yang diperlukan
 local TeleportService = game:GetService("TeleportService")
