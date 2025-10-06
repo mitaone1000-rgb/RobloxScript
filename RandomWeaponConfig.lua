@@ -29,5 +29,4 @@ RandomWeaponConfig.AvailableWeapons = {
 	"M249"
 }
 
-
 return RandomWeaponConfig
