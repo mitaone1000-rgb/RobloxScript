@@ -278,5 +278,4 @@ bossIncoming.OnClientEvent:Connect(function(bossName)
 	animateOut()
 	if pulseConnection then pulseConnection:Disconnect() end
 	if skullConnection then skullConnection:Disconnect() end
-
 end)
