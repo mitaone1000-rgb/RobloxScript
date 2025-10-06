@@ -1,5 +1,6 @@
 -- ElementShopUI.lua (LocalScript)
 -- Path: StarterGui/ElementShopUI.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -618,4 +619,5 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt, plr)
 	local ok, result = pcall(function()
 		return requestOpenEvent:FireServer()
 	end)
+
 end)
