@@ -1543,5 +1543,4 @@ function Boss2VFXModule.SpawnCoopPads(center, required, duration, limitPerPlayer
 	return pads
 end
 
-
 return Boss2VFXModule
