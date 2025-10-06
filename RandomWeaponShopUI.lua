@@ -1,5 +1,6 @@
 -- RandomWeaponShopUI.lua (LocalScript)
 -- Path: StarterGui/RandomWeaponShopUI.lua
+-- Script Place: ACT 1: Village
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -457,4 +458,5 @@ RunService.RenderStepped:Connect(function()
 			end
 		end
 	end
+
 end)
