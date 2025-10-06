@@ -1,5 +1,6 @@
 -- WindVFXModule.lua (ModuleScript)
 -- Path: ReplicatedStorage/ElementVFX/WindVFXModule.lua
+-- Script Place: ACT 1: Village
 
 local WindVFX = {}
 
@@ -108,3 +109,4 @@ function WindVFX.PlaySound(part: BasePart)
 end
 
 return WindVFX
+
