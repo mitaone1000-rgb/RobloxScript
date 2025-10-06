@@ -1,5 +1,6 @@
 -- MuzzleFlashHandler.lua (Script)
 -- Path: ServerScriptService/Script/MuzzleFlashHandler.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -30,4 +31,5 @@ MuzzleFlashEvent.OnServerEvent:Connect(function(player, handle, weaponName)
 
 	-- Broadcast ke semua klien
 	MuzzleFlashBroadcast:FireAllClients(flashCFrame, weaponName)
+
 end)
