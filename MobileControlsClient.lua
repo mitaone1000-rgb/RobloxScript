@@ -1,5 +1,6 @@
 -- MobileControlsClient.lua (LocalScript)
 -- Path: StarterPlayer/StarterPlayerScripts/MobileControlsClient.lua
+-- Script Place: ACT 1: Village
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -285,4 +286,5 @@ end)
 
 -- Inisialisasi pertama
 refreshButtonsVisibility()
+
 setAdsStyle()
