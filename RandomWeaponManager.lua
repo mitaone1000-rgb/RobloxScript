@@ -1,5 +1,6 @@
 -- RandomWeaponManager.lua (Script)
 -- Path: ServerScriptService/Script/RandomWeaponManager.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
@@ -181,4 +182,5 @@ end)
 -- cleanup pendingOffers on leave
 Players.PlayerRemoving:Connect(function(player)
 	pendingOffers[player] = nil
+
 end)
