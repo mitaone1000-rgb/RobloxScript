@@ -13,7 +13,7 @@ local AdminConfig = {}
 -- 	}
 -- ]]
 AdminConfig.Admins = {
-	12345678, -- Ganti dengan UserID admin yang sebenarnya
+	9185027497, -- Ganti dengan UserID admin yang sebenarnya
 }
 
 function AdminConfig.IsAdmin(player)
