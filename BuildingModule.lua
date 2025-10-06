@@ -34,5 +34,4 @@ function BuildingManager.restoreBuildings()
 	end
 end
 
-
 return BuildingManager
