@@ -446,5 +446,4 @@ KnockEvent.OnClientEvent:Connect(function(isKnocked, reviveTime)
 		stopKnockdownAnimations()
 		hideReviveProgress()
 	end
-
 end)
