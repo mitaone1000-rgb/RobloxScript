@@ -1097,10 +1097,10 @@ function ZombieModule.SpawnZombie(spawnPoint, typeName, playerCount)
 				-- Reason a) Target has moved a significant distance since last path calculation
 				if (targetPos - lastTargetPosition).Magnitude > 10 then
 					needsNewPath = true
-				-- Reason b) We don't have a path, or we've reached the end of our current one
+					-- Reason b) We don't have a path, or we've reached the end of our current one
 				elseif not currentWaypoints or currentWaypointIndex >= #currentWaypoints then
 					needsNewPath = true
-				-- Reason c) Check if we've arrived at the current waypoint to advance the index
+					-- Reason c) Check if we've arrived at the current waypoint to advance the index
 				else
 					local nextWaypointPos = currentWaypoints[currentWaypointIndex].Position
 					if (Vector2.new(nextWaypointPos.X, nextWaypointPos.Z) - Vector2.new(currentPos.X, currentPos.Z)).Magnitude < 4 then
