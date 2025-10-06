@@ -1,5 +1,6 @@
 -- AudioManager.lua (ModuleScript)
 -- Path: ReplicatedStorage/ModuleScript/AudioManager.lua
+-- Script Place: ACT 1: Village
 
 local AudioManager = {}
 
@@ -84,5 +85,6 @@ function AudioManager.playSound(soundPath, parent, properties)
 	end
 	return sound
 end
+
 
 return AudioManager
