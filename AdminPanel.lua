@@ -1,6 +1,6 @@
 -- AdminPanel.lua (LocalScript)
 -- LOKASI: StarterGui
--- FUNGSI: Membuat UI Panel Admin dan menangani semua logika di sisi klien.
+-- FUNGSI: Membuat UI Panel Admin yang rapi dan menangani semua logika di sisi klien.
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -9,15 +9,13 @@ local Players = game:GetService("Players")
 
 -- Player and Admin Check
 local player = Players.LocalPlayer
-local isAdmin = false -- Default ke false
+local isAdmin = false
 
 -- Fungsi untuk membuat UI
 local function CreateAdminUI()
-	-- Hapus UI lama jika ada (untuk kasus respawn atau duplikasi)
+	-- Hapus UI lama jika ada
 	local oldGui = player.PlayerGui:FindFirstChild("AdminPanelGui")
-	if oldGui then
-		oldGui:Destroy()
-	end
+	if oldGui then oldGui:Destroy() end
 
 	-- Remote Events/Functions
 	local adminEventsFolder = ReplicatedStorage:WaitForChild("AdminEvents")
@@ -25,176 +23,234 @@ local function CreateAdminUI()
 	local updateDataEvent = adminEventsFolder:WaitForChild("AdminUpdateData")
 	local deleteDataEvent = adminEventsFolder:WaitForChild("AdminDeleteData")
 
+	-- State untuk konfirmasi
+	local pendingAction, pendingTargetId, pendingData = nil, nil, nil
+
 	-- UI Creation
 	local screenGui = Instance.new("ScreenGui")
 	screenGui.Name = "AdminPanelGui"
 	screenGui.ResetOnSpawn = false
+	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	screenGui.Parent = player:WaitForChild("PlayerGui")
 
+	-- Main Frame
 	local mainFrame = Instance.new("Frame")
 	mainFrame.Name = "MainFrame"
-	mainFrame.Size = UDim2.new(0, 400, 0, 250)
-	mainFrame.Position = UDim2.new(0.5, -200, 0.5, -125)
+	mainFrame.Size = UDim2.new(0, 400, 0, 280)
+	mainFrame.Position = UDim2.new(0.5, -200, 0.5, -140)
 	mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-	mainFrame.BorderColor3 = Color3.fromRGB(200, 200, 200)
-	mainFrame.Visible = false -- Mulai dengan tersembunyi
+	mainFrame.BorderColor3 = Color3.fromRGB(80, 80, 80)
+	mainFrame.Visible = false
 	mainFrame.Draggable = true
 	mainFrame.Active = true
+	mainFrame.ZIndex = 1
 	mainFrame.Parent = screenGui
+	Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 8)
+
+	local mainLayout = Instance.new("UIListLayout")
+	mainLayout.Padding = UDim.new(0, 10)
+	mainLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	mainLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	mainLayout.Parent = mainFrame
+
+	local mainPadding = Instance.new("UIPadding")
+	mainPadding.PaddingTop = UDim.new(0, 10)
+	mainPadding.PaddingBottom = UDim.new(0, 10)
+	mainPadding.PaddingLeft = UDim.new(0, 10)
+	mainPadding.PaddingRight = UDim.new(0, 10)
+	mainPadding.Parent = mainFrame
 
 	-- Title
 	local titleLabel = Instance.new("TextLabel")
 	titleLabel.Name = "TitleLabel"
 	titleLabel.Size = UDim2.new(1, 0, 0, 30)
-	titleLabel.Text = "Admin Panel (Tekan 'P' untuk Buka/Tutup)"
+	titleLabel.Text = "Admin Panel"
 	titleLabel.TextColor3 = Color3.new(1, 1, 1)
-	titleLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Font = Enum.Font.SourceSansBold
+	titleLabel.TextSize = 18
+	titleLabel.LayoutOrder = 1
 	titleLabel.Parent = mainFrame
 
 	-- UserID Input
 	local userIdBox = Instance.new("TextBox")
 	userIdBox.Name = "UserIdBox"
-	userIdBox.Size = UDim2.new(1, -20, 0, 30)
-	userIdBox.Position = UDim2.new(0.5, 0, 0, 40)
-	userIdBox.AnchorPoint = Vector2.new(0.5, 0)
+	userIdBox.Size = UDim2.new(1, 0, 0, 35)
 	userIdBox.PlaceholderText = "Masukkan UserID Target..."
-	userIdBox.Text = ""
+	userIdBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	userIdBox.TextColor3 = Color3.new(1, 1, 1)
+	userIdBox.LayoutOrder = 2
 	userIdBox.Parent = mainFrame
+	Instance.new("UICorner", userIdBox).CornerRadius = UDim.new(0, 6)
 
-	-- Level Input
+	-- Level and XP Frame
+	local levelXpFrame = Instance.new("Frame")
+	levelXpFrame.Size = UDim2.new(1, 0, 0, 35)
+	levelXpFrame.BackgroundTransparency = 1
+	levelXpFrame.LayoutOrder = 3
+	levelXpFrame.Parent = mainFrame
+
+	local levelXpLayout = Instance.new("UIListLayout")
+	levelXpLayout.FillDirection = Enum.FillDirection.Horizontal
+	levelXpLayout.Padding = UDim.new(0, 10)
+	levelXpLayout.Parent = levelXpFrame
+
 	local levelBox = Instance.new("TextBox")
 	levelBox.Name = "LevelBox"
-	levelBox.Size = UDim2.new(0.5, -15, 0, 30)
-	levelBox.Position = UDim2.new(0, 10, 0, 80)
+	levelBox.Size = UDim2.new(0.5, -5, 1, 0)
 	levelBox.PlaceholderText = "Level..."
-	levelBox.Text = ""
-	levelBox.Parent = mainFrame
+	levelBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	levelBox.TextColor3 = Color3.new(1, 1, 1)
+	levelBox.Parent = levelXpFrame
+	Instance.new("UICorner", levelBox).CornerRadius = UDim.new(0, 6)
 
-	-- XP Input
 	local xpBox = Instance.new("TextBox")
 	xpBox.Name = "XpBox"
-	xpBox.Size = UDim2.new(0.5, -15, 0, 30)
-	xpBox.Position = UDim2.new(0.5, 5, 0, 80)
+	xpBox.Size = UDim2.new(0.5, -5, 1, 0)
 	xpBox.PlaceholderText = "XP..."
-	xpBox.Text = ""
-	xpBox.Parent = mainFrame
+	xpBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	xpBox.TextColor3 = Color3.new(1, 1, 1)
+	xpBox.Parent = levelXpFrame
+	Instance.new("UICorner", xpBox).CornerRadius = UDim.new(0, 6)
 
 	-- Buttons Frame
 	local buttonsFrame = Instance.new("Frame")
-	buttonsFrame.Name = "ButtonsFrame"
-	buttonsFrame.Size = UDim2.new(1, -20, 0, 40)
-	buttonsFrame.Position = UDim2.new(0.5, 0, 0, 120)
-	buttonsFrame.AnchorPoint = Vector2.new(0.5, 0)
+	buttonsFrame.Size = UDim2.new(1, 0, 0, 35)
 	buttonsFrame.BackgroundTransparency = 1
+	buttonsFrame.LayoutOrder = 4
 	buttonsFrame.Parent = mainFrame
 
-	local uiListLayout = Instance.new("UIListLayout")
-	uiListLayout.FillDirection = Enum.FillDirection.Horizontal
-	uiListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	uiListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	uiListLayout.Padding = UDim.new(0, 10)
-	uiListLayout.Parent = buttonsFrame
+	local buttonsLayout = Instance.new("UIListLayout")
+	buttonsLayout.FillDirection = Enum.FillDirection.Horizontal
+	buttonsLayout.Padding = UDim.new(0, 10)
+	buttonsLayout.Parent = buttonsFrame
 
-	-- Buttons
-	local getDataButton = Instance.new("TextButton")
-	getDataButton.Name = "GetDataButton"
-	getDataButton.Size = UDim2.new(0.3, 0, 1, 0)
-	getDataButton.Text = "Get Data"
-	getDataButton.LayoutOrder = 1
-	getDataButton.Parent = buttonsFrame
+	local function createButton(name, text, parent)
+		local button = Instance.new("TextButton")
+		button.Name = name
+		button.Text = text
+		button.Size = UDim2.new(0.33, -7, 1, 0)
+		button.TextColor3 = Color3.new(1, 1, 1)
+		button.Font = Enum.Font.SourceSansBold
+		button.Parent = parent
+		Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
+		return button
+	end
 
-	local setDataButton = Instance.new("TextButton")
-	setDataButton.Name = "SetDataButton"
-	setDataButton.Size = UDim2.new(0.3, 0, 1, 0)
-	setDataButton.Text = "Set Data"
-	setDataButton.LayoutOrder = 2
-	setDataButton.Parent = buttonsFrame
+	local getDataButton = createButton("GetDataButton", "Get Data", buttonsFrame)
+	getDataButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 
-	local deleteDataButton = Instance.new("TextButton")
-	deleteDataButton.Name = "DeleteDataButton"
-	deleteDataButton.Size = UDim2.new(0.3, 0, 1, 0)
-	deleteDataButton.Text = "Delete Data"
-	deleteDataButton.LayoutOrder = 3
-	deleteDataButton.Parent = buttonsFrame
+	local setDataButton = createButton("SetDataButton", "Set Data", buttonsFrame)
+	setDataButton.BackgroundColor3 = Color3.fromRGB(70, 90, 150)
+
+	local deleteDataButton = createButton("DeleteDataButton", "Delete Data", buttonsFrame)
+	deleteDataButton.BackgroundColor3 = Color3.fromRGB(180, 70, 70)
 
 	-- Status Label
 	local statusLabel = Instance.new("TextLabel")
 	statusLabel.Name = "StatusLabel"
-	statusLabel.Size = UDim2.new(1, -20, 0, 50)
-	statusLabel.Position = UDim2.new(0.5, 0, 1, -10)
-	statusLabel.AnchorPoint = Vector2.new(0.5, 1)
-	statusLabel.Text = "Status: Idle"
+	statusLabel.Size = UDim2.new(1, 0, 0, 40)
+	statusLabel.Text = "Status: Idle | Tekan 'P' untuk Buka/Tutup"
 	statusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
 	statusLabel.BackgroundTransparency = 1
 	statusLabel.TextWrapped = true
-	statusLabel.TextXAlignment = Enum.TextXAlignment.Left
+	statusLabel.LayoutOrder = 5
 	statusLabel.Parent = mainFrame
 
-	-- Data Display UI (New)
-	local dataDisplayFrame = Instance.new("Frame")
-	dataDisplayFrame.Name = "DataDisplayFrame"
-	dataDisplayFrame.Size = UDim2.new(0, 300, 0, 150)
-	dataDisplayFrame.Position = UDim2.new(0.5, -150, 0.5, -75)
-	dataDisplayFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-	dataDisplayFrame.BorderColor3 = Color3.fromRGB(220, 220, 220)
-	dataDisplayFrame.Visible = false -- Mulai tersembunyi
-	dataDisplayFrame.Parent = screenGui -- Parent ke ScreenGui agar bisa di atas mainFrame
+	-- Pop-up Frames
+	local function createPopupFrame(name, size, zIndex)
+		local frame = Instance.new("Frame")
+		frame.Name = name
+		frame.Size = size
+		frame.Position = UDim2.fromScale(0.5, 0.5)
+		frame.AnchorPoint = Vector2.new(0.5, 0.5)
+		frame.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+		frame.BorderColor3 = Color3.fromRGB(120, 120, 120)
+		frame.Visible = false
+		frame.ZIndex = zIndex
+		frame.Parent = screenGui
+		Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+
+		local layout = Instance.new("UIListLayout")
+		layout.Padding = UDim.new(0, 10)
+		layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		layout.Parent = frame
+
+		local padding = Instance.new("UIPadding")
+		padding.PaddingTop = UDim.new(0, 10)
+		padding.PaddingBottom = UDim.new(0, 10)
+		padding.PaddingLeft = UDim.new(0, 10)
+		padding.PaddingRight = UDim.new(0, 10)
+		padding.Parent = frame
+
+		return frame
+	end
+
+	-- Data Display UI
+	local dataDisplayFrame = createPopupFrame("DataDisplayFrame", UDim2.new(0, 300, 0, 180), 2)
 
 	local displayTitle = Instance.new("TextLabel")
-	displayTitle.Name = "DisplayTitle"
-	displayTitle.Size = UDim2.new(1, 0, 0, 30)
+	displayTitle.Size = UDim2.new(1, 0, 0, 25)
 	displayTitle.Text = "Player Data"
+	displayTitle.Font = Enum.Font.SourceSansBold
+	displayTitle.TextSize = 16
 	displayTitle.TextColor3 = Color3.new(1, 1, 1)
-	displayTitle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+	displayTitle.BackgroundTransparency = 1
 	displayTitle.Parent = dataDisplayFrame
 
-	local displayUserIdLabel = Instance.new("TextLabel")
-	displayUserIdLabel.Name = "DisplayUserIdLabel"
-	displayUserIdLabel.Size = UDim2.new(1, -20, 0, 20)
-	displayUserIdLabel.Position = UDim2.new(0.5, 0, 0, 40)
-	displayUserIdLabel.AnchorPoint = Vector2.new(0.5, 0)
-	displayUserIdLabel.Text = "UserID: "
-	displayUserIdLabel.TextColor3 = Color3.new(1, 1, 1)
-	displayUserIdLabel.BackgroundTransparency = 1
-	displayUserIdLabel.TextXAlignment = Enum.TextXAlignment.Left
-	displayUserIdLabel.Parent = dataDisplayFrame
+	local function createDisplayLabel(name, parent)
+		local label = Instance.new("TextLabel")
+		label.Name = name
+		label.Size = UDim2.new(1, 0, 0, 20)
+		label.TextColor3 = Color3.new(1, 1, 1)
+		label.BackgroundTransparency = 1
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		label.Parent = parent
+		return label
+	end
 
-	local displayLevelLabel = Instance.new("TextLabel")
-	displayLevelLabel.Name = "DisplayLevelLabel"
-	displayLevelLabel.Size = UDim2.new(1, -20, 0, 20)
-	displayLevelLabel.Position = UDim2.new(0.5, 0, 0, 65)
-	displayLevelLabel.AnchorPoint = Vector2.new(0.5, 0)
-	displayLevelLabel.Text = "Level: "
-	displayLevelLabel.TextColor3 = Color3.new(1, 1, 1)
-	displayLevelLabel.BackgroundTransparency = 1
-	displayLevelLabel.TextXAlignment = Enum.TextXAlignment.Left
-	displayLevelLabel.Parent = dataDisplayFrame
+	local displayUserIdLabel = createDisplayLabel("DisplayUserIdLabel", dataDisplayFrame)
+	local displayLevelLabel = createDisplayLabel("DisplayLevelLabel", dataDisplayFrame)
+	local displayXpLabel = createDisplayLabel("DisplayXpLabel", dataDisplayFrame)
 
-	local displayXpLabel = Instance.new("TextLabel")
-	displayXpLabel.Name = "DisplayXpLabel"
-	displayXpLabel.Size = UDim2.new(1, -20, 0, 20)
-	displayXpLabel.Position = UDim2.new(0.5, 0, 0, 90)
-	displayXpLabel.AnchorPoint = Vector2.new(0.5, 0)
-	displayXpLabel.Text = "XP: "
-	displayXpLabel.TextColor3 = Color3.new(1, 1, 1)
-	displayXpLabel.BackgroundTransparency = 1
-	displayXpLabel.TextXAlignment = Enum.TextXAlignment.Left
-	displayXpLabel.Parent = dataDisplayFrame
+	local closeDisplayButton = createButton("CloseDisplayButton", "Close", dataDisplayFrame)
+	closeDisplayButton.Size = UDim2.new(1, 0, 0, 30)
+	closeDisplayButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 
-	local closeDisplayButton = Instance.new("TextButton")
-	closeDisplayButton.Name = "CloseDisplayButton"
-	closeDisplayButton.Size = UDim2.new(0, 80, 0, 25)
-	closeDisplayButton.Position = UDim2.new(0.5, 0, 1, -10)
-	closeDisplayButton.AnchorPoint = Vector2.new(0.5, 1)
-	closeDisplayButton.Text = "Close"
-	closeDisplayButton.Parent = dataDisplayFrame
+	-- Confirmation Dialog UI
+	local confirmationFrame = createPopupFrame("ConfirmationFrame", UDim2.new(0, 350, 0, 130), 3)
+
+	local confirmationLabel = Instance.new("TextLabel")
+	confirmationLabel.Size = UDim2.new(1, 0, 0, 50)
+	confirmationLabel.TextColor3 = Color3.new(1, 1, 1)
+	confirmationLabel.BackgroundTransparency = 1
+	confirmationLabel.TextWrapped = true
+	confirmationLabel.Parent = confirmationFrame
+
+	local confirmButtonsFrame = Instance.new("Frame")
+	confirmButtonsFrame.Size = UDim2.new(1, 0, 0, 30)
+	confirmButtonsFrame.BackgroundTransparency = 1
+	confirmButtonsFrame.Parent = confirmationFrame
+
+	local confirmButtonsLayout = Instance.new("UIListLayout")
+	confirmButtonsLayout.FillDirection = Enum.FillDirection.Horizontal
+	confirmButtonsLayout.Padding = UDim.new(0, 10)
+	confirmButtonsLayout.Parent = confirmButtonsFrame
+
+	local confirmYesButton = createButton("ConfirmYesButton", "Ya", confirmButtonsFrame)
+	confirmYesButton.Size = UDim2.new(0.5, -5, 1, 0)
+	confirmYesButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+
+	local confirmNoButton = createButton("ConfirmNoButton", "Tidak", confirmButtonsFrame)
+	confirmNoButton.Size = UDim2.new(0.5, -5, 1, 0)
+	confirmNoButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 
 	-- UI Logic
 	local function togglePanel()
 		mainFrame.Visible = not mainFrame.Visible
 		if not mainFrame.Visible then
-			dataDisplayFrame.Visible = false -- Sembunyikan juga display jika panel utama ditutup
+			dataDisplayFrame.Visible = false
+			confirmationFrame.Visible = false
 		end
 	end
 
@@ -205,12 +261,10 @@ local function CreateAdminUI()
 		end
 	end)
 
-	-- Button Functions
 	getDataButton.MouseButton1Click:Connect(function()
 		local targetUserId = tonumber(userIdBox.Text)
 		if not targetUserId then
-			statusLabel.Text = "Status: UserID tidak valid. Harap masukkan angka."
-			dataDisplayFrame.Visible = false
+			statusLabel.Text = "Status: UserID tidak valid."
 			return
 		end
 
@@ -221,8 +275,6 @@ local function CreateAdminUI()
 			levelBox.Text = tostring(data.Level)
 			xpBox.Text = tostring(data.XP)
 			statusLabel.Text = "Status: Data berhasil dimuat untuk UserID " .. targetUserId
-
-			-- Tampilkan di UI baru
 			displayUserIdLabel.Text = "UserID: " .. tostring(targetUserId)
 			displayLevelLabel.Text = "Level: " .. tostring(data.Level)
 			displayXpLabel.Text = "XP: " .. tostring(data.XP)
@@ -230,10 +282,23 @@ local function CreateAdminUI()
 		else
 			levelBox.Text = ""
 			xpBox.Text = ""
-			statusLabel.Text = "Status: Gagal memuat data. Pesan: " .. (message or "Tidak ada data atau error.")
+			statusLabel.Text = "Status: Gagal memuat data. Pesan: " .. (message or "Tidak ada data.")
 			dataDisplayFrame.Visible = false
 		end
 	end)
+
+	local function triggerConfirmation(action, id, data)
+		pendingAction = action
+		pendingTargetId = id
+		pendingData = data
+
+		if action == "set" then
+			confirmationLabel.Text = "Apakah Anda yakin ingin mengubah data untuk UserID " .. tostring(id) .. "?"
+		else
+			confirmationLabel.Text = "PERINGATAN: Aksi ini akan menghapus data secara permanen. Apakah Anda yakin ingin menghapus data untuk UserID " .. tostring(id) .. "?"
+		end
+		confirmationFrame.Visible = true
+	end
 
 	setDataButton.MouseButton1Click:Connect(function()
 		local targetUserId = tonumber(userIdBox.Text)
@@ -241,18 +306,10 @@ local function CreateAdminUI()
 		local newXp = tonumber(xpBox.Text)
 
 		if not targetUserId or not newLevel or not newXp then
-			statusLabel.Text = "Status: Semua kolom (UserID, Level, XP) harus diisi dengan angka yang valid."
+			statusLabel.Text = "Status: Semua kolom harus diisi dengan angka valid."
 			return
 		end
-
-		local newData = {
-			Level = newLevel,
-			XP = newXp,
-		}
-
-		updateDataEvent:FireServer(targetUserId, newData)
-		statusLabel.Text = "Status: Permintaan perubahan data dikirim untuk UserID " .. targetUserId
-		dataDisplayFrame.Visible = false
+		triggerConfirmation("set", targetUserId, {Level = newLevel, XP = newXp})
 	end)
 
 	deleteDataButton.MouseButton1Click:Connect(function()
@@ -261,35 +318,52 @@ local function CreateAdminUI()
 			statusLabel.Text = "Status: UserID tidak valid."
 			return
 		end
-
-		deleteDataEvent:FireServer(targetUserId)
-		statusLabel.Text = "Status: Permintaan hapus data dikirim untuk UserID " .. targetUserId
-		levelBox.Text = ""
-		xpBox.Text = ""
-		dataDisplayFrame.Visible = false
+		triggerConfirmation("delete", targetUserId)
 	end)
 
 	closeDisplayButton.MouseButton1Click:Connect(function()
 		dataDisplayFrame.Visible = false
 	end)
+
+	local function resetConfirmationState()
+		pendingAction, pendingTargetId, pendingData = nil, nil, nil
+		confirmationFrame.Visible = false
+	end
+
+	confirmYesButton.MouseButton1Click:Connect(function()
+		if pendingAction == "set" then
+			updateDataEvent:FireServer(pendingTargetId, pendingData)
+			statusLabel.Text = "Status: Permintaan perubahan data dikirim."
+			dataDisplayFrame.Visible = false
+		elseif pendingAction == "delete" then
+			deleteDataEvent:FireServer(pendingTargetId)
+			statusLabel.Text = "Status: Permintaan hapus data dikirim."
+			levelBox.Text, xpBox.Text = "", ""
+			dataDisplayFrame.Visible = false
+		end
+		resetConfirmationState()
+	end)
+
+	confirmNoButton.MouseButton1Click:Connect(function()
+		resetConfirmationState()
+		statusLabel.Text = "Status: Aksi dibatalkan."
+	end)
 end
 
 -- Main Logic
--- Cek status admin saat pemain bergabung atau saat atribut berubah
-isAdmin = player:GetAttribute("IsAdmin")
-if isAdmin then
-	CreateAdminUI()
-end
-
 player:GetAttributeChangedSignal("IsAdmin"):Connect(function()
 	isAdmin = player:GetAttribute("IsAdmin")
 	if isAdmin then
 		CreateAdminUI()
 	else
-		-- Jika status admin dicabut, hancurkan UI
 		local adminGui = player.PlayerGui:FindFirstChild("AdminPanelGui")
 		if adminGui then
 			adminGui:Destroy()
 		end
 	end
 end)
+
+isAdmin = player:GetAttribute("IsAdmin")
+if isAdmin then
+	CreateAdminUI()
+end
