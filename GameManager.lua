@@ -1,5 +1,6 @@
 -- GameManager.lua (Script)
 -- Path: ServerScriptService/Script/GameManager.lua
+-- Script Place: ACT 1: Village
 
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -490,4 +491,5 @@ OpenStartUIEvent.OnServerEvent:Connect(function(_player)
 			end
 		end
 	end)
+
 end)
