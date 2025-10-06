@@ -152,5 +152,4 @@ end
 -- Loop utama untuk mengontrol visibilitas crosshair (sebagai backup)
 RunService.RenderStepped:Connect(function()
 	updateCrosshairVisibility()
-
 end)
