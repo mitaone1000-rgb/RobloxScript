@@ -1,5 +1,6 @@
 -- GlobalKnockNotificationUI.lua (LocalScript)
 -- Path: StarterGui/GlobalKnockNotificationUI.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -570,4 +571,5 @@ GameOverEvent.OnClientEvent:Connect(function()
 			containerGui.Enabled = false
 		end
 	end
+
 end)
