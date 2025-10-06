@@ -1,5 +1,6 @@
 -- SpawnerModule.lua (ModuleScript)
 -- Path: ServerScriptService/ModuleScript/SpawnerModule.lua
+-- Script Place: ACT 1: Village
 
 local SpawnerModule = {}
 
@@ -115,5 +116,6 @@ function SpawnerModule.SpawnWave(amount, wave, playerCount)
 
 	return isBossWave
 end
+
 
 return SpawnerModule
