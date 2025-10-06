@@ -1,5 +1,6 @@
 -- PerkModule.lua (ModuleScript)
 -- Path: ServerScriptService/ModuleScript/PerkModule.lua
+-- Script Place: ACT 1: Village
 
 local playerPerks = {}
 
