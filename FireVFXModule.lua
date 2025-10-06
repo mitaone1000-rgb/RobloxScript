@@ -191,5 +191,4 @@ function FireVFX.PlaySound(part)
 	end
 end
 
-
 return FireVFX
