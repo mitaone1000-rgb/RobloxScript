@@ -1504,5 +1504,4 @@ function Boss3VFXModule.CleanupGraspingSoul(soul)
 	end
 end
 
-
 return Boss3VFXModule
