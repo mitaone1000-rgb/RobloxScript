@@ -1,5 +1,6 @@
 -- ZombieModule.lua (ModuleScript)
 -- Path: ServerScriptService/ModuleScript/ZombieModule.lua
+-- Script Place: ACT 1: Village
 
 local ZombieModule = {}
 
