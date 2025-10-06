@@ -6,7 +6,10 @@ local PointsSystem = {}
 
 local playerPoints = {}
 
--- Replace / paste this under: function PointsSystem.SetupPlayer(player)
+-- Tambahkan ini di atas
+local ServerScriptService = game:GetService("ServerScriptService")
+local LevelManager = require(ServerScriptService.ModuleScript:WaitForChild("LevelManager"))
+
 function PointsSystem.SetupPlayer(player)
 	-- simpan poin internal
 	playerPoints[player] = 10000
@@ -26,7 +29,7 @@ function PointsSystem.SetupPlayer(player)
 		bp.Name = "BP"
 		bp.Value = 0
 		bp.Parent = leaderstats
-		
+
 		local totalDamage = Instance.new("IntValue")
 		totalDamage.Name = "TotalDamage"
 		totalDamage.Value = 0
@@ -104,6 +107,11 @@ function PointsSystem.AddDamage(player, damageAmount)
 		if v then
 			v.Value = v.Value + damageAmount
 		end
+	end
+
+	-- Integrasi dengan LevelManager: 1 damage = 1 XP
+	if LevelManager then
+		LevelManager.AddXP(player, damageAmount)
 	end
 end
 
