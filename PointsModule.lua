@@ -105,5 +105,4 @@ function PointsSystem.AddRevive(player)
 	end
 end
 
-
 return PointsSystem
