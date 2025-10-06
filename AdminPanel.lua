@@ -1,6 +1,6 @@
 -- AdminPanel.lua (LocalScript)
 -- LOKASI: StarterGui
--- FUNGSI: Membuat UI Panel Admin yang rapi dan menangani semua logika di sisi klien.
+-- FUNGSI: Membuat UI Panel Admin yang rapi, fungsional, dengan daftar pemain.
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -36,8 +36,8 @@ local function CreateAdminUI()
 	-- Main Frame
 	local mainFrame = Instance.new("Frame")
 	mainFrame.Name = "MainFrame"
-	mainFrame.Size = UDim2.new(0, 400, 0, 280)
-	mainFrame.Position = UDim2.new(0.5, -200, 0.5, -140)
+	mainFrame.Size = UDim2.new(0, 400, 0, 320) -- Tambah tinggi untuk tombol baru
+	mainFrame.Position = UDim2.new(0.5, -200, 0.5, -160)
 	mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 	mainFrame.BorderColor3 = Color3.fromRGB(80, 80, 80)
 	mainFrame.Visible = false
@@ -125,11 +125,11 @@ local function CreateAdminUI()
 	buttonsLayout.Padding = UDim.new(0, 10)
 	buttonsLayout.Parent = buttonsFrame
 
-	local function createButton(name, text, parent)
+	local function createButton(name, text, parent, size)
 		local button = Instance.new("TextButton")
 		button.Name = name
 		button.Text = text
-		button.Size = UDim2.new(0.33, -7, 1, 0)
+		button.Size = size or UDim2.new(0.33, -7, 1, 0)
 		button.TextColor3 = Color3.new(1, 1, 1)
 		button.Font = Enum.Font.SourceSansBold
 		button.Parent = parent
@@ -146,6 +146,11 @@ local function CreateAdminUI()
 	local deleteDataButton = createButton("DeleteDataButton", "Delete Data", buttonsFrame)
 	deleteDataButton.BackgroundColor3 = Color3.fromRGB(180, 70, 70)
 
+	-- Player List Button
+	local playerListButton = createButton("PlayerListButton", "Daftar Pemain", mainFrame, UDim2.new(1, 0, 0, 35))
+	playerListButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+	playerListButton.LayoutOrder = 5
+
 	-- Status Label
 	local statusLabel = Instance.new("TextLabel")
 	statusLabel.Name = "StatusLabel"
@@ -154,7 +159,7 @@ local function CreateAdminUI()
 	statusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
 	statusLabel.BackgroundTransparency = 1
 	statusLabel.TextWrapped = true
-	statusLabel.LayoutOrder = 5
+	statusLabel.LayoutOrder = 6
 	statusLabel.Parent = mainFrame
 
 	-- Pop-up Frames
@@ -171,11 +176,6 @@ local function CreateAdminUI()
 		frame.Parent = screenGui
 		Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
 
-		local layout = Instance.new("UIListLayout")
-		layout.Padding = UDim.new(0, 10)
-		layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-		layout.Parent = frame
-
 		local padding = Instance.new("UIPadding")
 		padding.PaddingTop = UDim.new(0, 10)
 		padding.PaddingBottom = UDim.new(0, 10)
@@ -186,39 +186,61 @@ local function CreateAdminUI()
 		return frame
 	end
 
+	-- Player List UI
+	local playerListFrame = createPopupFrame("PlayerListFrame", UDim2.new(0, 300, 0, 400), 4)
+	local playerListLayout = Instance.new("UIListLayout")
+	playerListLayout.Padding = UDim.new(0, 5)
+	playerListLayout.Parent = playerListFrame
+
+	local playerListTitle = Instance.new("TextLabel")
+	playerListTitle.Size = UDim2.new(1, 0, 0, 25)
+	playerListTitle.Text = "Pemain Online"
+	playerListTitle.Font = Enum.Font.SourceSansBold
+	playerListTitle.TextColor3 = Color3.new(1, 1, 1)
+	playerListTitle.BackgroundTransparency = 1
+	playerListTitle.Parent = playerListFrame
+
+	local playerListScroll = Instance.new("ScrollingFrame")
+	playerListScroll.Size = UDim2.new(1, 0, 1, -65)
+	playerListScroll.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	playerListScroll.Parent = playerListFrame
+	Instance.new("UICorner", playerListScroll).CornerRadius = UDim.new(0, 6)
+
+	local playerListScrollLayout = Instance.new("UIListLayout")
+	playerListScrollLayout.Padding = UDim.new(0, 5)
+	playerListScrollLayout.Parent = playerListScroll
+
+	local closePlayerListButton = createButton("ClosePlayerListButton", "Tutup", playerListFrame, UDim2.new(1, 0, 0, 30))
+	closePlayerListButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+
 	-- Data Display UI
 	local dataDisplayFrame = createPopupFrame("DataDisplayFrame", UDim2.new(0, 300, 0, 180), 2)
+	local dataDisplayLayout = Instance.new("UIListLayout")
+	dataDisplayLayout.Padding = UDim.new(0, 10)
+	dataDisplayLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	dataDisplayLayout.Parent = dataDisplayFrame
 
 	local displayTitle = Instance.new("TextLabel")
 	displayTitle.Size = UDim2.new(1, 0, 0, 25)
 	displayTitle.Text = "Player Data"
 	displayTitle.Font = Enum.Font.SourceSansBold
-	displayTitle.TextSize = 16
 	displayTitle.TextColor3 = Color3.new(1, 1, 1)
 	displayTitle.BackgroundTransparency = 1
 	displayTitle.Parent = dataDisplayFrame
 
-	local function createDisplayLabel(name, parent)
-		local label = Instance.new("TextLabel")
-		label.Name = name
-		label.Size = UDim2.new(1, 0, 0, 20)
-		label.TextColor3 = Color3.new(1, 1, 1)
-		label.BackgroundTransparency = 1
-		label.TextXAlignment = Enum.TextXAlignment.Left
-		label.Parent = parent
-		return label
-	end
+	local displayUserIdLabel = createButton("displayUserIdLabel", "", dataDisplayFrame, UDim2.new(1,0,0,20))
+	local displayLevelLabel = createButton("displayLevelLabel", "", dataDisplayFrame, UDim2.new(1,0,0,20))
+	local displayXpLabel = createButton("displayXpLabel", "", dataDisplayFrame, UDim2.new(1,0,0,20))
 
-	local displayUserIdLabel = createDisplayLabel("DisplayUserIdLabel", dataDisplayFrame)
-	local displayLevelLabel = createDisplayLabel("DisplayLevelLabel", dataDisplayFrame)
-	local displayXpLabel = createDisplayLabel("DisplayXpLabel", dataDisplayFrame)
-
-	local closeDisplayButton = createButton("CloseDisplayButton", "Close", dataDisplayFrame)
-	closeDisplayButton.Size = UDim2.new(1, 0, 0, 30)
+	local closeDisplayButton = createButton("CloseDisplayButton", "Close", dataDisplayFrame, UDim2.new(1, 0, 0, 30))
 	closeDisplayButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 
 	-- Confirmation Dialog UI
 	local confirmationFrame = createPopupFrame("ConfirmationFrame", UDim2.new(0, 350, 0, 130), 3)
+	local confirmationLayout = Instance.new("UIListLayout")
+	confirmationLayout.Padding = UDim.new(0, 10)
+	confirmationLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	confirmationLayout.Parent = confirmationFrame
 
 	local confirmationLabel = Instance.new("TextLabel")
 	confirmationLabel.Size = UDim2.new(1, 0, 0, 50)
@@ -237,93 +259,92 @@ local function CreateAdminUI()
 	confirmButtonsLayout.Padding = UDim.new(0, 10)
 	confirmButtonsLayout.Parent = confirmButtonsFrame
 
-	local confirmYesButton = createButton("ConfirmYesButton", "Ya", confirmButtonsFrame)
-	confirmYesButton.Size = UDim2.new(0.5, -5, 1, 0)
+	local confirmYesButton = createButton("ConfirmYesButton", "Ya", confirmButtonsFrame, UDim2.new(0.5, -5, 1, 0))
 	confirmYesButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
 
-	local confirmNoButton = createButton("ConfirmNoButton", "Tidak", confirmButtonsFrame)
-	confirmNoButton.Size = UDim2.new(0.5, -5, 1, 0)
+	local confirmNoButton = createButton("ConfirmNoButton", "Tidak", confirmButtonsFrame, UDim2.new(0.5, -5, 1, 0))
 	confirmNoButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 
 	-- UI Logic
 	local function togglePanel()
 		mainFrame.Visible = not mainFrame.Visible
-		if not mainFrame.Visible then
-			dataDisplayFrame.Visible = false
-			confirmationFrame.Visible = false
+		if not mainFrame.Visible then -- Sembunyikan semua popup
+			dataDisplayFrame.Visible, confirmationFrame.Visible, playerListFrame.Visible = false, false, false
 		end
 	end
 
 	UserInputService.InputBegan:Connect(function(input, gameProcessed)
 		if gameProcessed or userIdBox:IsFocused() or levelBox:IsFocused() or xpBox:IsFocused() then return end
-		if input.KeyCode == Enum.KeyCode.P then
-			togglePanel()
-		end
+		if input.KeyCode == Enum.KeyCode.P then togglePanel() end
 	end)
 
+	-- Player List Logic
+	local function updatePlayerList()
+		for _, v in ipairs(playerListScroll:GetChildren()) do
+			if v:IsA("TextButton") then v:Destroy() end
+		end
+		for _, p in ipairs(Players:GetPlayers()) do
+			local playerButton = createButton(p.Name, p.Name, playerListScroll, UDim2.new(1, 0, 0, 30))
+			playerButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+			playerButton.MouseButton1Click:Connect(function()
+				userIdBox.Text = tostring(p.UserId)
+				playerListFrame.Visible = false
+				statusLabel.Text = "Status: UserID " .. p.UserId .. " dipilih."
+			end)
+		end
+	end
+
+	playerListButton.MouseButton1Click:Connect(function()
+		updatePlayerList()
+		playerListFrame.Visible = true
+	end)
+	closePlayerListButton.MouseButton1Click:Connect(function() playerListFrame.Visible = false end)
+	Players.PlayerAdded:Connect(updatePlayerList)
+	Players.PlayerRemoving:Connect(updatePlayerList)
+
+	-- Main Buttons Logic
 	getDataButton.MouseButton1Click:Connect(function()
 		local targetUserId = tonumber(userIdBox.Text)
-		if not targetUserId then
-			statusLabel.Text = "Status: UserID tidak valid."
-			return
-		end
+		if not targetUserId then statusLabel.Text = "Status: UserID tidak valid."; return end
 
 		statusLabel.Text = "Status: Meminta data..."
 		local data, message = requestDataFunc:InvokeServer(targetUserId)
 
 		if data then
-			levelBox.Text = tostring(data.Level)
-			xpBox.Text = tostring(data.XP)
+			levelBox.Text, xpBox.Text = tostring(data.Level), tostring(data.XP)
 			statusLabel.Text = "Status: Data berhasil dimuat untuk UserID " .. targetUserId
-			displayUserIdLabel.Text = "UserID: " .. tostring(targetUserId)
-			displayLevelLabel.Text = "Level: " .. tostring(data.Level)
-			displayXpLabel.Text = "XP: " .. tostring(data.XP)
+			displayUserIdLabel.Text, displayLevelLabel.Text, displayXpLabel.Text = "UserID: " .. targetUserId, "Level: " .. data.Level, "XP: " .. data.XP
 			dataDisplayFrame.Visible = true
 		else
-			levelBox.Text = ""
-			xpBox.Text = ""
+			levelBox.Text, xpBox.Text = "", ""
 			statusLabel.Text = "Status: Gagal memuat data. Pesan: " .. (message or "Tidak ada data.")
 			dataDisplayFrame.Visible = false
 		end
 	end)
 
 	local function triggerConfirmation(action, id, data)
-		pendingAction = action
-		pendingTargetId = id
-		pendingData = data
-
+		pendingAction, pendingTargetId, pendingData = action, id, data
 		if action == "set" then
-			confirmationLabel.Text = "Apakah Anda yakin ingin mengubah data untuk UserID " .. tostring(id) .. "?"
+			confirmationLabel.Text = "Apakah Anda yakin ingin mengubah data untuk UserID " .. id .. "?"
 		else
-			confirmationLabel.Text = "PERINGATAN: Aksi ini akan menghapus data secara permanen. Apakah Anda yakin ingin menghapus data untuk UserID " .. tostring(id) .. "?"
+			confirmationLabel.Text = "PERINGATAN: Aksi ini akan menghapus data secara permanen. Apakah Anda yakin ingin menghapus data untuk UserID " .. id .. "?"
 		end
 		confirmationFrame.Visible = true
 	end
 
 	setDataButton.MouseButton1Click:Connect(function()
-		local targetUserId = tonumber(userIdBox.Text)
-		local newLevel = tonumber(levelBox.Text)
-		local newXp = tonumber(xpBox.Text)
-
-		if not targetUserId or not newLevel or not newXp then
-			statusLabel.Text = "Status: Semua kolom harus diisi dengan angka valid."
-			return
-		end
+		local targetUserId, newLevel, newXp = tonumber(userIdBox.Text), tonumber(levelBox.Text), tonumber(xpBox.Text)
+		if not (targetUserId and newLevel and newXp) then statusLabel.Text = "Status: Semua kolom harus diisi angka valid."; return end
 		triggerConfirmation("set", targetUserId, {Level = newLevel, XP = newXp})
 	end)
 
 	deleteDataButton.MouseButton1Click:Connect(function()
 		local targetUserId = tonumber(userIdBox.Text)
-		if not targetUserId then
-			statusLabel.Text = "Status: UserID tidak valid."
-			return
-		end
+		if not targetUserId then statusLabel.Text = "Status: UserID tidak valid."; return end
 		triggerConfirmation("delete", targetUserId)
 	end)
 
-	closeDisplayButton.MouseButton1Click:Connect(function()
-		dataDisplayFrame.Visible = false
-	end)
+	closeDisplayButton.MouseButton1Click:Connect(function() dataDisplayFrame.Visible = false end)
 
 	local function resetConfirmationState()
 		pendingAction, pendingTargetId, pendingData = nil, nil, nil
@@ -334,13 +355,12 @@ local function CreateAdminUI()
 		if pendingAction == "set" then
 			updateDataEvent:FireServer(pendingTargetId, pendingData)
 			statusLabel.Text = "Status: Permintaan perubahan data dikirim."
-			dataDisplayFrame.Visible = false
 		elseif pendingAction == "delete" then
 			deleteDataEvent:FireServer(pendingTargetId)
 			statusLabel.Text = "Status: Permintaan hapus data dikirim."
 			levelBox.Text, xpBox.Text = "", ""
-			dataDisplayFrame.Visible = false
 		end
+		dataDisplayFrame.Visible = false
 		resetConfirmationState()
 	end)
 
@@ -353,17 +373,12 @@ end
 -- Main Logic
 player:GetAttributeChangedSignal("IsAdmin"):Connect(function()
 	isAdmin = player:GetAttribute("IsAdmin")
-	if isAdmin then
-		CreateAdminUI()
+	if isAdmin then CreateAdminUI()
 	else
 		local adminGui = player.PlayerGui:FindFirstChild("AdminPanelGui")
-		if adminGui then
-			adminGui:Destroy()
-		end
+		if adminGui then adminGui:Destroy() end
 	end
 end)
 
 isAdmin = player:GetAttribute("IsAdmin")
-if isAdmin then
-	CreateAdminUI()
-end
+if isAdmin then CreateAdminUI() end
