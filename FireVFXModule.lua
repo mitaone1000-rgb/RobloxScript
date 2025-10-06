@@ -1,5 +1,6 @@
 -- FireVFXModule.lua (ModuleScript)
 -- Path: ReplicatedStorage/ElementVFX/FireVFXModule.lua
+-- Script Place: ACT 1: Village
 
 local FireVFX = {}
 
@@ -189,5 +190,6 @@ function FireVFX.PlaySound(part)
 		Debris:AddItem(sound, 5)
 	end
 end
+
 
 return FireVFX
