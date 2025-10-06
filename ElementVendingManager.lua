@@ -1,5 +1,6 @@
 -- ElementVendingManager.lua (Script)
 -- Path: ServerScriptService/Script/ElementVendingManager.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -120,4 +121,5 @@ end
 Players.PlayerRemoving:Connect(function(player)
 	-- Tutup UI shop jika terbuka
 	CloseElementShopEvent:FireClient(player)
+
 end)
