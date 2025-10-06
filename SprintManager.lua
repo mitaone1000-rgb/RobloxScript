@@ -1,5 +1,6 @@
 -- SprintManager.lua (Script)
 -- Path: ServerScriptService/Script/SprintManager.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -122,4 +123,5 @@ jumpEvent.OnServerEvent:Connect(function(player)
 	if data.stamina >= 5 then
 		data.stamina = data.stamina - 5
 	end
+
 end)
