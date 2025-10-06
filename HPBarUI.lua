@@ -1,5 +1,6 @@
 -- HPBarUI.lua (LocalScript)
 -- Path: StarterGui/HPBarUI.lua
+-- Script Place: ACT 1: Village
 
 local Players            = game:GetService("Players")
 local TweenService       = game:GetService("TweenService")
@@ -455,5 +456,6 @@ local function init()
 	end
 	localPlayer.CharacterAdded:Connect(onCharacterAdded)
 end
+
 
 init()
