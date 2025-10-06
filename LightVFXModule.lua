@@ -1,5 +1,6 @@
 -- LightVFXModule.lua (ModuleScript)
 -- Path: ReplicatedStorage/ElementVFX/LightVFXModule.lua
+-- Script Place: ACT 1: Village
 
 local LightVFX = {}
 
@@ -79,5 +80,6 @@ function LightVFX.RemoveForPlayer(player: Player)
 	local folder = char:FindFirstChild("LightVFX")
 	if folder then folder:Destroy() end
 end
+
 
 return LightVFX
