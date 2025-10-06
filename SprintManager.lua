@@ -123,5 +123,4 @@ jumpEvent.OnServerEvent:Connect(function(player)
 	if data.stamina >= 5 then
 		data.stamina = data.stamina - 5
 	end
-
 end)
