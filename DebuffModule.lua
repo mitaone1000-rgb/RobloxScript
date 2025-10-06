@@ -1,5 +1,6 @@
 -- DebuffModule.lua (ModuleScript)
 -- Path: ServerScriptService/ModuleScript/DebuffModule.lua
+-- Script Place: ACT 1: Village
 
 local DebuffManager = {}
 
@@ -81,5 +82,6 @@ end
 RunService.Heartbeat:Connect(function()
 	DebuffManager._updateDebuffs()
 end)
+
 
 return DebuffManager
