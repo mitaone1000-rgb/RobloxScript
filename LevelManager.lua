@@ -31,6 +31,24 @@ function LevelManager.GetData(player)
 	end
 end
 
+-- Fungsi untuk mendapatkan data pemain berdasarkan UserID (untuk admin)
+function LevelManager.GetDataByUserId(userId)
+	local success, data = pcall(function()
+		return levelStore:GetAsync("Player_" .. userId)
+	end)
+
+	if success and data then
+		return data
+	else
+		-- Jika tidak ada data, kembalikan data default
+		if not data then
+			return { Level = 1, XP = 0 }
+		end
+		warn("LevelManager: Gagal memuat data untuk UserID " .. userId .. ". Error: " .. tostring(data))
+		return nil
+	end
+end
+
 -- Fungsi untuk menyimpan data pemain
 function LevelManager.SaveData(player, data)
 	if not player or not data then return end
@@ -51,6 +69,43 @@ function LevelManager.SaveData(player, data)
 	task.delay(5, function()
 		saveDebounce[player] = nil
 	end)
+end
+
+-- Fungsi untuk mengubah data pemain berdasarkan UserID (untuk admin)
+function LevelManager.SetData(userId, newData)
+	if not userId or not newData then return false, "Invalid arguments" end
+
+	-- Validasi data baru
+	if type(newData.Level) ~= "number" or type(newData.XP) ~= "number" then
+		return false, "Invalid data format"
+	end
+
+	local success, err = pcall(function()
+		levelStore:SetAsync("Player_" .. userId, newData)
+	end)
+
+	if not success then
+		warn("LevelManager: Gagal mengubah data untuk UserID " .. userId .. ". Error: " .. tostring(err))
+		return false, tostring(err)
+	end
+
+	return true, "Data updated successfully"
+end
+
+-- Fungsi untuk menghapus data pemain berdasarkan UserID (untuk admin)
+function LevelManager.DeleteData(userId)
+	if not userId then return false, "Invalid arguments" end
+
+	local success, err = pcall(function()
+		levelStore:RemoveAsync("Player_" .. userId)
+	end)
+
+	if not success then
+		warn("LevelManager: Gagal menghapus data untuk UserID " .. userId .. ". Error: " .. tostring(err))
+		return false, tostring(err)
+	end
+
+	return true, "Data removed successfully"
 end
 
 -- Fungsi untuk menambahkan XP
