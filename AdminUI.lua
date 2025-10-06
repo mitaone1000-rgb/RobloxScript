@@ -1,5 +1,5 @@
--- AdminPanel.lua (LocalScript)
--- Path: StarterGui/AdminPanel.lua
+-- AdminUI.lua (LocalScript)
+-- Path: StarterGui/AdminUI.lua
 -- Script Place: Lobby
 
 -- Services
