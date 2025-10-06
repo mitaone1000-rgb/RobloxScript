@@ -1188,5 +1188,4 @@ WeaponModule.Weapons = {
 	}
 }
 
-
 return WeaponModule
