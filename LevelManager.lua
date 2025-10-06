@@ -6,7 +6,8 @@ local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 
 -- Gunakan scope "dev" untuk DataStore
-local levelStore = DataStoreService:GetDataStore("PlayerLevels_dev")
+-- Gunakan DataStore "Player_dev" dengan scope "Level"
+local levelStore = DataStoreService:GetDataStore("Player_dev", "Level")
 
 local LevelManager = {}
 
