@@ -1,5 +1,5 @@
--- AdminService.lua
--- Path: ServerScriptService/Script/AdminService.lua
+-- AdminManager.lua
+-- Path: ServerScriptService/Script/AdminManager.lua
 -- Script Place: Lobby
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
