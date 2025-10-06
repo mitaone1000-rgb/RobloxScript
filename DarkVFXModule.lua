@@ -340,4 +340,3 @@ function DarkVFX.PlaySoundAt(part: BasePart)
 end
 
 return DarkVFX
-
