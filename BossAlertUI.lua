@@ -1,5 +1,6 @@
 -- BossAlertUI.lua (LocalScript)
 -- Path: StarterGui/BossAlertUI.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -277,4 +278,5 @@ bossIncoming.OnClientEvent:Connect(function(bossName)
 	animateOut()
 	if pulseConnection then pulseConnection:Disconnect() end
 	if skullConnection then skullConnection:Disconnect() end
+
 end)
