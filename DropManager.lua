@@ -1,5 +1,6 @@
 -- DropManager.lua (Script)
 -- Path: ServerScriptService/Script/DropManager.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
@@ -365,5 +366,6 @@ workspace.ChildAdded:Connect(function(child)
 	task.wait(0.03)
 	pcall(function() watchZombie(child) end)
 end)
+
 
 print("[DropManager] aktif - drop chance:", DROP_CHANCE)
