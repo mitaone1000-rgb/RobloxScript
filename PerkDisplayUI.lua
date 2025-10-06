@@ -322,5 +322,4 @@ perkUpdateEv.OnClientEvent:Connect(function(perks)
 end)
 
 -- Inisialisasi
-
 updatePerksDisplay({})
