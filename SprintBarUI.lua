@@ -76,6 +76,9 @@ gui.Parent = player:WaitForChild("PlayerGui")
 -- Container responsif (mengikuti ukuran dan posisi HP bar)
 local container = Instance.new("Frame")
 container.Name = "StaminaContainer"
+container.AnchorPoint = Vector2.new(0, 1)
+container.Position = UDim2.new(0,01, 0, 0.99, 0)
+container.Size = UDim2.new(0.25, 0, 0.07, 0)
 container.BackgroundTransparency = 1
 container.Parent = gui
 
@@ -655,4 +658,3 @@ RunService.RenderStepped:Connect(function(dt)
 
 	updateBar()
 end)
-
