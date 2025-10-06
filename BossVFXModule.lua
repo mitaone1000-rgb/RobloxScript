@@ -1,5 +1,6 @@
 -- BossVFXModule.lua (ModuleScript)
 -- Path: ReplicatedStorage/ZombieVFX/BossVFXModule.lua
+-- Script Place: ACT 1: Village
 
 local BossVFXModule = {}
 
@@ -529,3 +530,4 @@ function BossVFXModule.CreateBossPoisonEffectFollow(targetCharacter, isSpecial, 
 end
 
 return BossVFXModule
+
