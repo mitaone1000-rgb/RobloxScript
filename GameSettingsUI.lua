@@ -1,5 +1,6 @@
 -- GameSettingsUI.lua (LocalScript)
 -- StarterGui/GameSettingsUI.lua
+-- Script Place: ACT 1: Village
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -551,4 +552,5 @@ playerGui.ChildAdded:Connect(function(child)
 			loadButtonSettings(child)
 		end
 	end
+
 end)
