@@ -491,5 +491,4 @@ OpenStartUIEvent.OnServerEvent:Connect(function(_player)
 			end
 		end
 	end)
-
 end)
