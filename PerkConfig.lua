@@ -1,5 +1,6 @@
 -- PerkConfig.lua (ModuleScript)
 -- Path: ReplicatedStorage/ModuleScript/PerkConfig.lua
+-- Script Place: ACT 1: Village
 
 local PerkConfig = {}
 
@@ -25,5 +26,6 @@ PerkConfig.Perks = {
 		Icon = "🚀"
 	}
 }
+
 
 return PerkConfig
