@@ -1,5 +1,6 @@
 -- WalkSpeedManager.lua (Script)
 -- Path: ServerScriptService/Script/WalkSpeedManager.lua
+-- Script Place: ACT 1: Village
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -74,4 +75,5 @@ RunService.Heartbeat:Connect(function()
 	for _, player in ipairs(Players:GetPlayers()) do
 		updatePlayerSpeed(player)
 	end
+
 end)
