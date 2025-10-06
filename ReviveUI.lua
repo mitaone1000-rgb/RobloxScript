@@ -1,5 +1,6 @@
 -- ReviveUI.lua (LocalScript)
 -- Path: StarterGui/ReviveUI.lua
+-- Script Place: ACT 1: Village
 
 local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -226,4 +227,5 @@ end)
 
 -- Cancel if button is released
 mobileReviveBtn.MouseButton1Up:Connect(cancelRevive)
+
 mobileReviveBtn.MouseLeave:Connect(cancelRevive)
