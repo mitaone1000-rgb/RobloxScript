@@ -163,5 +163,4 @@ function ShockVFXModule.PlayShockSoundAt(part: BasePart)
 	end
 end
 
-
 return ShockVFXModule
