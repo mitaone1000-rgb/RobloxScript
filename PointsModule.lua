@@ -26,21 +26,21 @@ function PointsSystem.SetupPlayer(player)
 		bp.Name = "BP"
 		bp.Value = 0
 		bp.Parent = leaderstats
-
-		local kills = Instance.new("IntValue")
-		kills.Name = "Kills"
-		kills.Value = 0
-		kills.Parent = leaderstats
-
-		local knocks = Instance.new("IntValue")
-		knocks.Name = "Knock"
-		knocks.Value = 0
-		knocks.Parent = leaderstats
 		
 		local totalDamage = Instance.new("IntValue")
 		totalDamage.Name = "TotalDamage"
 		totalDamage.Value = 0
 		totalDamage.Parent = leaderstats
+
+		local kills = Instance.new("IntValue")
+		kills.Name = "Kills"
+		kills.Value = 0
+		kills.Parent = leaderstats	
+
+		local knocks = Instance.new("IntValue")
+		knocks.Name = "Knock"
+		knocks.Value = 0
+		knocks.Parent = leaderstats
 	end
 end
 
@@ -55,7 +55,7 @@ end
 function PointsSystem.AddPoints(player, amount)
 	if not playerPoints[player] then return end
 	playerPoints[player] += amount
-	
+
 	-- update leaderstats BP bila ada
 	if player and player:FindFirstChild("leaderstats") then
 		local bpVal = player.leaderstats:FindFirstChild("BP")
