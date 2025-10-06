@@ -1,5 +1,6 @@
 -- HealthHandler.lua (Script)
 -- Path: ServerScriptService/Script/HealthHandler.lua
+-- Script Place: ACT 1: Village
 
 game.Players.PlayerAdded:Connect(function(player)
 	player.CharacterAdded:Connect(function(char)
@@ -9,4 +10,5 @@ game.Players.PlayerAdded:Connect(function(player)
 			healthScript:Destroy()
 		end
 	end)
+
 end)
