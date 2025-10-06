@@ -1,5 +1,6 @@
 -- TracerHandler.lua (Script)
 -- Path: ServerScriptService/Script/TracerHandler.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Debris = game:GetService("Debris")
@@ -21,3 +22,4 @@ TracerEvent.OnServerEvent:Connect(function(player, startPos, endPos, weaponName)
 	-- Broadcast ke semua client untuk render tracer di sisi client
 	TracerBroadcast:FireAllClients(player, startPos, endPos, weaponName)
 end)
+
