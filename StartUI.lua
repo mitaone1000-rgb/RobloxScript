@@ -1,5 +1,6 @@
 -- StartUI.lua (LocalScript)
 -- Path: StarterGui/StartUI.lua
+-- Script Place: ACT 1: Village
 
 local UIS = game:GetService("UserInputService")
 local player = game.Players.LocalPlayer
@@ -511,4 +512,5 @@ game:GetService("RunService").RenderStepped:Connect(function()
 			end
 		end
 	end
+
 end)
