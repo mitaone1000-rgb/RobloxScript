@@ -10,5 +10,4 @@ game.Players.PlayerAdded:Connect(function(player)
 			healthScript:Destroy()
 		end
 	end)
-
 end)
