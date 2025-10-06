@@ -58,7 +58,7 @@ ZombieConfig.Types = {
 			Interval = 60,
 			SinglePoisonPct = 0.40,
 			Duration = 4,
-			SpecialTimeout = 300,
+			SpecialTimeout = 30,
 			SpecialDuration = 10
 		},
 		-- radiasi (kolom sempit, vertikal tinggi)
@@ -70,7 +70,7 @@ ZombieConfig.Types = {
 		},
 		ChanceWaveMin = 10,
 		ChanceWaveMax = 15,
-		ChanceToSpawn = 0.3
+		ChanceToSpawn = 1
 	},
 	Boss2 = {
 		MaxHealth = 100000,  -- Diperbesar untuk Boss
@@ -185,4 +185,3 @@ ZombieConfig.Types = {
 }
 
 return ZombieConfig
-
