@@ -1,5 +1,6 @@
 -- UpgradeManager.lua (Script)
 -- Path: ServerScriptService/Script/UpgradeManager.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -186,4 +187,5 @@ confirmUpgradeEvent.OnServerEvent:Connect(function(player, tool, confirm)
 
 		upgradeEvent:FireClient(player, weaponName, newLevel)
 	end
+
 end)
