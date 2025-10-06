@@ -1,5 +1,6 @@
 -- BulletholeClient.lua (LocalScript)
 -- Path: StarterPlayer/StarterPlayerScripts/BulletholeClient.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Debris = game:GetService("Debris")
@@ -176,4 +177,5 @@ end
 
 BulletholeEvent.OnClientEvent:Connect(function(position, normal)
 	createBullethole(position, normal)
+
 end)
