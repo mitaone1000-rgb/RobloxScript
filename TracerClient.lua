@@ -68,4 +68,3 @@ TracerBroadcast.OnClientEvent:Connect(function(shooter: Player, startPos: Vector
 	-- Render untuk semua client, termasuk penembak (polanya sama seperti muzzle flash broadcast)
 	spawnTracer(startPos, endPos)
 end)
-
