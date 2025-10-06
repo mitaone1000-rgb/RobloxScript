@@ -187,5 +187,4 @@ confirmUpgradeEvent.OnServerEvent:Connect(function(player, tool, confirm)
 
 		upgradeEvent:FireClient(player, weaponName, newLevel)
 	end
-
 end)
