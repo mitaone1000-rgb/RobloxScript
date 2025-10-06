@@ -1,5 +1,6 @@
 -- BuildingModule.lua (ModuleScript)
 -- Path: ServerScriptService/ModuleScript/BuildingModule.lua
+-- Script Place: ACT 1: Village
 
 local BuildingManager = {}
 
@@ -32,5 +33,6 @@ function BuildingManager.restoreBuildings()
 		building.Parent = buildingsFolder
 	end
 end
+
 
 return BuildingManager
