@@ -7,7 +7,7 @@ local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 
 -- Memuat data tempat dari ModuleScript
-local PlaceData = require(script.Parent.Parent.ModuleScript.PlaceData)
+local PlaceData = require(script.Parent.Parent.ModuleScript.PlaceDataConfig)
 
 -- Debounce table untuk teleportasi
 local teleportingPlayers = {}
