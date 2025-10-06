@@ -37,5 +37,4 @@ MuzzleFlashBroadcast.OnClientEvent:Connect(function(flashCFrame, weaponName)
 
 	flash.Parent = workspace
 	Debris:AddItem(flash, 0.06)
-
 end)
