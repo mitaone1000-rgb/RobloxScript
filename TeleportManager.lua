@@ -9,8 +9,17 @@ local Players = game:GetService("Players")
 -- Memuat data tempat dari ModuleScript
 local PlaceData = require(script.Parent.Parent.ModuleScript.PlaceData)
 
+-- Debounce table untuk teleportasi
+local teleportingPlayers = {}
+
 -- Fungsi untuk menangani teleportasi ketika ProximityPrompt dipicu
 local function onTeleportTriggered(player, teleportPart)
+	-- Cek debounce
+	if teleportingPlayers[player.UserId] then
+		warn("Player " .. player.Name .. " is already being teleported.")
+		return
+	end
+
 	-- Dapatkan atribut "Tujuan" dari part
 	local destinationName = teleportPart:GetAttribute("Tujuan")
 
@@ -27,9 +36,24 @@ local function onTeleportTriggered(player, teleportPart)
 		return
 	end
 
-	-- Lakukan teleportasi
-	print("Mencoba memindahkan " .. player.Name .. " ke '" .. destinationName .. "' (ID: " .. placeId .. ")")
-	TeleportService:TeleportAsync(placeId, {player})
+	-- Set debounce
+	teleportingPlayers[player.UserId] = true
+
+	-- Panggil TeleportAsync dalam pcall
+	local success, result = pcall(function()
+		return TeleportService:TeleportAsync(placeId, {player})
+	end)
+
+	if success then
+		print("Successfully initiated teleport for " .. player.Name .. " to '" .. destinationName .. "' (ID: " .. placeId .. ")")
+	else
+		warn("TeleportAsync failed for " .. player.Name .. " to '" .. destinationName .. "': " .. tostring(result))
+	end
+
+	-- Hapus debounce setelah beberapa saat, meskipun gagal
+	task.delay(5, function()
+		teleportingPlayers[player.UserId] = nil
+	end)
 end
 
 -- Fungsi untuk menyiapkan ProximityPrompt pada sebuah part

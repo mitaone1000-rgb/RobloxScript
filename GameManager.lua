@@ -410,13 +410,39 @@ CancelStartVoteEvent.OnServerEvent:Connect(function(player)
 	ReadyCountEvent:FireAllClients(0, total)
 end)
 
+-- Debounce table untuk teleportasi
+local teleportingPlayers = {}
+
 -- Exit Game
 ExitGameEvent.OnServerEvent:Connect(function(player)
+	-- Cek debounce
+	if teleportingPlayers[player.UserId] then
+		warn("Player " .. player.Name .. " is already being teleported.")
+		return
+	end
+
 	print(player.Name .. " memilih Exit")
 	local lobbyId = PlaceData["Lobby"]
+
 	if lobbyId then
-		TeleportService:TeleportAsync(lobbyId, {player})
-		print("Mencoba memindahkan " .. player.Name .. " ke Lobby (ID: " .. lobbyId .. ")")
+		-- Set debounce
+		teleportingPlayers[player.UserId] = true
+
+		-- Panggil TeleportAsync dalam pcall
+		local success, result = pcall(function()
+			return TeleportService:TeleportAsync(lobbyId, {player})
+		end)
+
+		if success then
+			print("Successfully initiated teleport for " .. player.Name .. " to Lobby (ID: " .. lobbyId .. ")")
+		else
+			warn("TeleportAsync failed for " .. player.Name .. ": " .. tostring(result))
+		end
+
+		-- Hapus debounce setelah beberapa saat, meskipun gagal
+		task.delay(5, function()
+			teleportingPlayers[player.UserId] = nil
+		end)
 	else
 		warn("Lobby place ID not found in PlaceData.")
 	end
