@@ -41,4 +41,3 @@ for _, player in ipairs(Players:GetPlayers()) do
 		onPlayerAdded(player)
 	end)
 end
-
