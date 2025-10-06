@@ -94,5 +94,4 @@ WaveCountdownEvent.OnClientEvent:Connect(function(seconds)
 	else
 		countdownLabel.Visible = false
 	end
-
 end)
