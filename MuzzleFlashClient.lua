@@ -1,5 +1,6 @@
 -- MuzzleFlashClient.lua (LocalScript)
 -- Path: StarterPlayer/StarterPlayerScripts/MuzzleFlashClient.lua
+-- Script Place: ACT 1: Village
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Debris = game:GetService("Debris")
@@ -36,4 +37,5 @@ MuzzleFlashBroadcast.OnClientEvent:Connect(function(flashCFrame, weaponName)
 
 	flash.Parent = workspace
 	Debris:AddItem(flash, 0.06)
+
 end)
