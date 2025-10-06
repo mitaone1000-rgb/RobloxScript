@@ -1,14 +1,14 @@
 -- AdminService.lua
--- Path: ServerScriptService/AdminService.lua
--- Script Place: Lobby, ACT 1: Village
+-- Path: ServerScriptService/Script/AdminService.lua
+-- Script Place: Lobby
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local Players = game:GetService("Players")
 
 -- Memuat modul yang diperlukan
-local LevelManager = require(ServerScriptService:WaitForChild("LevelManager"))
-local AdminConfig = require(ServerScriptService:WaitForChild("AdminConfig"))
+local LevelManager = require(ServerScriptService.ModuleScript:WaitForChild("LevelManager"))
+local AdminConfig = require(ServerScriptService.ModuleScript:WaitForChild("AdminConfig"))
 
 -- Membuat folder untuk event admin jika belum ada
 local adminEventsFolder = ReplicatedStorage:FindFirstChild("AdminEvents")
