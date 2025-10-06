@@ -100,5 +100,4 @@ local function onEvent(command, data, boss)
 	end
 end
 
-
 uiEvent.OnClientEvent:Connect(onEvent)
