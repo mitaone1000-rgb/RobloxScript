@@ -1,5 +1,6 @@
 -- ShockVFXModule.lua (ModuleScript)
 -- Path: ReplicatedStorage/ElementVFX/ShockVFXModule.lua
+-- Script Place: ACT 1: Village
 
 local ShockVFXModule = {}
 
@@ -161,5 +162,6 @@ function ShockVFXModule.PlayShockSoundAt(part: BasePart)
 		Debris:AddItem(sound, 3)
 	end
 end
+
 
 return ShockVFXModule
