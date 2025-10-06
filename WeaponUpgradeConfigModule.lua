@@ -119,5 +119,4 @@ Players.PlayerRemoving:Connect(function(plr)
 	playerLevels[plr] = nil
 end)
 
-
 return WeaponUpgradeModule
