@@ -83,5 +83,4 @@ RunService.Heartbeat:Connect(function()
 	DebuffManager._updateDebuffs()
 end)
 
-
 return DebuffManager
