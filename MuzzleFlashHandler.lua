@@ -31,5 +31,4 @@ MuzzleFlashEvent.OnServerEvent:Connect(function(player, handle, weaponName)
 
 	-- Broadcast ke semua klien
 	MuzzleFlashBroadcast:FireAllClients(flashCFrame, weaponName)
-
 end)
