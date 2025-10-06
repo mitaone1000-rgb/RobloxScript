@@ -275,4 +275,3 @@ function ViewmodelModule:updateViewmodel(dt, isAiming)
 end
 
 return ViewmodelModule
-
