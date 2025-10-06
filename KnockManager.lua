@@ -258,5 +258,4 @@ end)
 
 game.Players.PlayerRemoving:Connect(function(player)
 	cancelRevive(player)
-
 end)
