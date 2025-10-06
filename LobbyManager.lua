@@ -5,4 +5,4 @@
 local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Memanggil LevelManager agar event PlayerAdded-nya aktif di Lobby
-local LevelManager = require(ServerScriptService.ModuleScript:WaitForChild("LevelManager"))
+local LevelManager = require(ServerScriptService.ModuleScript:WaitForChild("LevelModule"))
