@@ -1,5 +1,6 @@
 -- CrosshairUI.lua (LocalScript)
 -- Path: StarterGui/CrosshairUI.lua
+-- Script Place: ACT 1: Village
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -151,4 +152,5 @@ end
 -- Loop utama untuk mengontrol visibilitas crosshair (sebagai backup)
 RunService.RenderStepped:Connect(function()
 	updateCrosshairVisibility()
+
 end)
