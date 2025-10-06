@@ -1,5 +1,6 @@
 -- WeaponUpgradeConfigModule.lua (ModuleScript)
 -- Path: ServerScriptService/ModuleScript/WeaponUpgradeConfigModule.lua
+-- Script Place: ACT 1: Village
 
 local WeaponUpgradeModule = {}
 
@@ -117,5 +118,6 @@ end)
 Players.PlayerRemoving:Connect(function(plr)
 	playerLevels[plr] = nil
 end)
+
 
 return WeaponUpgradeModule
