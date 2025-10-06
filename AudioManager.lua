@@ -86,5 +86,4 @@ function AudioManager.playSound(soundPath, parent, properties)
 	return sound
 end
 
-
 return AudioManager
