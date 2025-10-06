@@ -619,5 +619,4 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt, plr)
 	local ok, result = pcall(function()
 		return requestOpenEvent:FireServer()
 	end)
-
 end)
