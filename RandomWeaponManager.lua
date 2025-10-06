@@ -182,5 +182,4 @@ end)
 -- cleanup pendingOffers on leave
 Players.PlayerRemoving:Connect(function(player)
 	pendingOffers[player] = nil
-
 end)
