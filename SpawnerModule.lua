@@ -117,5 +117,4 @@ function SpawnerModule.SpawnWave(amount, wave, playerCount)
 	return isBossWave
 end
 
-
 return SpawnerModule
