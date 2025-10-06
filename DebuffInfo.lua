@@ -6,5 +6,4 @@ local DebuffInfo = {}
 
 DebuffInfo.isSlowed = false
 
-
 return DebuffInfo
