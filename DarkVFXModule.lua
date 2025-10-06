@@ -1,5 +1,6 @@
 -- DarkVFXModule.lua (ModuleScript)
 -- Path: ReplicatedStorage/ElementVFX/DarkVFXModule.lua
+-- Script Place: ACT 1: Village
 
 local DarkVFX = {}
 
@@ -339,3 +340,4 @@ function DarkVFX.PlaySoundAt(part: BasePart)
 end
 
 return DarkVFX
+
