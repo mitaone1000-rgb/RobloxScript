@@ -131,9 +131,71 @@ local function CreateAdminUI()
 	statusLabel.TextXAlignment = Enum.TextXAlignment.Left
 	statusLabel.Parent = mainFrame
 
+	-- Data Display UI (New)
+	local dataDisplayFrame = Instance.new("Frame")
+	dataDisplayFrame.Name = "DataDisplayFrame"
+	dataDisplayFrame.Size = UDim2.new(0, 300, 0, 150)
+	dataDisplayFrame.Position = UDim2.new(0.5, -150, 0.5, -75)
+	dataDisplayFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	dataDisplayFrame.BorderColor3 = Color3.fromRGB(220, 220, 220)
+	dataDisplayFrame.Visible = false -- Mulai tersembunyi
+	dataDisplayFrame.Parent = screenGui -- Parent ke ScreenGui agar bisa di atas mainFrame
+
+	local displayTitle = Instance.new("TextLabel")
+	displayTitle.Name = "DisplayTitle"
+	displayTitle.Size = UDim2.new(1, 0, 0, 30)
+	displayTitle.Text = "Player Data"
+	displayTitle.TextColor3 = Color3.new(1, 1, 1)
+	displayTitle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+	displayTitle.Parent = dataDisplayFrame
+
+	local displayUserIdLabel = Instance.new("TextLabel")
+	displayUserIdLabel.Name = "DisplayUserIdLabel"
+	displayUserIdLabel.Size = UDim2.new(1, -20, 0, 20)
+	displayUserIdLabel.Position = UDim2.new(0.5, 0, 0, 40)
+	displayUserIdLabel.AnchorPoint = Vector2.new(0.5, 0)
+	displayUserIdLabel.Text = "UserID: "
+	displayUserIdLabel.TextColor3 = Color3.new(1, 1, 1)
+	displayUserIdLabel.BackgroundTransparency = 1
+	displayUserIdLabel.TextXAlignment = Enum.TextXAlignment.Left
+	displayUserIdLabel.Parent = dataDisplayFrame
+
+	local displayLevelLabel = Instance.new("TextLabel")
+	displayLevelLabel.Name = "DisplayLevelLabel"
+	displayLevelLabel.Size = UDim2.new(1, -20, 0, 20)
+	displayLevelLabel.Position = UDim2.new(0.5, 0, 0, 65)
+	displayLevelLabel.AnchorPoint = Vector2.new(0.5, 0)
+	displayLevelLabel.Text = "Level: "
+	displayLevelLabel.TextColor3 = Color3.new(1, 1, 1)
+	displayLevelLabel.BackgroundTransparency = 1
+	displayLevelLabel.TextXAlignment = Enum.TextXAlignment.Left
+	displayLevelLabel.Parent = dataDisplayFrame
+
+	local displayXpLabel = Instance.new("TextLabel")
+	displayXpLabel.Name = "DisplayXpLabel"
+	displayXpLabel.Size = UDim2.new(1, -20, 0, 20)
+	displayXpLabel.Position = UDim2.new(0.5, 0, 0, 90)
+	displayXpLabel.AnchorPoint = Vector2.new(0.5, 0)
+	displayXpLabel.Text = "XP: "
+	displayXpLabel.TextColor3 = Color3.new(1, 1, 1)
+	displayXpLabel.BackgroundTransparency = 1
+	displayXpLabel.TextXAlignment = Enum.TextXAlignment.Left
+	displayXpLabel.Parent = dataDisplayFrame
+
+	local closeDisplayButton = Instance.new("TextButton")
+	closeDisplayButton.Name = "CloseDisplayButton"
+	closeDisplayButton.Size = UDim2.new(0, 80, 0, 25)
+	closeDisplayButton.Position = UDim2.new(0.5, 0, 1, -10)
+	closeDisplayButton.AnchorPoint = Vector2.new(0.5, 1)
+	closeDisplayButton.Text = "Close"
+	closeDisplayButton.Parent = dataDisplayFrame
+
 	-- UI Logic
 	local function togglePanel()
 		mainFrame.Visible = not mainFrame.Visible
+		if not mainFrame.Visible then
+			dataDisplayFrame.Visible = false -- Sembunyikan juga display jika panel utama ditutup
+		end
 	end
 
 	UserInputService.InputBegan:Connect(function(input, gameProcessed)
@@ -148,6 +210,7 @@ local function CreateAdminUI()
 		local targetUserId = tonumber(userIdBox.Text)
 		if not targetUserId then
 			statusLabel.Text = "Status: UserID tidak valid. Harap masukkan angka."
+			dataDisplayFrame.Visible = false
 			return
 		end
 
@@ -158,10 +221,17 @@ local function CreateAdminUI()
 			levelBox.Text = tostring(data.Level)
 			xpBox.Text = tostring(data.XP)
 			statusLabel.Text = "Status: Data berhasil dimuat untuk UserID " .. targetUserId
+
+			-- Tampilkan di UI baru
+			displayUserIdLabel.Text = "UserID: " .. tostring(targetUserId)
+			displayLevelLabel.Text = "Level: " .. tostring(data.Level)
+			displayXpLabel.Text = "XP: " .. tostring(data.XP)
+			dataDisplayFrame.Visible = true
 		else
 			levelBox.Text = ""
 			xpBox.Text = ""
 			statusLabel.Text = "Status: Gagal memuat data. Pesan: " .. (message or "Tidak ada data atau error.")
+			dataDisplayFrame.Visible = false
 		end
 	end)
 
@@ -182,6 +252,7 @@ local function CreateAdminUI()
 
 		updateDataEvent:FireServer(targetUserId, newData)
 		statusLabel.Text = "Status: Permintaan perubahan data dikirim untuk UserID " .. targetUserId
+		dataDisplayFrame.Visible = false
 	end)
 
 	deleteDataButton.MouseButton1Click:Connect(function()
@@ -195,6 +266,11 @@ local function CreateAdminUI()
 		statusLabel.Text = "Status: Permintaan hapus data dikirim untuk UserID " .. targetUserId
 		levelBox.Text = ""
 		xpBox.Text = ""
+		dataDisplayFrame.Visible = false
+	end)
+
+	closeDisplayButton.MouseButton1Click:Connect(function()
+		dataDisplayFrame.Visible = false
 	end)
 end
 
