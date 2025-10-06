@@ -530,4 +530,3 @@ function BossVFXModule.CreateBossPoisonEffectFollow(targetCharacter, isSpecial, 
 end
 
 return BossVFXModule
-
