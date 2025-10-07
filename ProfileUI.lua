@@ -1,11 +1,11 @@
 -- ProfileUI.lua (LocalScript)
--- Path: StarterPlayer/StarterPlayerScripts/ProfileUI.lua
+-- Path: StarterGui/ProfileUI.lua
 -- Script Place: Lobby
 
 -- Ensure this script only runs in the Lobby
 local LOBBY_PLACE_ID = 101319079083908
 if game.PlaceId ~= LOBBY_PLACE_ID then
-    return
+	return
 end
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -109,31 +109,31 @@ closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 local profileRemoteFunction = ReplicatedStorage:WaitForChild("GetProfileData")
 
 local function updateProfileData()
-    local success, profileData = pcall(function()
-        return profileRemoteFunction:InvokeServer()
-    end)
+	local success, profileData = pcall(function()
+		return profileRemoteFunction:InvokeServer()
+	end)
 
-    if success and profileData then
-        nameLabel.Text = "Name: " .. profileData.Name
-        levelLabel.Text = "Level: " .. profileData.Level
-        xpLabel.Text = "XP: " .. profileData.XP
-    else
-        warn("Failed to get profile data.")
-    end
+	if success and profileData then
+		nameLabel.Text = "Name: " .. profileData.Name
+		levelLabel.Text = "Level: " .. profileData.Level
+		xpLabel.Text = "XP: " .. profileData.XP
+	else
+		warn("Failed to get profile data.")
+	end
 end
 
 -- Update data when the panel becomes visible
 mainFrame:GetPropertyChangedSignal("Visible"):Connect(function()
-    if mainFrame.Visible then
-        updateProfileData()
-    end
+	if mainFrame.Visible then
+		updateProfileData()
+	end
 end)
 
 -- Button logic to show/hide the panel
 profileButton.MouseButton1Click:Connect(function()
-    mainFrame.Visible = true
+	mainFrame.Visible = true
 end)
 
 closeButton.MouseButton1Click:Connect(function()
-    mainFrame.Visible = false
+	mainFrame.Visible = false
 end)
