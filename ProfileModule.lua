@@ -8,19 +8,19 @@ local LevelModule = require(ServerScriptService.ModuleScript:WaitForChild("Level
 local ProfileModule = {}
 
 function ProfileModule.GetProfileData(player)
-    if not player then return nil end
+	if not player then return nil end
 
-    -- Get data from LevelModule
-    local levelData = LevelModule.GetData(player)
+	-- Get data from LevelModule
+	local levelData = LevelModule.GetData(player)
 
-    -- Prepare the data to be sent to the client
-    local profileData = {
-        Name = player.Name,
-        Level = levelData.Level,
-        XP = levelData.XP
-    }
+	-- Prepare the data to be sent to the client
+	local profileData = {
+		Name = player.Name,
+		Level = levelData.Level,
+		XP = levelData.XP
+	}
 
-    return profileData
+	return profileData
 end
 
 return ProfileModule
