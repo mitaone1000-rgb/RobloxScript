@@ -13,6 +13,7 @@ local ModuleScriptServerScriptService = ServerScriptService.ModuleScript
 local WeaponModule = require(ModuleScriptReplicatedStorage:WaitForChild("WeaponModule"))
 local PointsSystem = require(ModuleScriptServerScriptService:WaitForChild("PointsModule"))
 local ElementModule = require(ModuleScriptServerScriptService:WaitForChild("ElementConfigModule"))
+local CoinsManager = require(ModuleScriptServerScriptService:WaitForChild("CoinsModule"))
 
 local ShootEvent = RemoteEvents:WaitForChild("ShootEvent")
 local ReloadEvent = RemoteEvents:WaitForChild("ReloadEvent")
@@ -211,6 +212,7 @@ ShootEvent.OnServerEvent:Connect(function(player, tool, hitPosition, isAiming)
 					targetHumanoid:TakeDamage(finalDamage)
 					if finalDamage > 0 and hitModel:FindFirstChild("IsZombie") then
 						PointsSystem.AddDamage(player, finalDamage)
+						CoinsManager.AddCoins(player, math.floor(finalDamage)) -- Tambahkan Blood Coins
 						DamageDisplayEvent:FireAllClients(finalDamage, hitModel, isHeadshotPellet)
 					end
 					local creatorTag = hitModel:FindFirstChild("creator")
@@ -298,6 +300,7 @@ ShootEvent.OnServerEvent:Connect(function(player, tool, hitPosition, isAiming)
 				targetHumanoid:TakeDamage(finalDamage)
 				if finalDamage > 0 and hitModel:FindFirstChild("IsZombie") then
 					PointsSystem.AddDamage(player, finalDamage)
+					CoinsManager.AddCoins(player, math.floor(finalDamage)) -- Tambahkan Blood Coins
 					DamageDisplayEvent:FireAllClients(finalDamage, hitModel, isHeadshot)
 				end
 				local creatorTag = hitModel:FindFirstChild("creator")
