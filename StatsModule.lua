@@ -9,7 +9,8 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local DataStoreManager = require(ServerScriptService.ModuleScript:WaitForChild("DataStoreManager"))
 
 local StatsModule = {}
-local SCOPE = "LifetimeStats"
+local SCOPE = "Stats"
+local OLD_SCOPE = "LifetimeStats"
 local DEFAULT_DATA = {
 	TotalCoins = 0,
 	TotalKills = 0,
@@ -21,15 +22,35 @@ local DEFAULT_DATA = {
 -- Fungsi untuk mendapatkan data statistik pemain
 function StatsModule.GetData(player)
 	local data = DataStoreManager.GetData(player, SCOPE)
+
+	-- Jika tidak ada data di scope baru, coba migrasi dari scope lama
+	if data == nil then
+		local oldData = DataStoreManager.GetData(player, OLD_SCOPE)
+		if oldData then
+			warn("Migrating data for player " .. player.Name .. " from " .. OLD_SCOPE .. " to " .. SCOPE)
+			DataStoreManager.SaveData(player, SCOPE, oldData)
+			DataStoreManager.RemoveDataByUserId(player.UserId, OLD_SCOPE) -- Hapus data lama
+			data = oldData
+		end
+	end
+
 	if data == nil then
 		return table.clone(DEFAULT_DATA) -- Return a copy to prevent mutation
 	end
+
 	-- Fill in any missing default values
+	local hasChanges = false
 	for key, value in pairs(DEFAULT_DATA) do
 		if data[key] == nil then
 			data[key] = value
+			hasChanges = true
 		end
 	end
+
+	if hasChanges then
+		DataStoreManager.SaveData(player, SCOPE, data)
+	end
+
 	return data
 end
 
