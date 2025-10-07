@@ -17,5 +17,5 @@ profileRemoteFunction.Name = "GetProfileData"
 profileRemoteFunction.Parent = ReplicatedStorage
 
 profileRemoteFunction.OnServerInvoke = function(player)
-    return ProfileModule.GetProfileData(player)
+	return ProfileModule.GetProfileData(player)
 end
