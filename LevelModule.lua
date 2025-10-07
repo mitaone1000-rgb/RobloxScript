@@ -1,121 +1,51 @@
 -- LevelModule.lua (ModuleScript)
 -- Path: ServerScriptService/ModuleScript/LevelModule.lua
 -- Script Place: Lobby
+-- Deskripsi: Mengelola data level dan XP pemain, terintegrasi dengan DataStoreManager.
 
-local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
--- Gunakan scope "dev" untuk DataStore
--- Gunakan DataStore "Player_dev" dengan scope "Level"
-local levelStore = DataStoreService:GetDataStore("Player_dev", "Level")
+-- Memuat modul DataStoreManager
+local DataStoreManager = require(ServerScriptService.DataStoreManager)
 
 local LevelManager = {}
+local LEVEL_SCOPE = "Level"
 
--- Konfigurasi: XP yang dibutuhkan per level (bisa diperluas)
+-- Konfigurasi: XP yang dibutuhkan per level
 local XP_PER_LEVEL = 1000
-
--- Debounce untuk mencegah penyimpanan data yang berlebihan
-local saveDebounce = {}
+local DEFAULT_DATA = { Level = 1, XP = 0 }
 
 -- Fungsi untuk mendapatkan data pemain
 function LevelManager.GetData(player)
-	local success, data = pcall(function()
-		return levelStore:GetAsync("Player_" .. player.UserId)
-	end)
-
-	if success and data then
-		return data
-	else
-		warn("LevelManager: Gagal memuat data untuk " .. player.Name .. ". Error: " .. tostring(data))
-		-- Data default jika gagal memuat
-		return { Level = 1, XP = 0 }
-	end
+	-- Meminta data dari DataStoreManager, gunakan data default jika tidak ada
+	return DataStoreManager.GetData(player, LEVEL_SCOPE) or DEFAULT_DATA
 end
 
 -- Fungsi untuk mendapatkan data pemain berdasarkan UserID (untuk admin)
 function LevelManager.GetDataByUserId(userId)
-	local success, data = pcall(function()
-		return levelStore:GetAsync("Player_" .. userId)
-	end)
-
-	if success and data then
-		return data
-	else
-		-- Jika tidak ada data, kembalikan data default
-		if not data then
-			return { Level = 1, XP = 0 }
-		end
-		warn("LevelManager: Gagal memuat data untuk UserID " .. userId .. ". Error: " .. tostring(data))
-		return nil
-	end
-end
-
--- Fungsi untuk menyimpan data pemain
-function LevelManager.SaveData(player, data)
-	if not player or not data then return end
-
-	-- Cek debounce
-	if saveDebounce[player] then return end
-	saveDebounce[player] = true
-
-	local success, err = pcall(function()
-		levelStore:SetAsync("Player_" .. player.UserId, data)
-	end)
-
-	if not success then
-		warn("LevelManager: Gagal menyimpan data untuk " .. player.Name .. ". Error: " .. tostring(err))
-	end
-
-	-- Hapus debounce setelah 5 detik
-	task.delay(5, function()
-		saveDebounce[player] = nil
-	end)
+	return DataStoreManager.GetDataByUserId(userId, LEVEL_SCOPE) or DEFAULT_DATA
 end
 
 -- Fungsi untuk mengubah data pemain berdasarkan UserID (untuk admin)
 function LevelManager.SetData(userId, newData)
-	if not userId or not newData then return false, "Invalid arguments" end
-
-	-- Validasi data baru
-	if type(newData.Level) ~= "number" or type(newData.XP) ~= "number" then
-		return false, "Invalid data format"
+	if not userId or not newData or type(newData.Level) ~= "number" or type(newData.XP) ~= "number" then
+		return false, "Invalid arguments or data format"
 	end
-
-	local success, err = pcall(function()
-		levelStore:SetAsync("Player_" .. userId, newData)
-	end)
-
-	if not success then
-		warn("LevelManager: Gagal mengubah data untuk UserID " .. userId .. ". Error: " .. tostring(err))
-		return false, tostring(err)
-	end
-
-	return true, "Data updated successfully"
+	return DataStoreManager.SaveDataByUserId(userId, LEVEL_SCOPE, newData)
 end
 
 -- Fungsi untuk menghapus data pemain berdasarkan UserID (untuk admin)
 function LevelManager.DeleteData(userId)
-	if not userId then return false, "Invalid arguments" end
-
-	local success, err = pcall(function()
-		levelStore:RemoveAsync("Player_" .. userId)
-	end)
-
-	if not success then
-		warn("LevelManager: Gagal menghapus data untuk UserID " .. userId .. ". Error: " .. tostring(err))
-		return false, tostring(err)
-	end
-
-	return true, "Data removed successfully"
+	return DataStoreManager.RemoveDataByUserId(userId, LEVEL_SCOPE)
 end
 
 -- Fungsi untuk menambahkan XP
 function LevelManager.AddXP(player, amount)
-	if not player or amount <= 0 then return end
+	if not player or type(amount) ~= "number" or amount <= 0 then return end
 
 	local data = LevelManager.GetData(player)
-	if not data then return end
-
 	data.XP = data.XP + amount
 
 	-- Cek kenaikan level
@@ -125,11 +55,10 @@ function LevelManager.AddXP(player, amount)
 		-- Di sini Anda bisa menambahkan event untuk notifikasi level up
 	end
 
-	-- Simpan data
-	LevelManager.SaveData(player, data)
+	-- Simpan data melalui DataStoreManager
+	DataStoreManager.SaveData(player, LEVEL_SCOPE, data)
 
 	-- Kirim update ke client
-	local ReplicatedStorage = game:GetService("ReplicatedStorage")
 	local LevelUpdateEvent = ReplicatedStorage.RemoteEvents:FindFirstChild("LevelUpdateEvent")
 	if LevelUpdateEvent then
 		LevelUpdateEvent:FireClient(player, data.Level, data.XP, XP_PER_LEVEL)
@@ -137,24 +66,19 @@ function LevelManager.AddXP(player, amount)
 end
 
 -- Setup saat pemain bergabung
-Players.PlayerAdded:Connect(function(player)
+local function onPlayerAdded(player)
 	local data = LevelManager.GetData(player)
-	if not data then return end
 
 	-- Kirim data awal ke client
-	local ReplicatedStorage = game:GetService("ReplicatedStorage")
 	local LevelUpdateEvent = ReplicatedStorage.RemoteEvents:FindFirstChild("LevelUpdateEvent")
 	if LevelUpdateEvent then
 		LevelUpdateEvent:FireClient(player, data.Level, data.XP, XP_PER_LEVEL)
 	end
-end)
+end
 
--- Simpan data saat pemain keluar
-Players.PlayerRemoving:Connect(function(player)
-	local data = LevelManager.GetData(player)
-	if data then
-		LevelManager.SaveData(player, data)
-	end
-end)
+-- Event listener saat pemain bergabung
+Players.PlayerAdded:Connect(onPlayerAdded)
+
+-- Tidak perlu PlayerRemoving, karena DataStoreManager sudah menanganinya.
 
 return LevelManager
