@@ -1,4 +1,4 @@
--- AdminManager.lua
+-- AdminManager.lua (Script)
 -- Path: ServerScriptService/Script/AdminManager.lua
 -- Script Place: Lobby
 
