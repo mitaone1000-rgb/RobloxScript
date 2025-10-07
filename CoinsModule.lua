@@ -19,65 +19,83 @@ end
 local CoinsManager = {}
 local NEW_SCOPE = "Inventory"
 local OLD_SCOPE = "Coins"
+local DEFAULT_DATA = {Coins = 0}
 
--- Fungsi untuk mendapatkan data koin pemain
+-- Fungsi untuk mendapatkan data koin pemain (mengembalikan tabel)
 function CoinsManager.GetData(player)
 	local data = DataStoreManager.GetData(player, NEW_SCOPE)
 
+	-- Penanganan data korup: jika data adalah angka, perbaiki.
+	if type(data) == "number" then
+		local fixedData = {Coins = data}
+		DataStoreManager.SaveData(player, NEW_SCOPE, fixedData)
+		return fixedData
+	end
+
 	if data == nil then
-		-- Coba migrasi dari scope lama
+		-- Coba migrasi dari scope lama (yang datanya berupa angka)
 		local oldData = DataStoreManager.GetData(player, OLD_SCOPE)
 		if oldData ~= nil then
-			-- Data ditemukan di scope lama, migrasikan
-			DataStoreManager.SaveData(player, NEW_SCOPE, oldData)
+			-- Data lama ditemukan, bungkus dalam format baru
+			local newData = {Coins = oldData}
+			DataStoreManager.SaveData(player, NEW_SCOPE, newData)
 			DataStoreManager.RemoveDataByUserId(player.UserId, OLD_SCOPE) -- Hapus data lama
-			return oldData
+			return newData
 		end
 	end
 
-	return data or 0
+	return data or DEFAULT_DATA
 end
 
 -- Fungsi untuk menambahkan koin
 function CoinsManager.AddCoins(player, amount)
 	if not player or type(amount) ~= "number" or amount <= 0 then return end
 
-	-- Menggunakan IncrementData dari DataStoreManager untuk atomisitas
-	local newTotal = DataStoreManager.IncrementData(player, NEW_SCOPE, amount)
+	-- Karena data adalah tabel, kita tidak bisa pakai IncrementData
+	local data = CoinsManager.GetData(player)
+	data.Coins = data.Coins + amount
+	DataStoreManager.SaveData(player, NEW_SCOPE, data)
 
 	-- Kirim pembaruan ke client
-	if newTotal then
-		CoinsUpdateEvent:FireClient(player, newTotal)
-	end
+	CoinsUpdateEvent:FireClient(player, data.Coins)
 
-	return newTotal
+	return data.Coins
 end
 
--- Fungsi untuk mendapatkan data koin berdasarkan UserID (untuk admin)
+-- Fungsi untuk mendapatkan data koin berdasarkan UserID (untuk admin, mengembalikan tabel)
 function CoinsManager.GetDataByUserId(userId)
 	local data = DataStoreManager.GetDataByUserId(userId, NEW_SCOPE)
+
+	-- Penanganan data korup: jika data adalah angka, perbaiki.
+	if type(data) == "number" then
+		local fixedData = {Coins = data}
+		DataStoreManager.SaveDataByUserId(userId, NEW_SCOPE, fixedData)
+		return fixedData
+	end
 
 	if data == nil then
 		-- Coba migrasi dari scope lama
 		local oldData = DataStoreManager.GetDataByUserId(userId, OLD_SCOPE)
 		if oldData ~= nil then
-			-- Data ditemukan di scope lama, migrasikan
-			DataStoreManager.SaveDataByUserId(userId, NEW_SCOPE, oldData)
-			DataStoreManager.RemoveDataByUserId(userId, OLD_SCOPE) -- Hapus data lama
-			return oldData
+			local newData = {Coins = oldData}
+			DataStoreManager.SaveDataByUserId(userId, NEW_SCOPE, newData)
+			DataStoreManager.RemoveDataByUserId(userId, OLD_SCOPE)
+			return newData
 		end
 	end
 
-	return data or 0
+	return data or DEFAULT_DATA
 end
 
--- Fungsi untuk mengubah data koin berdasarkan UserID (untuk admin)
+-- Fungsi untuk mengubah jumlah koin berdasarkan UserID (untuk admin)
 function CoinsManager.SetDataByUserId(userId, amount)
 	if not userId or type(amount) ~= "number" then
 		return false, "Invalid arguments"
 	end
 
-	local success, message = DataStoreManager.SaveDataByUserId(userId, NEW_SCOPE, amount)
+	-- Simpan data dalam format tabel
+	local newData = {Coins = amount}
+	local success, message = DataStoreManager.SaveDataByUserId(userId, NEW_SCOPE, newData)
 	if success then
 		local player = Players:GetPlayerByUserId(userId)
 		if player then
@@ -105,8 +123,8 @@ end
 -- Setup saat pemain bergabung
 local function onPlayerAdded(player)
 	-- Muat data koin awal untuk mengisi cache dan kirim ke client
-	local initialCoins = CoinsManager.GetData(player)
-	CoinsUpdateEvent:FireClient(player, initialCoins)
+	local initialData = CoinsManager.GetData(player)
+	CoinsUpdateEvent:FireClient(player, initialData.Coins)
 end
 
 -- Event listener saat pemain bergabung

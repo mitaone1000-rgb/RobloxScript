@@ -45,9 +45,10 @@ requestDataFunc.OnServerInvoke = function(player, targetUserId)
 	local levelData = LevelManager.GetDataByUserId(targetUserId)
 	local coinsData = CoinsManager.GetDataByUserId(targetUserId)
 
+	-- Mengirim data dengan struktur yang sesuai dengan scope baru
 	local data = {
-		LevelData = levelData,
-		Coins = coinsData,
+		Stats = levelData,
+		Inventory = coinsData,
 	}
 
 	return data
@@ -67,17 +68,17 @@ updateDataEvent.OnServerEvent:Connect(function(player, targetUserId, newData)
 		return
 	end
 
-	-- Proses pembaruan data Level
-	if newData.LevelData then
-		local success, message = LevelManager.SetData(targetUserId, newData.LevelData)
+	-- Proses pembaruan data Level (sekarang menggunakan scope "Stats")
+	if newData.Stats then
+		local success, message = LevelManager.SetData(targetUserId, newData.Stats)
 		if not success then
 			warn("AdminService: Gagal mengubah data Level untuk UserID " .. targetUserId .. ". Pesan: " .. message)
 		end
 	end
 
-	-- Proses pembaruan data Koin
-	if newData.Coins ~= nil then
-		local success, message = CoinsManager.SetDataByUserId(targetUserId, newData.Coins)
+	-- Proses pembaruan data Koin (sekarang menggunakan scope "Inventory" dan mengekstrak nilai)
+	if newData.Inventory and newData.Inventory.Coins ~= nil then
+		local success, message = CoinsManager.SetDataByUserId(targetUserId, newData.Inventory.Coins)
 		if not success then
 			warn("AdminService: Gagal mengubah data Koin untuk UserID " .. targetUserId .. ". Pesan: " .. message)
 		end

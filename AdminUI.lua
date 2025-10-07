@@ -331,15 +331,15 @@ local function CreateAdminUI()
 		statusLabel.Text = "Status: Meminta data..."
 		local data, message = requestDataFunc:InvokeServer(targetUserId)
 
-		if data and data.LevelData then
-			levelBox.Text = tostring(data.LevelData.Level)
-			xpBox.Text = tostring(data.LevelData.XP)
-			coinsBox.Text = tostring(data.Coins)
+		if data and data.Stats and data.Inventory then
+			levelBox.Text = tostring(data.Stats.Level)
+			xpBox.Text = tostring(data.Stats.XP)
+			coinsBox.Text = tostring(data.Inventory.Coins)
 			statusLabel.Text = "Status: Data berhasil dimuat untuk UserID " .. targetUserId
 			displayUserIdLabel.Text = "UserID: " .. targetUserId
-			displayLevelLabel.Text = "Level: " .. data.LevelData.Level
-			displayXpLabel.Text = "XP: " .. data.LevelData.XP
-			displayCoinsLabel.Text = "Koin: " .. data.Coins
+			displayLevelLabel.Text = "Level: " .. data.Stats.Level
+			displayXpLabel.Text = "XP: " .. data.Stats.XP
+			displayCoinsLabel.Text = "Koin: " .. data.Inventory.Coins
 			dataDisplayFrame.Visible = true
 		else
 			levelBox.Text, xpBox.Text, coinsBox.Text = "", "", ""
@@ -370,8 +370,8 @@ local function CreateAdminUI()
 		end
 
 		local newData = {
-			LevelData = {Level = newLevel, XP = newXp},
-			Coins = newCoins
+			Stats = {Level = newLevel, XP = newXp},
+			Inventory = {Coins = newCoins}
 		}
 		triggerConfirmation("set", targetUserId, newData)
 	end)
