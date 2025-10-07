@@ -1,14 +1,13 @@
 -- LevelModule.lua (ModuleScript)
 -- Path: ServerScriptService/ModuleScript/LevelModule.lua
--- Script Place: Lobby
--- Deskripsi: Mengelola data level dan XP pemain, terintegrasi dengan DataStoreManager.
+-- Script Place: Lobby & ACT 1: Village
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Memuat modul DataStoreManager
-local DataStoreManager = require(ServerScriptService.DataStoreManager)
+local DataStoreManager = require(ServerScriptService.ModuleScript:WaitForChild("DataStoreManager"))
 
 local LevelManager = {}
 local LEVEL_SCOPE = "Level"
