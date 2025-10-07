@@ -1,6 +1,6 @@
 -- DataStoreManager.lua (ModuleScript)
 -- Path: ServerScriptService/Modules/DataStoreManager.lua
--- Deskripsi: Modul terpusat untuk mengelola semua data pemain menggunakan DataStore.
+-- Script Place: Lobby & ACT 1: Village
 
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
@@ -76,17 +76,17 @@ end
 
 -- Fungsi untuk menginkrementasi nilai data
 function DataStoreManager.IncrementData(player, scope, amount)
-    if not player or not scope or type(amount) ~= "number" or amount == 0 then return end
+	if not player or not scope or type(amount) ~= "number" or amount == 0 then return end
 
-    local currentData = DataStoreManager.GetData(player, scope) or 0
-    if type(currentData) ~= "number" then
-        warn("DataStoreManager: Tidak dapat menginkrementasi data non-numerik untuk " .. player.Name .. " di scope " .. scope)
-        return
-    end
+	local currentData = DataStoreManager.GetData(player, scope) or 0
+	if type(currentData) ~= "number" then
+		warn("DataStoreManager: Tidak dapat menginkrementasi data non-numerik untuk " .. player.Name .. " di scope " .. scope)
+		return
+	end
 
-    local newData = currentData + amount
-    DataStoreManager.SaveData(player, scope, newData)
-    return newData
+	local newData = currentData + amount
+	DataStoreManager.SaveData(player, scope, newData)
+	return newData
 end
 
 
