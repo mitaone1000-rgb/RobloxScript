@@ -84,7 +84,7 @@ local function CreateAdminUI()
 	Instance.new("UICorner", userIdBox).CornerRadius = UDim.new(0, 6)
 
 	-- Input Fields Frame
-	localinputFields = Instance.new("Frame")
+	local inputFields = Instance.new("Frame")
 	inputFields.Size = UDim2.new(1, 0, 0, 80) -- Tinggi untuk dua baris
 	inputFields.BackgroundTransparency = 1
 	inputFields.LayoutOrder = 3
