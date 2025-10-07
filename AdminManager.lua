@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 
 -- Memuat modul yang diperlukan
 local LevelManager = require(ServerScriptService.ModuleScript:WaitForChild("LevelModule"))
+local CoinsManager = require(ServerScriptService.ModuleScript:WaitForChild("CoinsModule"))
 local AdminConfig = require(ServerScriptService.ModuleScript:WaitForChild("AdminConfig"))
 
 -- Membuat folder untuk event admin jika belum ada
@@ -41,7 +42,14 @@ requestDataFunc.OnServerInvoke = function(player, targetUserId)
 		return nil, "Invalid UserID format"
 	end
 
-	local data = LevelManager.GetDataByUserId(targetUserId)
+	local levelData = LevelManager.GetDataByUserId(targetUserId)
+	local coinsData = CoinsManager.GetDataByUserId(targetUserId)
+
+	local data = {
+		LevelData = levelData,
+		Coins = coinsData,
+	}
+
 	return data
 end
 
@@ -59,10 +67,20 @@ updateDataEvent.OnServerEvent:Connect(function(player, targetUserId, newData)
 		return
 	end
 
-	local success, message = LevelManager.SetData(targetUserId, newData)
+	-- Proses pembaruan data Level
+	if newData.LevelData then
+		local success, message = LevelManager.SetData(targetUserId, newData.LevelData)
+		if not success then
+			warn("AdminService: Gagal mengubah data Level untuk UserID " .. targetUserId .. ". Pesan: " .. message)
+		end
+	end
 
-	if not success then
-		warn("AdminService: Gagal mengubah data untuk UserID " .. targetUserId .. ". Pesan: " .. message)
+	-- Proses pembaruan data Koin
+	if newData.Coins ~= nil then
+		local success, message = CoinsManager.SetDataByUserId(targetUserId, newData.Coins)
+		if not success then
+			warn("AdminService: Gagal mengubah data Koin untuk UserID " .. targetUserId .. ". Pesan: " .. message)
+		end
 	end
 end)
 
@@ -81,6 +99,7 @@ deleteDataEvent.OnServerEvent:Connect(function(player, targetUserId)
 	end
 
 	LevelManager.DeleteData(targetUserId)
+	CoinsManager.RemoveDataByUserId(targetUserId)
 end)
 
 -- Memberi tahu klien apakah mereka admin atau bukan

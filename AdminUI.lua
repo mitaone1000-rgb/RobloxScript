@@ -36,8 +36,8 @@ local function CreateAdminUI()
 	-- Main Frame
 	local mainFrame = Instance.new("Frame")
 	mainFrame.Name = "MainFrame"
-	mainFrame.Size = UDim2.new(0, 400, 0, 320) -- Tambah tinggi untuk tombol baru
-	mainFrame.Position = UDim2.new(0.5, -200, 0.5, -160)
+	mainFrame.Size = UDim2.new(0, 400, 0, 360) -- Tambah tinggi untuk input Koin
+	mainFrame.Position = UDim2.new(0.5, -200, 0.5, -180)
 	mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 	mainFrame.BorderColor3 = Color3.fromRGB(80, 80, 80)
 	mainFrame.Visible = false
@@ -83,12 +83,22 @@ local function CreateAdminUI()
 	userIdBox.Parent = mainFrame
 	Instance.new("UICorner", userIdBox).CornerRadius = UDim.new(0, 6)
 
-	-- Level and XP Frame
+	-- Input Fields Frame
+	localinputFields = Instance.new("Frame")
+	inputFields.Size = UDim2.new(1, 0, 0, 80) -- Tinggi untuk dua baris
+	inputFields.BackgroundTransparency = 1
+	inputFields.LayoutOrder = 3
+	inputFields.Parent = mainFrame
+
+	local inputsLayout = Instance.new("UIListLayout")
+	inputsLayout.Padding = UDim.new(0, 10)
+	inputsLayout.Parent = inputFields
+
+	-- Baris 1: Level & XP
 	local levelXpFrame = Instance.new("Frame")
 	levelXpFrame.Size = UDim2.new(1, 0, 0, 35)
 	levelXpFrame.BackgroundTransparency = 1
-	levelXpFrame.LayoutOrder = 3
-	levelXpFrame.Parent = mainFrame
+	levelXpFrame.Parent = inputFields
 
 	local levelXpLayout = Instance.new("UIListLayout")
 	levelXpLayout.FillDirection = Enum.FillDirection.Horizontal
@@ -112,6 +122,16 @@ local function CreateAdminUI()
 	xpBox.TextColor3 = Color3.new(1, 1, 1)
 	xpBox.Parent = levelXpFrame
 	Instance.new("UICorner", xpBox).CornerRadius = UDim.new(0, 6)
+
+	-- Baris 2: Koin
+	local coinsBox = Instance.new("TextBox")
+	coinsBox.Name = "CoinsBox"
+	coinsBox.Size = UDim2.new(1, 0, 0, 35)
+	coinsBox.PlaceholderText = "Koin..."
+	coinsBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	coinsBox.TextColor3 = Color3.new(1, 1, 1)
+	coinsBox.Parent = inputFields
+	Instance.new("UICorner", coinsBox).CornerRadius = UDim.new(0, 6)
 
 	-- Buttons Frame
 	local buttonsFrame = Instance.new("Frame")
@@ -214,7 +234,7 @@ local function CreateAdminUI()
 	closePlayerListButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 
 	-- Data Display UI
-	local dataDisplayFrame = createPopupFrame("DataDisplayFrame", UDim2.new(0, 300, 0, 180), 2)
+	local dataDisplayFrame = createPopupFrame("DataDisplayFrame", UDim2.new(0, 300, 0, 210), 2)
 	local dataDisplayLayout = Instance.new("UIListLayout")
 	dataDisplayLayout.Padding = UDim.new(0, 10)
 	dataDisplayLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -231,6 +251,7 @@ local function CreateAdminUI()
 	local displayUserIdLabel = createButton("displayUserIdLabel", "", dataDisplayFrame, UDim2.new(1,0,0,20))
 	local displayLevelLabel = createButton("displayLevelLabel", "", dataDisplayFrame, UDim2.new(1,0,0,20))
 	local displayXpLabel = createButton("displayXpLabel", "", dataDisplayFrame, UDim2.new(1,0,0,20))
+	local displayCoinsLabel = createButton("displayCoinsLabel", "", dataDisplayFrame, UDim2.new(1,0,0,20))
 
 	local closeDisplayButton = createButton("CloseDisplayButton", "Close", dataDisplayFrame, UDim2.new(1, 0, 0, 30))
 	closeDisplayButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
@@ -310,13 +331,18 @@ local function CreateAdminUI()
 		statusLabel.Text = "Status: Meminta data..."
 		local data, message = requestDataFunc:InvokeServer(targetUserId)
 
-		if data then
-			levelBox.Text, xpBox.Text = tostring(data.Level), tostring(data.XP)
+		if data and data.LevelData then
+			levelBox.Text = tostring(data.LevelData.Level)
+			xpBox.Text = tostring(data.LevelData.XP)
+			coinsBox.Text = tostring(data.Coins)
 			statusLabel.Text = "Status: Data berhasil dimuat untuk UserID " .. targetUserId
-			displayUserIdLabel.Text, displayLevelLabel.Text, displayXpLabel.Text = "UserID: " .. targetUserId, "Level: " .. data.Level, "XP: " .. data.XP
+			displayUserIdLabel.Text = "UserID: " .. targetUserId
+			displayLevelLabel.Text = "Level: " .. data.LevelData.Level
+			displayXpLabel.Text = "XP: " .. data.LevelData.XP
+			displayCoinsLabel.Text = "Koin: " .. data.Coins
 			dataDisplayFrame.Visible = true
 		else
-			levelBox.Text, xpBox.Text = "", ""
+			levelBox.Text, xpBox.Text, coinsBox.Text = "", "", ""
 			statusLabel.Text = "Status: Gagal memuat data. Pesan: " .. (message or "Tidak ada data.")
 			dataDisplayFrame.Visible = false
 		end
@@ -333,9 +359,21 @@ local function CreateAdminUI()
 	end
 
 	setDataButton.MouseButton1Click:Connect(function()
-		local targetUserId, newLevel, newXp = tonumber(userIdBox.Text), tonumber(levelBox.Text), tonumber(xpBox.Text)
-		if not (targetUserId and newLevel and newXp) then statusLabel.Text = "Status: Semua kolom harus diisi angka valid."; return end
-		triggerConfirmation("set", targetUserId, {Level = newLevel, XP = newXp})
+		local targetUserId = tonumber(userIdBox.Text)
+		local newLevel = tonumber(levelBox.Text)
+		local newXp = tonumber(xpBox.Text)
+		local newCoins = tonumber(coinsBox.Text)
+
+		if not (targetUserId and newLevel and newXp and newCoins) then
+			statusLabel.Text = "Status: Semua kolom harus diisi angka valid."
+			return
+		end
+
+		local newData = {
+			LevelData = {Level = newLevel, XP = newXp},
+			Coins = newCoins
+		}
+		triggerConfirmation("set", targetUserId, newData)
 	end)
 
 	deleteDataButton.MouseButton1Click:Connect(function()
@@ -358,7 +396,7 @@ local function CreateAdminUI()
 		elseif pendingAction == "delete" then
 			deleteDataEvent:FireServer(pendingTargetId)
 			statusLabel.Text = "Status: Permintaan hapus data dikirim."
-			levelBox.Text, xpBox.Text = "", ""
+			levelBox.Text, xpBox.Text, coinsBox.Text = "", "", ""
 		end
 		dataDisplayFrame.Visible = false
 		resetConfirmationState()

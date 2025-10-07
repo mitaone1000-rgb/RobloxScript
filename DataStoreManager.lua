@@ -119,6 +119,13 @@ function DataStoreManager.SaveDataByUserId(userId, scope, data)
 		warn("DataStoreManager: Gagal menyimpan data untuk UserID " .. userId .. " di scope " .. scope .. ". Error: " .. tostring(err))
 		return false, tostring(err)
 	end
+
+	-- Perbarui cache jika pemain sedang online
+	local player = Players:GetPlayerByUserId(userId)
+	if player and playerDataCache[player] and playerDataCache[player][scope] then
+		playerDataCache[player][scope] = data
+	end
+
 	return true, "Data updated successfully"
 end
 
@@ -135,6 +142,13 @@ function DataStoreManager.RemoveDataByUserId(userId, scope)
 		warn("DataStoreManager: Gagal menghapus data untuk UserID " .. userId .. " di scope " .. scope .. ". Error: " .. tostring(err))
 		return false, tostring(err)
 	end
+
+	-- Hapus dari cache jika pemain sedang online
+	local player = Players:GetPlayerByUserId(userId)
+	if player and playerDataCache[player] and playerDataCache[player][scope] then
+		playerDataCache[player][scope] = nil
+	end
+
 	return true, "Data removed successfully"
 end
 

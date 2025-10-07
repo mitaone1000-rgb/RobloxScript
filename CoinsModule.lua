@@ -40,6 +40,39 @@ function CoinsManager.AddCoins(player, amount)
 	return newTotal
 end
 
+-- Fungsi untuk mendapatkan data koin berdasarkan UserID (untuk admin)
+function CoinsManager.GetDataByUserId(userId)
+	return DataStoreManager.GetDataByUserId(userId, COINS_SCOPE) or 0
+end
+
+-- Fungsi untuk mengubah data koin berdasarkan UserID (untuk admin)
+function CoinsManager.SetDataByUserId(userId, amount)
+	if not userId or type(amount) ~= "number" then
+		return false, "Invalid arguments"
+	end
+
+	local success, message = DataStoreManager.SaveDataByUserId(userId, COINS_SCOPE, amount)
+	if success then
+		local player = Players:GetPlayerByUserId(userId)
+		if player then
+			CoinsUpdateEvent:FireClient(player, amount)
+		end
+	end
+	return success, message
+end
+
+-- Fungsi untuk menghapus data koin berdasarkan UserID (untuk admin)
+function CoinsManager.RemoveDataByUserId(userId)
+	local success, message = DataStoreManager.RemoveDataByUserId(userId, COINS_SCOPE)
+	if success then
+		local player = Players:GetPlayerByUserId(userId)
+		if player then
+			CoinsUpdateEvent:FireClient(player, 0) -- Reset ke 0 di client
+		end
+	end
+	return success, message
+end
+
 -- Setup saat pemain bergabung
 local function onPlayerAdded(player)
 	-- Muat data koin awal untuk mengisi cache dan kirim ke client
