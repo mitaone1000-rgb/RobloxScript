@@ -1,4 +1,4 @@
--- LevelModule.lua
+-- LevelModule.lua (ModuleScript)
 -- Path: ServerScriptService/ModuleScript/LevelModule.lua
 -- Script Place: Lobby
 
