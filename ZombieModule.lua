@@ -25,6 +25,7 @@ local Boss3VFXModule = require(ZombieVFX:WaitForChild("Boss3VFXModule"))
 local ZombieConfig = require(ModuleScriptReplicatedStorage:WaitForChild("ZombieConfig"))
 local ElementModule = require(ModuleScriptServerScriptService:WaitForChild("ElementConfigModule"))
 local PointsSystem = require(ModuleScriptServerScriptService:WaitForChild("PointsModule"))
+local StatsModule = require(ModuleScriptServerScriptService:WaitForChild("StatsModule"))
 
 local BossTimerEvent = RemoteEvents:WaitForChild("BossTimerEvent")
 local GameOverEvent = RemoteEvents:WaitForChild("GameOverEvent")
@@ -1160,8 +1161,12 @@ function ZombieModule.SpawnZombie(spawnPoint, typeName, playerCount)
 		-- credit killer (jika ada creator tag pada zombie)
 		local creatorTag = zombie:FindFirstChild("creator")
 		if creatorTag and creatorTag.Value and creatorTag.Value:IsA("Player") then
+			local player = creatorTag.Value
 			if PointsSystem and PointsSystem.AddKill then
-				PointsSystem.AddKill(creatorTag.Value)
+				PointsSystem.AddKill(player)
+			end
+			if StatsModule and StatsModule.AddKill then
+				StatsModule.AddKill(player)
 			end
 		end
 		task.wait(5)

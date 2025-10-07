@@ -8,6 +8,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Memuat modul DataStoreManager
 local DataStoreManager = require(ServerScriptService.ModuleScript:WaitForChild("DataStoreManager"))
+local StatsModule = require(ServerScriptService.ModuleScript:WaitForChild("StatsModule"))
 
 -- RemoteEvent untuk pembaruan di sisi client
 local CoinsUpdateEvent = ReplicatedStorage.RemoteEvents:FindFirstChild("CoinsUpdateEvent")
@@ -58,6 +59,11 @@ function CoinsManager.AddCoins(player, amount)
 
 	-- Kirim pembaruan ke client
 	CoinsUpdateEvent:FireClient(player, data.Coins)
+
+	-- Lacak total koin seumur hidup
+	if StatsModule and StatsModule.AddCoin then
+		StatsModule.AddCoin(player, amount)
+	end
 
 	return data.Coins
 end

@@ -16,6 +16,7 @@ local BuildingManager = require(ModuleScriptServerScriptService:WaitForChild("Bu
 local PointsSystem = require(ModuleScriptServerScriptService:WaitForChild("PointsModule"))
 local ElementModule = require(ModuleScriptServerScriptService:WaitForChild("ElementConfigModule"))
 local PerkHandler = require(ModuleScriptServerScriptService:WaitForChild("PerkModule"))
+local StatsModule = require(ModuleScriptServerScriptService:WaitForChild("StatsModule"))
 
 local WaveCountdownEvent = RemoteEvents:WaitForChild("WaveCountdownEvent")
 local PlayerCountEvent   = RemoteEvents:WaitForChild("PlayerCountEvent")
@@ -232,6 +233,23 @@ local function startGameLoop()
 	for _, plr in pairs(game.Players:GetPlayers()) do
 		PointsSystem.AddPoints(plr, 0) -- Menginisialisasi poin dan menampilkan UI
 	end
+
+	-- Start playtime tracking loop
+	task.spawn(function()
+		while myToken == runToken and gameStarted do
+			task.wait(60) -- Wait for 60 seconds
+			if not gameStarted then break end -- Double check if game has ended
+
+			for _, player in ipairs(game.Players:GetPlayers()) do
+				-- Add playtime only to active (not knocked) players
+				if player.Character and not player.Character:FindFirstChild("Knocked") then
+					if StatsModule and StatsModule.AddPlaytime then
+						StatsModule.AddPlaytime(player, 60)
+					end
+				end
+			end
+		end
+	end)
 
 	task.spawn(function()
 		while true do

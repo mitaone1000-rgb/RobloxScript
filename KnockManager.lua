@@ -1,4 +1,4 @@
--- KnockManager.lua (Script) 
+-- KnockManager.lua (Script)
 -- Path: ServerScriptService/Script/KnockManager.lua
 -- Script Place: ACT 1: Village
 
@@ -9,6 +9,7 @@ local RemoteEvents = game.ReplicatedStorage.RemoteEvents
 local ModuleScriptServerScriptService = ServerScriptService.ModuleScript
 
 local PointsSystem = require(ModuleScriptServerScriptService:WaitForChild("PointsModule"))
+local StatsModule = require(ModuleScriptServerScriptService:WaitForChild("StatsModule"))
 
 local KnockEvent = RemoteEvents:WaitForChild("KnockEvent")
 local ReviveEvent = RemoteEvents:WaitForChild("ReviveEvent")
@@ -104,6 +105,10 @@ game.Players.PlayerAdded:Connect(function(player)
 					if PointsSystem and PointsSystem.AddKnock then
 						PointsSystem.AddKnock(player)
 					end
+					-- update lifetime stats knock
+					if StatsModule and StatsModule.AddKnock then
+						StatsModule.AddKnock(player)
+					end
 
 					-- NEW: Kirim notifikasi ke semua pemain
 					GlobalKnockNotificationEvent:FireAllClients(player.Name, true, char.HumanoidRootPart.Position)
@@ -180,7 +185,7 @@ ReviveEvent.OnServerEvent:Connect(function(player, target)
 						break
 					end
 					-- Batal jika status berubah
-					if not reviverChar or not targetChar 
+					if not reviverChar or not targetChar
 						or not reviverChar.Parent or not targetChar.Parent
 						or reviverChar:FindFirstChild("Knocked")
 						or not targetChar:FindFirstChild("Knocked")
@@ -245,6 +250,11 @@ ReviveEvent.OnServerEvent:Connect(function(player, target)
 
 					-- NEW: Kirim notifikasi revive ke semua pemain
 					GlobalKnockNotificationEvent:FireAllClients(target.Name, false, targetChar.HumanoidRootPart.Position)
+
+					-- update lifetime stats revive
+                    if StatsModule and StatsModule.AddRevive then
+                        StatsModule.AddRevive(player)
+                    end
 
 					activeRevivers[player] = nil
 				end

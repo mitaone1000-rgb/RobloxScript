@@ -39,8 +39,8 @@ corner.Parent = profileButton
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
 mainFrame.Parent = profileScreenGui
-mainFrame.Size = UDim2.new(0, 400, 0, 300)
-mainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+mainFrame.Size = UDim2.new(0, 400, 0, 420) -- Increased height
+mainFrame.Position = UDim2.new(0.5, -200, 0.5, -210) -- Adjusted position
 mainFrame.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
 mainFrame.BorderColor3 = Color3.fromRGB(255, 255, 255)
 mainFrame.BorderSizePixel = 2
@@ -57,41 +57,30 @@ titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.TextSize = 24
 titleLabel.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 
--- Name Label
-local nameLabel = Instance.new("TextLabel")
-nameLabel.Name = "NameLabel"
-nameLabel.Parent = mainFrame
-nameLabel.Size = UDim2.new(1, -20, 0, 30)
-nameLabel.Position = UDim2.new(0, 10, 0, 60)
-nameLabel.Text = "Name: "
-nameLabel.Font = Enum.Font.SourceSans
-nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-nameLabel.TextSize = 18
-nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+-- Helper function to create a stat label
+local function createStatLabel(name, positionY)
+    local label = Instance.new("TextLabel")
+    label.Name = name .. "Label"
+    label.Parent = mainFrame
+    label.Size = UDim2.new(1, -20, 0, 30)
+    label.Position = UDim2.new(0, 10, 0, positionY)
+    label.Text = name .. ": "
+    label.Font = Enum.Font.SourceSans
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextSize = 18
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return label
+end
 
--- Level Label
-local levelLabel = Instance.new("TextLabel")
-levelLabel.Name = "LevelLabel"
-levelLabel.Parent = mainFrame
-levelLabel.Size = UDim2.new(1, -20, 0, 30)
-levelLabel.Position = UDim2.new(0, 10, 0, 100)
-levelLabel.Text = "Level: "
-levelLabel.Font = Enum.Font.SourceSans
-levelLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-levelLabel.TextSize = 18
-levelLabel.TextXAlignment = Enum.TextXAlignment.Left
-
--- XP Label
-local xpLabel = Instance.new("TextLabel")
-xpLabel.Name = "XPLabel"
-xpLabel.Parent = mainFrame
-xpLabel.Size = UDim2.new(1, -20, 0, 30)
-xpLabel.Position = UDim2.new(0, 10, 0, 140)
-xpLabel.Text = "XP: "
-xpLabel.Font = Enum.Font.SourceSans
-xpLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-xpLabel.TextSize = 18
-xpLabel.TextXAlignment = Enum.TextXAlignment.Left
+-- Create all labels
+local nameLabel = createStatLabel("Name", 60)
+local levelLabel = createStatLabel("Level", 100)
+local xpLabel = createStatLabel("XP", 140)
+local totalCoinsLabel = createStatLabel("Total Coins", 180)
+local totalKillsLabel = createStatLabel("Total Kills", 220)
+local totalRevivesLabel = createStatLabel("Total Revives", 260)
+local totalKnocksLabel = createStatLabel("Total Knocks", 300)
+local totalPlaytimeLabel = createStatLabel("Total Playtime", 340)
 
 -- Close Button
 local closeButton = Instance.new("TextButton")
@@ -108,15 +97,29 @@ closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 --[[ Logic ]]--
 local profileRemoteFunction = ReplicatedStorage:WaitForChild("GetProfileData")
 
+-- Function to format seconds into HH:MM:SS
+local function formatPlaytime(seconds)
+    if type(seconds) ~= "number" then return "00:00:00" end
+    local hours = math.floor(seconds / 3600)
+    local minutes = math.floor((seconds % 3600) / 60)
+    local secs = seconds % 60
+    return string.format("%02d:%02d:%02d", hours, minutes, secs)
+end
+
 local function updateProfileData()
 	local success, profileData = pcall(function()
 		return profileRemoteFunction:InvokeServer()
 	end)
 
 	if success and profileData then
-		nameLabel.Text = "Name: " .. profileData.Name
-		levelLabel.Text = "Level: " .. profileData.Level
-		xpLabel.Text = "XP: " .. profileData.XP
+		nameLabel.Text = "Name: " .. (profileData.Name or "N/A")
+		levelLabel.Text = "Level: " .. (profileData.Level or 0)
+		xpLabel.Text = "XP: " .. (profileData.XP or 0)
+		totalCoinsLabel.Text = "Total Coins: " .. (profileData.TotalCoins or 0)
+		totalKillsLabel.Text = "Total Kills: " .. (profileData.TotalKills or 0)
+		totalRevivesLabel.Text = "Total Revives: " .. (profileData.TotalRevives or 0)
+		totalKnocksLabel.Text = "Total Knocks: " .. (profileData.TotalKnocks or 0)
+		totalPlaytimeLabel.Text = "Total Playtime: " .. formatPlaytime(profileData.TotalPlaytime)
 	else
 		warn("Failed to get profile data.")
 	end
