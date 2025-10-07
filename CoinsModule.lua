@@ -17,12 +17,25 @@ if not CoinsUpdateEvent then
 end
 
 local CoinsManager = {}
-local COINS_SCOPE = "Coins"
+local NEW_SCOPE = "Inventory"
+local OLD_SCOPE = "Coins"
 
 -- Fungsi untuk mendapatkan data koin pemain
 function CoinsManager.GetData(player)
-	-- Meminta data dari DataStoreManager, default ke 0 jika tidak ada
-	return DataStoreManager.GetData(player, COINS_SCOPE) or 0
+	local data = DataStoreManager.GetData(player, NEW_SCOPE)
+
+	if data == nil then
+		-- Coba migrasi dari scope lama
+		local oldData = DataStoreManager.GetData(player, OLD_SCOPE)
+		if oldData ~= nil then
+			-- Data ditemukan di scope lama, migrasikan
+			DataStoreManager.SaveData(player, NEW_SCOPE, oldData)
+			DataStoreManager.RemoveDataByUserId(player.UserId, OLD_SCOPE) -- Hapus data lama
+			return oldData
+		end
+	end
+
+	return data or 0
 end
 
 -- Fungsi untuk menambahkan koin
@@ -30,7 +43,7 @@ function CoinsManager.AddCoins(player, amount)
 	if not player or type(amount) ~= "number" or amount <= 0 then return end
 
 	-- Menggunakan IncrementData dari DataStoreManager untuk atomisitas
-	local newTotal = DataStoreManager.IncrementData(player, COINS_SCOPE, amount)
+	local newTotal = DataStoreManager.IncrementData(player, NEW_SCOPE, amount)
 
 	-- Kirim pembaruan ke client
 	if newTotal then
@@ -42,7 +55,20 @@ end
 
 -- Fungsi untuk mendapatkan data koin berdasarkan UserID (untuk admin)
 function CoinsManager.GetDataByUserId(userId)
-	return DataStoreManager.GetDataByUserId(userId, COINS_SCOPE) or 0
+	local data = DataStoreManager.GetDataByUserId(userId, NEW_SCOPE)
+
+	if data == nil then
+		-- Coba migrasi dari scope lama
+		local oldData = DataStoreManager.GetDataByUserId(userId, OLD_SCOPE)
+		if oldData ~= nil then
+			-- Data ditemukan di scope lama, migrasikan
+			DataStoreManager.SaveDataByUserId(userId, NEW_SCOPE, oldData)
+			DataStoreManager.RemoveDataByUserId(userId, OLD_SCOPE) -- Hapus data lama
+			return oldData
+		end
+	end
+
+	return data or 0
 end
 
 -- Fungsi untuk mengubah data koin berdasarkan UserID (untuk admin)
@@ -51,7 +77,7 @@ function CoinsManager.SetDataByUserId(userId, amount)
 		return false, "Invalid arguments"
 	end
 
-	local success, message = DataStoreManager.SaveDataByUserId(userId, COINS_SCOPE, amount)
+	local success, message = DataStoreManager.SaveDataByUserId(userId, NEW_SCOPE, amount)
 	if success then
 		local player = Players:GetPlayerByUserId(userId)
 		if player then
@@ -63,7 +89,10 @@ end
 
 -- Fungsi untuk menghapus data koin berdasarkan UserID (untuk admin)
 function CoinsManager.RemoveDataByUserId(userId)
-	local success, message = DataStoreManager.RemoveDataByUserId(userId, COINS_SCOPE)
+	-- Hapus dari kedua scope untuk memastikan kebersihan data
+	DataStoreManager.RemoveDataByUserId(userId, OLD_SCOPE)
+	local success, message = DataStoreManager.RemoveDataByUserId(userId, NEW_SCOPE)
+
 	if success then
 		local player = Players:GetPlayerByUserId(userId)
 		if player then

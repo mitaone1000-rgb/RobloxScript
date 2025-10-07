@@ -10,7 +10,8 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local DataStoreManager = require(ServerScriptService.ModuleScript:WaitForChild("DataStoreManager"))
 
 local LevelManager = {}
-local LEVEL_SCOPE = "Level"
+local NEW_SCOPE = "Stats"
+local OLD_SCOPE = "Level"
 
 -- Konfigurasi: XP yang dibutuhkan per level
 local XP_PER_LEVEL = 1000
@@ -18,13 +19,34 @@ local DEFAULT_DATA = { Level = 1, XP = 0 }
 
 -- Fungsi untuk mendapatkan data pemain
 function LevelManager.GetData(player)
-	-- Meminta data dari DataStoreManager, gunakan data default jika tidak ada
-	return DataStoreManager.GetData(player, LEVEL_SCOPE) or DEFAULT_DATA
+	local data = DataStoreManager.GetData(player, NEW_SCOPE)
+	if data == nil then
+		-- Coba migrasi dari scope lama
+		local oldData = DataStoreManager.GetData(player, OLD_SCOPE)
+		if oldData ~= nil then
+			-- Data ditemukan di scope lama, migrasikan
+			DataStoreManager.SaveData(player, NEW_SCOPE, oldData)
+			DataStoreManager.RemoveDataByUserId(player.UserId, OLD_SCOPE)
+			return oldData
+		end
+	end
+	return data or DEFAULT_DATA
 end
 
 -- Fungsi untuk mendapatkan data pemain berdasarkan UserID (untuk admin)
 function LevelManager.GetDataByUserId(userId)
-	return DataStoreManager.GetDataByUserId(userId, LEVEL_SCOPE) or DEFAULT_DATA
+	local data = DataStoreManager.GetDataByUserId(userId, NEW_SCOPE)
+	if data == nil then
+		-- Coba migrasi dari scope lama
+		local oldData = DataStoreManager.GetDataByUserId(userId, OLD_SCOPE)
+		if oldData ~= nil then
+			-- Data ditemukan di scope lama, migrasikan
+			DataStoreManager.SaveDataByUserId(userId, NEW_SCOPE, oldData)
+			DataStoreManager.RemoveDataByUserId(userId, OLD_SCOPE)
+			return oldData
+		end
+	end
+	return data or DEFAULT_DATA
 end
 
 -- Fungsi untuk mengubah data pemain berdasarkan UserID (untuk admin)
@@ -32,12 +54,14 @@ function LevelManager.SetData(userId, newData)
 	if not userId or not newData or type(newData.Level) ~= "number" or type(newData.XP) ~= "number" then
 		return false, "Invalid arguments or data format"
 	end
-	return DataStoreManager.SaveDataByUserId(userId, LEVEL_SCOPE, newData)
+	return DataStoreManager.SaveDataByUserId(userId, NEW_SCOPE, newData)
 end
 
 -- Fungsi untuk menghapus data pemain berdasarkan UserID (untuk admin)
 function LevelManager.DeleteData(userId)
-	return DataStoreManager.RemoveDataByUserId(userId, LEVEL_SCOPE)
+	-- Hapus dari kedua scope untuk memastikan kebersihan data
+	DataStoreManager.RemoveDataByUserId(userId, OLD_SCOPE)
+	return DataStoreManager.RemoveDataByUserId(userId, NEW_SCOPE)
 end
 
 -- Fungsi untuk menambahkan XP
@@ -55,7 +79,7 @@ function LevelManager.AddXP(player, amount)
 	end
 
 	-- Simpan data melalui DataStoreManager
-	DataStoreManager.SaveData(player, LEVEL_SCOPE, data)
+	DataStoreManager.SaveData(player, NEW_SCOPE, data)
 
 	-- Kirim update ke client
 	local LevelUpdateEvent = ReplicatedStorage.RemoteEvents:FindFirstChild("LevelUpdateEvent")
