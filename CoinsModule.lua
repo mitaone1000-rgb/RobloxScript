@@ -1,14 +1,13 @@
 -- CoinsModule.lua (ModuleScript)
 -- Path: ServerScriptService/ModuleScript/CoinsModule.lua
 -- Script Place: Lobby & ACT 1: Village
--- Deskripsi: Mengelola logika koin pemain, terintegrasi dengan DataStoreManager.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Memuat modul DataStoreManager
-local DataStoreManager = require(ServerScriptService.DataStoreManager)
+local DataStoreManager = require(ServerScriptService.ModuleScript:WaitForChild("DataStoreManager"))
 
 -- RemoteEvent untuk pembaruan di sisi client
 local CoinsUpdateEvent = ReplicatedStorage.RemoteEvents:FindFirstChild("CoinsUpdateEvent")
