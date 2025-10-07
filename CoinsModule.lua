@@ -43,7 +43,7 @@ function CoinsManager.GetData(player)
 			return newData
 		end
 	end
-
+	
 	return data or DEFAULT_DATA
 end
 
@@ -110,7 +110,7 @@ function CoinsManager.RemoveDataByUserId(userId)
 	-- Hapus dari kedua scope untuk memastikan kebersihan data
 	DataStoreManager.RemoveDataByUserId(userId, OLD_SCOPE)
 	local success, message = DataStoreManager.RemoveDataByUserId(userId, NEW_SCOPE)
-
+	
 	if success then
 		local player = Players:GetPlayerByUserId(userId)
 		if player then
