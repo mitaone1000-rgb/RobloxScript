@@ -80,7 +80,6 @@ local totalCoinsLabel = createStatLabel("Total Coins", 180)
 local totalKillsLabel = createStatLabel("Total Kills", 220)
 local totalRevivesLabel = createStatLabel("Total Revives", 260)
 local totalKnocksLabel = createStatLabel("Total Knocks", 300)
-local totalPlaytimeLabel = createStatLabel("Total Playtime", 340)
 
 -- Close Button
 local closeButton = Instance.new("TextButton")
@@ -97,15 +96,6 @@ closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 --[[ Logic ]]--
 local profileRemoteFunction = ReplicatedStorage:WaitForChild("GetProfileData")
 
--- Function to format seconds into HH:MM:SS
-local function formatPlaytime(seconds)
-    if type(seconds) ~= "number" then return "00:00:00" end
-    local hours = math.floor(seconds / 3600)
-    local minutes = math.floor((seconds % 3600) / 60)
-    local secs = seconds % 60
-    return string.format("%02d:%02d:%02d", hours, minutes, secs)
-end
-
 local function updateProfileData()
 	local success, profileData = pcall(function()
 		return profileRemoteFunction:InvokeServer()
@@ -119,7 +109,6 @@ local function updateProfileData()
 		totalKillsLabel.Text = "Total Kills: " .. (profileData.TotalKills or 0)
 		totalRevivesLabel.Text = "Total Revives: " .. (profileData.TotalRevives or 0)
 		totalKnocksLabel.Text = "Total Knocks: " .. (profileData.TotalKnocks or 0)
-		totalPlaytimeLabel.Text = "Total Playtime: " .. formatPlaytime(profileData.TotalPlaytime)
 	else
 		warn("Failed to get profile data.")
 	end

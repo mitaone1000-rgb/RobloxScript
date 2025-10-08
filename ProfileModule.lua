@@ -23,8 +23,7 @@ function ProfileModule.GetProfileData(player)
         TotalCoins = statsData.TotalCoins,
         TotalKills = statsData.TotalKills,
         TotalRevives = statsData.TotalRevives,
-        TotalKnocks = statsData.TotalKnocks,
-        TotalPlaytime = statsData.TotalPlaytime
+        TotalKnocks = statsData.TotalKnocks
     }
 
     return profileData

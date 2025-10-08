@@ -15,8 +15,7 @@ local DEFAULT_DATA = {
 	TotalCoins = 0,
 	TotalKills = 0,
 	TotalRevives = 0,
-	TotalKnocks = 0,
-	TotalPlaytime = 0
+	TotalKnocks = 0
 }
 
 -- Fungsi untuk mendapatkan data statistik pemain
@@ -78,10 +77,6 @@ end
 
 function StatsModule.AddRevive(player)
 	incrementStat(player, "TotalRevives", 1)
-end
-
-function StatsModule.AddPlaytime(player, seconds)
-	incrementStat(player, "TotalPlaytime", seconds)
 end
 
 -- Setup saat pemain bergabung untuk memastikan data di-cache
