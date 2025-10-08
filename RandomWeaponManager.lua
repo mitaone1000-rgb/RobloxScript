@@ -15,7 +15,7 @@ local ModuleScriptServerScriptService = ServerScriptService.ModuleScript
 local WeaponModule = require(ModuleScriptReplicatedStorage:WaitForChild("WeaponModule"))
 local RandomConfig = require(ModuleScriptServerScriptService:WaitForChild("RandomWeaponConfig"))
 local PointsSystem = require(ModuleScriptServerScriptService:WaitForChild("PointsModule"))
-local CoinsManager = require(ModuleScriptServerScriptService:WaitForChild("CoinsManager"))
+local CoinsManager = require(ModuleScriptServerScriptService:WaitForChild("CoinsModule"))
 
 local openReplaceUI = RemoteEvents:WaitForChild("OpenReplaceUI")   
 local replaceChoiceEv = RemoteEvents:WaitForChild("ReplaceChoice")  
