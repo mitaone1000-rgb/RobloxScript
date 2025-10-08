@@ -459,4 +459,4 @@ Players.PlayerRemoving:Connect(handlePlayerRemoving)
 --// INITIALIZATION
 --==============================================================================
 
-print("LobbyServer.lua loaded successfully.")
+print("LobbyRoomManager.lua loaded successfully.")
