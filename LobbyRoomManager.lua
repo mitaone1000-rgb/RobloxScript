@@ -83,7 +83,8 @@ local function updateRoomInfo(roomData)
 		roomId = roomData.RoomId,
 		hostName = roomData.Host.Name,
 		players = playersData,
-		maxPlayers = roomData.MaxPlayers
+		maxPlayers = roomData.MaxPlayers,
+		roomCode = roomData.RoomCode
 	}
 
 	for _, p in ipairs(roomData.Players) do
@@ -245,6 +246,51 @@ local function handlePlayerRemoving(player)
 	end
 end
 
+-- Handles a player actively choosing to leave a room
+local function handleLeaveRoom(player)
+	local roomData = getPlayerRoom(player)
+	if roomData then
+		local wasPrivate = roomData.IsPrivate
+		local roomId = roomData.RoomId
+
+		-- Find and remove the player
+		for i, p in ipairs(roomData.Players) do
+			if p == player then
+				table.remove(roomData.Players, i)
+				print(string.format("Player %s left room %s", player.Name, roomId))
+				break
+			end
+		end
+
+		-- Fire an event back to the leaving player to confirm they've left, so UI can reset
+		lobbyRemote:FireClient(player, "leftRoomSuccess")
+
+		-- Check if the room is now empty
+		if #roomData.Players == 0 then
+			print("Room " .. roomId .. " is empty, dissolving.")
+			rooms[roomId] = nil
+			if not wasPrivate then
+				broadcastPublicRoomsUpdate()
+			end
+			return
+		end
+
+		-- Handle host migration
+		if roomData.Host == player then
+			roomData.Host = roomData.Players[1] -- The next player in the list becomes host
+			print(string.format("Host migrated in room %s. New host is %s", roomId, roomData.Host.Name))
+		end
+
+		-- Update everyone else in the room
+		updateRoomInfo(roomData)
+
+		-- Update public room list if it was a public room
+		if not wasPrivate then
+			broadcastPublicRoomsUpdate()
+		end
+	end
+end
+
 
 --==============================================================================
 --// CORE LOGIC: MATCHMAKING
@@ -399,6 +445,8 @@ lobbyRemote.OnServerEvent:Connect(function(player, action, data)
 	elseif action == "startSoloGame" then
 		print("Player", player.Name, "is starting a solo game.")
 		teleportPlayersToAct1({player})
+	elseif action == "leaveRoom" then
+		handleLeaveRoom(player)
 	else
 		warn("Unknown action received: " .. tostring(action))
 	end

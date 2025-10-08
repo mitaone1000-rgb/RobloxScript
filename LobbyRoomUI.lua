@@ -12,7 +12,7 @@ local player = Players.LocalPlayer
 -- Wait for the ProximityPrompt to exist in the workspace
 local lobbyRoomPart = workspace:WaitForChild("LobbyRoom")
 local proximityPrompt = lobbyRoomPart:WaitForChild("ProximityPrompt")
-local preGameLobbyPlayerList, preGameLobbyCountdownLabel
+local preGameLobbyPlayerList, preGameLobbyCountdownLabel, preGameLobbyRoomCodeLabel
 -- Remote Event Handling
 local lobbyRemote = ReplicatedStorage:WaitForChild("LobbyRemote")
 local joinRoomScrollingFrame -- Will be assigned in populateJoinRoomFrame
@@ -287,9 +287,17 @@ local function resetMatchmakingFrameUI()
 end
 
 local function updatePreGameLobby(roomData)
-	if not preGameLobbyPlayerList then return end
+	if not preGameLobbyPlayerList or not preGameLobbyRoomCodeLabel then return end
 
-	-- Clear old list
+	-- Update Room Code display
+	if roomData.roomCode then
+		preGameLobbyRoomCodeLabel.Text = "Room Code: " .. roomData.roomCode
+		preGameLobbyRoomCodeLabel.Visible = true
+	else
+		preGameLobbyRoomCodeLabel.Visible = false
+	end
+
+	-- Clear old player list
 	for _, child in ipairs(preGameLobbyPlayerList:GetChildren()) do
 		if not child:IsA("UIListLayout") then
 			child:Destroy()
@@ -300,7 +308,13 @@ local function updatePreGameLobby(roomData)
 	for _, playerData in ipairs(roomData.players) do
 		local playerLabel = Instance.new("TextLabel")
 		playerLabel.Size = UDim2.new(1, -10, 0, 30)
-		playerLabel.Text = " " .. playerData.Name
+
+		local displayText = " " .. playerData.Name
+		if playerData.Name == roomData.hostName then
+			displayText = displayText .. " (Host)"
+		end
+		playerLabel.Text = displayText
+
 		playerLabel.Font = Enum.Font.SourceSans
 		playerLabel.TextSize = 18
 		playerLabel.TextColor3 = Color3.new(1,1,1)
@@ -328,7 +342,12 @@ local function populateMatchmakingFrame()
 	backButton.Size = UDim2.new(0, 50, 0, 30)
 	backButton.Position = UDim2.new(0, 10, 0, 10)
 	backButton.Text = "Back"
-	-- ... styling
+	backButton.Font = Enum.Font.SourceSans
+	backButton.TextSize = 16
+	backButton.BackgroundColor3 = Color3.fromRGB(85, 85, 85)
+	backButton.TextColor3 = Color3.new(1, 1, 1)
+	local backCorner = Instance.new("UICorner", backButton)
+	backCorner.CornerRadius = UDim.new(0, 6)
 
 	local title = Instance.new("TextLabel", matchmakingFrame)
 	title.Size = UDim2.new(1, 0, 0, 50)
@@ -397,26 +416,71 @@ end
 -- Populate PreGameLobbyFrame
 local function populatePreGameLobbyFrame()
 	local title = Instance.new("TextLabel", preGameLobbyFrame)
-	title.Size = UDim2.new(1, 0, 0, 50)
-	title.Text = "Game Starting Soon..."
-	-- ... (styling)
+	title.Size = UDim2.new(1, 0, 0, 30)
+	title.Position = UDim2.new(0, 0, 0, 5)
+	title.Text = "LOBBY"
+	title.Font = Enum.Font.SourceSansBold
+	title.TextSize = 24
+	title.TextColor3 = Color3.new(1,1,1)
+	title.BackgroundTransparency = 1
 
-	local countdownLabel = Instance.new("TextLabel", preGameLobbyFrame)
-	countdownLabel.Size = UDim2.new(1, 0, 0, 50)
-	countdownLabel.Position = UDim2.new(0, 0, 0.8, 0)
-	countdownLabel.Text = "Waiting for players..."
-	countdownLabel.Font = Enum.Font.SourceSansBold
-	countdownLabel.TextSize = 24
-	-- ... (styling)
-	preGameLobbyCountdownLabel = countdownLabel -- Assign variable
+	local roomCodeLabel = Instance.new("TextLabel", preGameLobbyFrame)
+	roomCodeLabel.Name = "RoomCodeLabel"
+	roomCodeLabel.Size = UDim2.new(1, 0, 0, 20)
+	roomCodeLabel.Position = UDim2.new(0, 0, 0, 35)
+	roomCodeLabel.Font = Enum.Font.SourceSans
+	roomCodeLabel.Text = "Room Code: 12345"
+	roomCodeLabel.TextSize = 16
+	roomCodeLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+	roomCodeLabel.BackgroundTransparency = 1
+	roomCodeLabel.Visible = false -- Initially hidden
+	preGameLobbyRoomCodeLabel = roomCodeLabel -- Assign variable
+
+	local playersLabel = Instance.new("TextLabel", preGameLobbyFrame)
+	playersLabel.Size = UDim2.new(1, -20, 0, 20)
+	playersLabel.Position = UDim2.new(0, 10, 0, 60)
+	playersLabel.Text = "Players"
+	playersLabel.Font = Enum.Font.SourceSansBold
+	playersLabel.TextSize = 18
+	playersLabel.TextColor3 = Color3.new(1,1,1)
+	playersLabel.TextXAlignment = Enum.TextXAlignment.Left
+	playersLabel.BackgroundTransparency = 1
 
 	local playerList = Instance.new("ScrollingFrame", preGameLobbyFrame)
-	playerList.Size = UDim2.new(1, -20, 0.6, -60)
-	playerList.Position = UDim2.new(0, 10, 0, 50)
+	playerList.Size = UDim2.new(1, -20, 0.6, -20)
+	playerList.Position = UDim2.new(0, 10, 0, 85)
+	playerList.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+	playerList.BorderSizePixel = 0
 	local listLayout = Instance.new("UIListLayout", playerList)
 	listLayout.Padding = UDim.new(0, 5)
-	-- ... (styling)
 	preGameLobbyPlayerList = playerList -- Assign variable
+
+	local countdownLabel = Instance.new("TextLabel", preGameLobbyFrame)
+	countdownLabel.Size = UDim2.new(1, 0, 0, 30)
+	countdownLabel.Position = UDim2.new(0, 0, 1, -35)
+	countdownLabel.Text = "Waiting for players..."
+	countdownLabel.Font = Enum.Font.SourceSansBold
+	countdownLabel.TextSize = 20
+	countdownLabel.TextColor3 = Color3.new(1,1,1)
+	countdownLabel.BackgroundTransparency = 1
+	preGameLobbyCountdownLabel = countdownLabel -- Assign variable
+
+	local leaveButton = Instance.new("TextButton", preGameLobbyFrame)
+	leaveButton.Name = "LeaveButton"
+	leaveButton.Size = UDim2.new(0, 80, 0, 30)
+	leaveButton.Position = UDim2.new(1, -90, 0, 5)
+	leaveButton.Text = "Leave"
+	leaveButton.Font = Enum.Font.SourceSans
+	leaveButton.TextSize = 16
+	leaveButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+	leaveButton.TextColor3 = Color3.new(1, 1, 1)
+	local leaveCorner = Instance.new("UICorner", leaveButton)
+	leaveCorner.CornerRadius = UDim.new(0, 6)
+
+	leaveButton.MouseButton1Click:Connect(function()
+		print("Client sending request to leave room.")
+		lobbyRemote:FireServer("leaveRoom")
+	end)
 end
 
 populateMatchmakingFrame()
@@ -527,6 +591,9 @@ lobbyRemote.OnClientEvent:Connect(function(action, data)
 		updatePreGameLobby(data)
 	elseif action == "countdownUpdate" then
 		updateCountdown(data.value)
+	elseif action == "leftRoomSuccess" then
+		print("Client successfully left room. Returning to main menu.")
+		switchFrame(nil)
 	end
 end)
 
