@@ -244,7 +244,7 @@ local function populateJoinRoomFrame()
 	scrollingFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 	local listLayout = Instance.new("UIListLayout", scrollingFrame)
 	listLayout.Padding = UDim.new(0, 5)
-	
+
 	-- TAMBAHKAN BARIS INI
 	joinRoomScrollingFrame = scrollingFrame
 
@@ -342,12 +342,7 @@ local function populateMatchmakingFrame()
 	backButton.Size = UDim2.new(0, 50, 0, 30)
 	backButton.Position = UDim2.new(0, 10, 0, 10)
 	backButton.Text = "Back"
-	backButton.Font = Enum.Font.SourceSans
-	backButton.TextSize = 16
-	backButton.BackgroundColor3 = Color3.fromRGB(85, 85, 85)
-	backButton.TextColor3 = Color3.new(1, 1, 1)
-	local backCorner = Instance.new("UICorner", backButton)
-	backCorner.CornerRadius = UDim.new(0, 6)
+	-- ... styling
 
 	local title = Instance.new("TextLabel", matchmakingFrame)
 	title.Size = UDim2.new(1, 0, 0, 50)
@@ -620,4 +615,4 @@ connectJoinWithCodeButton()
 -- You can add a close button later if needed
 -- For now, let's assume the player closes it by walking away or pressing a key
 
-print("LobbyClient.lua loaded successfully.")
+print("LobbyRoomUI.lua loaded successfully.")
