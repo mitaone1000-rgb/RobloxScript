@@ -297,6 +297,7 @@ end
 --==============================================================================
 
 -- Teleports a group of players to the game place
+-- Teleports a group of players to a private game server
 local function teleportPlayersToAct1(playersToTeleport)
 	local act1Id = PlaceData["ACT 1: Village"]
 	if not act1Id then
@@ -304,14 +305,29 @@ local function teleportPlayersToAct1(playersToTeleport)
 		return
 	end
 
-	local success, result = pcall(function()
-		return TeleportService:TeleportAsync(act1Id, playersToTeleport)
+	-- Step 1: Reserve a private server
+	local reserveSuccess, privateServerCode = pcall(function()
+		return TeleportService:ReserveServer(act1Id)
 	end)
 
-	if not success then
-		warn("Failed to teleport players:", result)
+	if not reserveSuccess then
+		warn("Failed to reserve a private server: ", tostring(privateServerCode))
+		-- Optionally, inform players that the teleport failed
+		return
+	end
+
+	print("Private server reserved with code: " .. privateServerCode)
+
+	-- Step 2: Teleport players to the newly reserved server
+	local teleportSuccess, teleportResult = pcall(function()
+		TeleportService:TeleportToPrivateServer(act1Id, privateServerCode, playersToTeleport)
+	end)
+
+	if not teleportSuccess then
+		warn("Failed to teleport players to private server: ", tostring(teleportResult))
+		-- Optionally, handle the failed teleport (e.g., retry, disband room)
 	else
-		print("Successfully initiated teleport for", #playersToTeleport, "players to ACT 1.")
+		print("Successfully initiated teleport for ", #playersToTeleport, " players to the private server.")
 	end
 end
 
