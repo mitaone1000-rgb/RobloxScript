@@ -246,6 +246,12 @@ end
 local function handleLeaveRoom(player)
 	local roomData = getPlayerRoom(player)
 	if roomData then
+		-- NEW: Block leaving if a countdown is active in the room
+		if activeCountdowns[roomData.RoomId] then
+			warn(string.format("Player %s attempted to leave room %s during countdown. Denied.", player.Name, roomData.RoomId))
+			return
+		end
+
 		local wasPrivate = roomData.IsPrivate
 		local roomId = roomData.RoomId
 
@@ -284,6 +290,25 @@ local function handleLeaveRoom(player)
 		if not wasPrivate then
 			broadcastPublicRoomsUpdate()
 		end
+	end
+end
+
+-- Cancels an active countdown for a room
+local function handleCancelCountdown(player)
+	local room = getPlayerRoom(player)
+	-- Ensure the player is a host and a countdown is actually running for their room
+	if room and room.Host == player and activeCountdowns[room.RoomId] then
+		print(string.format("Host %s is cancelling the countdown for room %s.", player.Name, room.RoomId))
+
+		-- Setting this to nil will cause the countdown loop to terminate
+		activeCountdowns[room.RoomId] = nil
+
+		-- Notify all clients in the room to reset their UI
+		for _, p in ipairs(room.Players) do
+			lobbyRemote:FireClient(p, "countdownCancelled")
+		end
+	else
+		warn(string.format("Player %s sent an invalid cancelCountdown request.", player.Name))
 	end
 end
 
@@ -384,6 +409,13 @@ function startCountdown(room)
 
 	task.spawn(function()
 		for i = 5, 0, -1 do
+			-- Check for cancellation at the start of each tick
+			if not activeCountdowns[roomId] then
+				print("Countdown loop terminated for room:", roomId)
+				-- No need to set to nil again, it was done by the cancel function
+				return
+			end
+
 			local currentRoom = rooms[roomId]
 			-- If the room was dissolved mid-countdown, cancel cleanly.
 			if not currentRoom then
@@ -463,6 +495,8 @@ lobbyRemote.OnServerEvent:Connect(function(player, action, data)
 		else
 			warn(string.format("Player %s sent an invalid forceStartGame request.", player.Name))
 		end
+	elseif action == "cancelCountdown" then
+		handleCancelCountdown(player)
 	else
 		warn("Unknown action received: " .. tostring(action))
 	end

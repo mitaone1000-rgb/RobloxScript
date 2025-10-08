@@ -17,6 +17,9 @@ local preGameLobbyPlayerList, preGameLobbyCountdownLabel, preGameLobbyRoomCodeLa
 local lobbyRemote = ReplicatedStorage:WaitForChild("LobbyRemote")
 local joinRoomScrollingFrame -- Will be assigned in populateJoinRoomFrame
 
+-- State
+local isCountdownActive = false
+
 -- Main UI container
 local lobbyScreenGui = Instance.new("ScreenGui")
 lobbyScreenGui.Name = "LobbyScreenGui"
@@ -365,7 +368,45 @@ end
 
 local function updateCountdown(value)
 	if preGameLobbyCountdownLabel then
-		preGameLobbyCountdownLabel.Text = tostring(value)
+		preGameLobbyCountdownLabel.Text = "Starting in: " .. tostring(value)
+	end
+
+	-- When the countdown starts, change the button to a cancel button
+	if not isCountdownActive then
+		isCountdownActive = true
+		local startGameButton = preGameLobbyFrame:FindFirstChild("StartGameButton")
+		if startGameButton then
+			startGameButton.Text = "Cancel"
+			startGameButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50) -- Red color
+		end
+		-- Also disable the leave button
+		local leaveButton = preGameLobbyFrame:FindFirstChild("LeaveButton")
+		if leaveButton then
+			leaveButton.AutoButtonColor = false
+			leaveButton.BackgroundColor3 = Color3.fromRGB(130, 130, 130) -- Greyed out
+		end
+	end
+end
+
+local function resetPreGameLobbyButton()
+	isCountdownActive = false
+	local startGameButton = preGameLobbyFrame:FindFirstChild("StartGameButton")
+	if startGameButton then
+		-- The text and color will be reset by the next roomUpdate,
+		-- but we can reset the core properties here.
+		startGameButton.Text = "Start Game"
+		startGameButton.BackgroundColor3 = Color3.fromRGB(0, 170, 81)
+	end
+	-- Re-enable the leave button
+	local leaveButton = preGameLobbyFrame:FindFirstChild("LeaveButton")
+	if leaveButton then
+		leaveButton.AutoButtonColor = true
+		leaveButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50) -- Original red color
+	end
+
+	if preGameLobbyCountdownLabel then
+		-- Reset the label text as well
+		preGameLobbyCountdownLabel.Text = "Countdown cancelled."
 	end
 end
 
@@ -506,8 +547,13 @@ local function populatePreGameLobbyFrame()
 	leaveCorner.CornerRadius = UDim.new(0, 6)
 
 	leaveButton.MouseButton1Click:Connect(function()
-		print("Client sending request to leave room.")
-		lobbyRemote:FireServer("leaveRoom")
+		-- Only allow leaving if the button is active (not greyed out)
+		if leaveButton.AutoButtonColor then
+			print("Client sending request to leave room.")
+			lobbyRemote:FireServer("leaveRoom")
+		else
+			print("Leave button is disabled during countdown.")
+		end
 	end)
 
 	local startGameButton = Instance.new("TextButton", preGameLobbyFrame)
@@ -524,7 +570,14 @@ local function populatePreGameLobbyFrame()
 	startGameButton.Visible = false -- Hidden by default
 
 	startGameButton.MouseButton1Click:Connect(function()
-		if startGameButton.AutoButtonColor then -- A simple way to check if it's "active"
+		if not startGameButton.AutoButtonColor then return end -- Don't do anything if not active
+
+		if isCountdownActive then
+			-- If countdown is running, this button acts as a cancel button
+			print("Client sending cancel countdown request.")
+			lobbyRemote:FireServer("cancelCountdown")
+		else
+			-- Otherwise, it starts the game
 			print("Client sending force start game request.")
 			lobbyRemote:FireServer("forceStartGame")
 		end
@@ -636,11 +689,17 @@ lobbyRemote.OnClientEvent:Connect(function(action, data)
 		switchFrame(preGameLobbyFrame)
 	elseif action == "roomUpdate" then
 		print("Client received room update for room:", data.roomId)
+		-- Any room update implies the countdown is no longer valid. Reset the state.
+		isCountdownActive = false
 		updatePreGameLobby(data)
 	elseif action == "countdownUpdate" then
 		updateCountdown(data.value)
+	elseif action == "countdownCancelled" then
+		print("Client received countdown cancellation.")
+		resetPreGameLobbyButton()
 	elseif action == "leftRoomSuccess" then
 		print("Client successfully left room. Returning to main menu.")
+		resetPreGameLobbyButton() -- Reset state when leaving
 		switchFrame(nil)
 	end
 end)
