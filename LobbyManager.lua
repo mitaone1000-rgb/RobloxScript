@@ -19,3 +19,13 @@ profileRemoteFunction.Parent = ReplicatedStorage
 profileRemoteFunction.OnServerInvoke = function(player)
 	return ProfileModule.GetProfileData(player)
 end
+
+-- Create RemoteFunction for Inventory Data
+local inventoryRemoteFunction = Instance.new("RemoteFunction")
+inventoryRemoteFunction.Name = "GetInventoryData"
+inventoryRemoteFunction.Parent = ReplicatedStorage
+
+inventoryRemoteFunction.OnServerInvoke = function(player)
+	-- CoinsManager.GetData() sudah mengembalikan seluruh data inventaris
+	return CoinsManager.GetData(player)
+end

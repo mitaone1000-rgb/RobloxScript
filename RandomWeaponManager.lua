@@ -15,6 +15,7 @@ local ModuleScriptServerScriptService = ServerScriptService.ModuleScript
 local WeaponModule = require(ModuleScriptReplicatedStorage:WaitForChild("WeaponModule"))
 local RandomConfig = require(ModuleScriptServerScriptService:WaitForChild("RandomWeaponConfig"))
 local PointsSystem = require(ModuleScriptServerScriptService:WaitForChild("PointsModule"))
+local CoinsManager = require(ModuleScriptServerScriptService:WaitForChild("CoinsManager"))
 
 local openReplaceUI = RemoteEvents:WaitForChild("OpenReplaceUI")   
 local replaceChoiceEv = RemoteEvents:WaitForChild("ReplaceChoice")  
@@ -77,6 +78,16 @@ Players.PlayerAdded:Connect(function(player)
 				local HttpService = game:GetService("HttpService")
 				local clone = template:Clone()
 				clone:SetAttribute("WeaponId", HttpService:GenerateGUID(false))
+
+				-- Set equipped skin attribute
+				local inventoryData = CoinsManager.GetData(player)
+				if inventoryData and inventoryData.Skins and inventoryData.Skins.Equipped then
+					local equippedSkin = inventoryData.Skins.Equipped[clone.Name]
+					if equippedSkin then
+						clone:SetAttribute("EquippedSkin", equippedSkin)
+					end
+				end
+
 				clone.Parent = player:FindFirstChild("Backpack") or player
 			end
 		end
@@ -113,6 +124,16 @@ purchaseRF.OnServerInvoke = function(player)
 	if #weapons < RandomConfig.MaxWeapons then
 		-- give weapon directly
 		local clone = template:Clone()
+
+		-- Set equipped skin attribute
+		local inventoryData = CoinsManager.GetData(player)
+		if inventoryData and inventoryData.Skins and inventoryData.Skins.Equipped then
+			local equippedSkin = inventoryData.Skins.Equipped[clone.Name]
+			if equippedSkin then
+				clone:SetAttribute("EquippedSkin", equippedSkin)
+			end
+		end
+
 		clone.Parent = player:FindFirstChild("Backpack") or player
 		return {success=true, message=("Purchased %s"):format(newName), weaponName=newName, replaced=false}
 	else
@@ -164,6 +185,16 @@ replaceChoiceEv.OnServerEvent:Connect(function(player, index)
 	local template = findWeaponTemplate(offer.weaponName)
 	if template then
 		local clone = template:Clone()
+
+		-- Set equipped skin attribute
+		local inventoryData = CoinsManager.GetData(player)
+		if inventoryData and inventoryData.Skins and inventoryData.Skins.Equipped then
+			local equippedSkin = inventoryData.Skins.Equipped[clone.Name]
+			if equippedSkin then
+				clone:SetAttribute("EquippedSkin", equippedSkin)
+			end
+		end
+
 		clone.Parent = player:FindFirstChild("Backpack") or player
 		-- Auto-equip senjata baru setelah replace
 		local char = player.Character

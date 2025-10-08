@@ -6,9 +6,10 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
--- Memuat modul DataStoreManager
+-- Memuat modul
 local DataStoreManager = require(ServerScriptService.ModuleScript:WaitForChild("DataStoreManager"))
 local StatsModule = require(ServerScriptService.ModuleScript:WaitForChild("StatsModule"))
+local WeaponModule = require(ReplicatedStorage.ModuleScript:WaitForChild("WeaponModule"))
 
 -- RemoteEvent untuk pembaruan di sisi client
 local CoinsUpdateEvent = ReplicatedStorage.RemoteEvents:FindFirstChild("CoinsUpdateEvent")
@@ -20,32 +21,77 @@ end
 local CoinsManager = {}
 local NEW_SCOPE = "Inventory"
 local OLD_SCOPE = "Coins"
-local DEFAULT_DATA = {Coins = 0}
+-- Data default tidak perlu diisi skin, karena akan di-generate oleh GetData
+local DEFAULT_DATA = {
+	Coins = 0,
+	Skins = {
+		Owned = {},
+		Equipped = {}
+	}
+}
 
--- Fungsi untuk mendapatkan data koin pemain (mengembalikan tabel)
+-- Fungsi untuk mendapatkan data inventaris pemain (mengembalikan tabel)
 function CoinsManager.GetData(player)
 	local data = DataStoreManager.GetData(player, NEW_SCOPE)
+	local needsSave = false
 
-	-- Penanganan data korup: jika data adalah angka, perbaiki.
+	-- Penanganan data korup atau lama: jika data adalah angka (hanya koin).
 	if type(data) == "number" then
-		local fixedData = {Coins = data}
-		DataStoreManager.SaveData(player, NEW_SCOPE, fixedData)
-		return fixedData
+		data = {Coins = data}
+		needsSave = true
 	end
 
+	-- Jika pemain tidak punya data sama sekali.
 	if data == nil then
-		-- Coba migrasi dari scope lama (yang datanya berupa angka)
+		needsSave = true
+		-- Coba migrasi dari scope "Coins" yang lama.
 		local oldData = DataStoreManager.GetData(player, OLD_SCOPE)
-		if oldData ~= nil then
-			-- Data lama ditemukan, bungkus dalam format baru
-			local newData = {Coins = oldData}
-			DataStoreManager.SaveData(player, NEW_SCOPE, newData)
-			DataStoreManager.RemoveDataByUserId(player.UserId, OLD_SCOPE) -- Hapus data lama
-			return newData
+		if oldData ~= nil and type(oldData) == "number" then
+			-- Data lama ditemukan, bungkus dalam format baru.
+			data = {Coins = oldData}
+			DataStoreManager.RemoveDataByUserId(player.UserId, OLD_SCOPE) -- Hapus data lama.
+		else
+			-- Jika tidak ada data sama sekali, ini pemain baru. Buat data dari nol.
+			data = {
+				Coins = 0,
+				Skins = {
+					Owned = {},
+					Equipped = {}
+				}
+			}
 		end
 	end
-	
-	return data or DEFAULT_DATA
+
+	-- Pastikan struktur Skins ada untuk data lama atau yang baru dibuat.
+	if not data.Skins then
+		data.Skins = {
+			Owned = {},
+			Equipped = {}
+		}
+		needsSave = true
+	end
+
+	-- Iterasi semua senjata untuk memastikan pemain punya skin default.
+	local weaponConfig = WeaponModule.Weapons
+	for weaponName, _ in pairs(weaponConfig) do
+		-- Jika pemain belum punya daftar skin untuk senjata ini, buatkan.
+		if not data.Skins.Owned[weaponName] then
+			data.Skins.Owned[weaponName] = {"Default Skin"}
+			needsSave = true
+		end
+		-- Jika pemain belum punya skin yang terpasang untuk senjata ini, pasang default.
+		if not data.Skins.Equipped[weaponName] then
+			data.Skins.Equipped[weaponName] = "Default Skin"
+			needsSave = true
+		end
+	end
+
+	-- Simpan data jika ada perubahan (pemain baru, migrasi, atau perbaikan struktur).
+	if needsSave then
+		DataStoreManager.SaveData(player, NEW_SCOPE, data)
+	end
+
+	return data
 end
 
 -- Fungsi untuk menambahkan koin
@@ -72,25 +118,49 @@ end
 function CoinsManager.GetDataByUserId(userId)
 	local data = DataStoreManager.GetDataByUserId(userId, NEW_SCOPE)
 
-	-- Penanganan data korup: jika data adalah angka, perbaiki.
+	-- Penanganan data korup atau lama: jika data adalah angka (hanya koin).
 	if type(data) == "number" then
-		local fixedData = {Coins = data}
-		DataStoreManager.SaveDataByUserId(userId, NEW_SCOPE, fixedData)
-		return fixedData
+		data = {Coins = data}
 	end
 
+	-- Jika pemain tidak punya data sama sekali.
 	if data == nil then
-		-- Coba migrasi dari scope lama
+		-- Coba migrasi dari scope "Coins" yang lama.
 		local oldData = DataStoreManager.GetDataByUserId(userId, OLD_SCOPE)
-		if oldData ~= nil then
-			local newData = {Coins = oldData}
-			DataStoreManager.SaveDataByUserId(userId, NEW_SCOPE, newData)
-			DataStoreManager.RemoveDataByUserId(userId, OLD_SCOPE)
-			return newData
+		if oldData ~= nil and type(oldData) == "number" then
+			data = {Coins = oldData}
+		else
+			-- Buat data default sementara jika tidak ada data.
+			data = {
+				Coins = 0,
+				Skins = {
+					Owned = {},
+					Equipped = {}
+				}
+			}
 		end
 	end
 
-	return data or DEFAULT_DATA
+	-- Pastikan struktur Skins ada untuk data lama atau yang baru dibuat.
+	if not data.Skins then
+		data.Skins = {
+			Owned = {},
+			Equipped = {}
+		}
+	end
+
+	-- Iterasi semua senjata untuk memastikan data yang dikembalikan lengkap.
+	local weaponConfig = WeaponModule.Weapons
+	for weaponName, _ in pairs(weaponConfig) do
+		if not data.Skins.Owned[weaponName] then
+			data.Skins.Owned[weaponName] = {"Default Skin"}
+		end
+		if not data.Skins.Equipped[weaponName] then
+			data.Skins.Equipped[weaponName] = "Default Skin"
+		end
+	end
+
+	return data
 end
 
 -- Fungsi untuk mengubah jumlah koin berdasarkan UserID (untuk admin)

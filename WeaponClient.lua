@@ -130,13 +130,16 @@ local function transitionToHip()
 end
 
 local function transitionToADS()
-	if not weaponStats then return end
+	if not weaponStats or not currentWeapon then return end
 	stopAdsTween()
 
 	local adsPosition, adsRotation
 
-	if weaponStats.Skins and weaponStats.Use_Skin and weaponStats.Skins[weaponStats.Use_Skin] then
-		local skin = weaponStats.Skins[weaponStats.Use_Skin]
+	-- Dapatkan nama skin dari atribut tool, dengan fallback ke Use_Skin lalu ke Default Skin.
+	local equippedSkinName = currentWeapon:GetAttribute("EquippedSkin") or weaponStats.Use_Skin or "Default Skin"
+	local skin = weaponStats.Skins[equippedSkinName] or weaponStats.Skins["Default Skin"]
+
+	if skin then
 		if UserInputService.TouchEnabled and skin.ADS_Position_Mobile then
 			adsPosition = skin.ADS_Position_Mobile
 			adsRotation = skin.ADS_Rotation_Mobile or skin.ADS_Rotation
@@ -197,8 +200,12 @@ local function setupWeapon(tool)
 	viewmodel:createViewmodel()
 
 	local function applySkinClient()
-		if not weaponStats or not weaponStats.Skins or not weaponStats.Use_Skin then return end
-		local skin = weaponStats.Skins[weaponStats.Use_Skin]
+		if not weaponStats or not weaponStats.Skins then return end
+
+		-- Dapatkan nama skin dari atribut tool, dengan fallback ke Use_Skin lalu ke Default Skin.
+		local equippedSkinName = tool:GetAttribute("EquippedSkin") or weaponStats.Use_Skin or "Default Skin"
+		local skin = weaponStats.Skins[equippedSkinName] or weaponStats.Skins["Default Skin"]
+
 		if not skin then return end
 
 		local function setMesh(part)
