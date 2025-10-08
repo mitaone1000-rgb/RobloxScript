@@ -324,6 +324,39 @@ local function updatePreGameLobby(roomData)
 		corner.CornerRadius = UDim.new(0, 4)
 		playerLabel.Parent = preGameLobbyPlayerList
 	end
+
+	-- Handle Start Game button visibility and state
+	local startGameButton = preGameLobbyFrame:FindFirstChild("StartGameButton")
+	local isHost = (player.Name == roomData.hostName)
+	local isFull = (#roomData.players >= roomData.maxPlayers)
+
+	if startGameButton then
+		startGameButton.Visible = isHost
+
+		if isHost then
+			startGameButton.AutoButtonColor = isFull -- Enable click feedback only when full
+			if isFull then
+				startGameButton.BackgroundColor3 = Color3.fromRGB(0, 170, 81) -- Green (active)
+				startGameButton.Text = "Start Game"
+			else
+				startGameButton.BackgroundColor3 = Color3.fromRGB(130, 130, 130) -- Grey (disabled)
+				startGameButton.Text = string.format("%d/%d Players", #roomData.players, roomData.maxPlayers)
+			end
+		end
+	end
+
+	-- Update countdown label text based on room state
+	if preGameLobbyCountdownLabel then
+		if isFull then
+			if isHost then
+				preGameLobbyCountdownLabel.Text = "Press Start to Begin"
+			else
+				preGameLobbyCountdownLabel.Text = "Waiting for Host..."
+			end
+		else
+			preGameLobbyCountdownLabel.Text = "Waiting for players..."
+		end
+	end
 end
 
 
@@ -475,6 +508,26 @@ local function populatePreGameLobbyFrame()
 	leaveButton.MouseButton1Click:Connect(function()
 		print("Client sending request to leave room.")
 		lobbyRemote:FireServer("leaveRoom")
+	end)
+
+	local startGameButton = Instance.new("TextButton", preGameLobbyFrame)
+	startGameButton.Name = "StartGameButton"
+	startGameButton.Size = UDim2.new(0, 150, 0, 40)
+	startGameButton.Position = UDim2.new(0.5, -75, 1, -85) -- Position it above the countdown
+	startGameButton.Text = "Start Game"
+	startGameButton.Font = Enum.Font.SourceSansBold
+	startGameButton.TextSize = 18
+	startGameButton.BackgroundColor3 = Color3.fromRGB(0, 170, 81)
+	startGameButton.TextColor3 = Color3.new(1, 1, 1)
+	local startCorner = Instance.new("UICorner", startGameButton)
+	startCorner.CornerRadius = UDim.new(0, 8)
+	startGameButton.Visible = false -- Hidden by default
+
+	startGameButton.MouseButton1Click:Connect(function()
+		if startGameButton.AutoButtonColor then -- A simple way to check if it's "active"
+			print("Client sending force start game request.")
+			lobbyRemote:FireServer("forceStartGame")
+		end
 	end)
 end
 

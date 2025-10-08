@@ -184,10 +184,6 @@ local function handleJoinRoom(player, joinData)
 	end
 
 	updateRoomInfo(room)
-
-	if #room.Players >= room.MaxPlayers then
-		startCountdown(room)
-	end
 end
 
 -- Removes a player from any matchmaking queue they are in
@@ -317,9 +313,10 @@ local function checkForFullQueue(playerCount)
 			end
 		end
 
-		if newRoom and #newRoom.Players >= newRoom.MaxPlayers then
-			startCountdown(newRoom)
-		end
+		-- The countdown will now be started by the host, so we remove this automatic trigger.
+		-- if newRoom and #newRoom.Players >= newRoom.MaxPlayers then
+		-- 	startCountdown(newRoom)
+		-- end
 	end
 end
 
@@ -386,26 +383,36 @@ function startCountdown(room)
 	print("Starting countdown for room:", roomId)
 
 	task.spawn(function()
-		for i = 10, 0, -1 do
+		for i = 5, 0, -1 do
 			local currentRoom = rooms[roomId]
-			if not currentRoom or #currentRoom.Players < currentRoom.MaxPlayers then
-				print("Countdown cancelled for room:", roomId)
+			-- If the room was dissolved mid-countdown, cancel cleanly.
+			if not currentRoom then
+				print("Countdown cancelled for room:", roomId, "(Room dissolved)")
 				activeCountdowns[roomId] = nil
-				if currentRoom then
-					for _, p in ipairs(currentRoom.Players) do
-						lobbyRemote:FireClient(p, "countdownUpdate", { value = "Waiting for players..." })
-					end
-				end
-				return -- Stop the countdown
+				return
 			end
 
+			-- Create a snapshot of players at the start of each tick to prevent errors
+			-- if a player leaves while the events are being sent.
+			local playersToUpdate = {}
 			for _, p in ipairs(currentRoom.Players) do
+				table.insert(playersToUpdate, p)
+			end
+
+			if #playersToUpdate == 0 then
+				print("Countdown cancelled for room:", roomId, "(Empty)")
+				rooms[roomId] = nil -- Ensure room is dissolved if it's empty
+				activeCountdowns[roomId] = nil
+				return
+			end
+
+			for _, p in ipairs(playersToUpdate) do
 				lobbyRemote:FireClient(p, "countdownUpdate", { value = i })
 			end
 
 			if i == 0 then
 				print("Countdown finished for room:", roomId, ". Teleporting players...")
-				teleportPlayersToAct1(currentRoom.Players)
+				teleportPlayersToAct1(playersToUpdate)
 			end
 
 			task.wait(1)
@@ -447,6 +454,15 @@ lobbyRemote.OnServerEvent:Connect(function(player, action, data)
 		teleportPlayersToAct1({player})
 	elseif action == "leaveRoom" then
 		handleLeaveRoom(player)
+	elseif action == "forceStartGame" then
+		local room = getPlayerRoom(player)
+		if room and room.Host == player and #room.Players >= room.MaxPlayers then
+			print(string.format("Host %s is force starting the game for room %s.", player.Name, room.RoomId))
+			-- The 'startCountdown' function already prevents multiple countdowns, so we just call it.
+			startCountdown(room)
+		else
+			warn(string.format("Player %s sent an invalid forceStartGame request.", player.Name))
+		end
 	else
 		warn("Unknown action received: " .. tostring(action))
 	end
