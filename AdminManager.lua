@@ -9,6 +9,7 @@ local Players = game:GetService("Players")
 -- Memuat modul yang diperlukan
 local LevelManager = require(ServerScriptService.ModuleScript:WaitForChild("LevelModule"))
 local CoinsManager = require(ServerScriptService.ModuleScript:WaitForChild("CoinsModule"))
+local StatsModule = require(ServerScriptService.ModuleScript:WaitForChild("StatsModule"))
 local AdminConfig = require(ServerScriptService.ModuleScript:WaitForChild("AdminConfig"))
 
 -- Membuat folder untuk event admin jika belum ada
@@ -42,12 +43,19 @@ requestDataFunc.OnServerInvoke = function(player, targetUserId)
 		return nil, "Invalid UserID format"
 	end
 
+	-- Mengambil data dari modul-modul terkait
 	local levelData = LevelManager.GetDataByUserId(targetUserId)
 	local coinsData = CoinsManager.GetDataByUserId(targetUserId)
+	local statsData = StatsModule.GetDataByUserId(targetUserId)
+
+	-- Menggabungkan data Level ke dalam Stats
+	-- Data dari StatsModule akan menimpa data dari LevelModule jika ada kunci yang sama
+	statsData.Level = levelData.Level
+	statsData.XP = levelData.XP
 
 	-- Mengirim data dengan struktur yang sesuai dengan scope baru
 	local data = {
-		Stats = levelData,
+		Stats = statsData, -- Menggunakan gabungan data
 		Inventory = coinsData,
 	}
 

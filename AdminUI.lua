@@ -234,7 +234,7 @@ local function CreateAdminUI()
 	closePlayerListButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 
 	-- Data Display UI
-	local dataDisplayFrame = createPopupFrame("DataDisplayFrame", UDim2.new(0, 300, 0, 210), 2)
+	local dataDisplayFrame = createPopupFrame("DataDisplayFrame", UDim2.new(0, 300, 0, 330), 2) -- Tambah tinggi
 	local dataDisplayLayout = Instance.new("UIListLayout")
 	dataDisplayLayout.Padding = UDim.new(0, 10)
 	dataDisplayLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -248,10 +248,16 @@ local function CreateAdminUI()
 	displayTitle.BackgroundTransparency = 1
 	displayTitle.Parent = dataDisplayFrame
 
-	local displayUserIdLabel = createButton("displayUserIdLabel", "", dataDisplayFrame, UDim2.new(1,0,0,20))
-	local displayLevelLabel = createButton("displayLevelLabel", "", dataDisplayFrame, UDim2.new(1,0,0,20))
-	local displayXpLabel = createButton("displayXpLabel", "", dataDisplayFrame, UDim2.new(1,0,0,20))
-	local displayCoinsLabel = createButton("displayCoinsLabel", "", dataDisplayFrame, UDim2.new(1,0,0,20))
+	local labelSize = UDim2.new(1, 0, 0, 20)
+	local displayUserIdLabel = createButton("displayUserIdLabel", "", dataDisplayFrame, labelSize)
+	local displayLevelLabel = createButton("displayLevelLabel", "", dataDisplayFrame, labelSize)
+	local displayXpLabel = createButton("displayXpLabel", "", dataDisplayFrame, labelSize)
+	local displayCoinsLabel = createButton("displayCoinsLabel", "", dataDisplayFrame, labelSize)
+	-- Label baru untuk statistik
+	local displayTotalKillsLabel = createButton("displayTotalKillsLabel", "", dataDisplayFrame, labelSize)
+	local displayTotalCoinsLabel = createButton("displayTotalCoinsLabel", "", dataDisplayFrame, labelSize)
+	local displayTotalRevivesLabel = createButton("displayTotalRevivesLabel", "", dataDisplayFrame, labelSize)
+	local displayTotalKnocksLabel = createButton("displayTotalKnocksLabel", "", dataDisplayFrame, labelSize)
 
 	local closeDisplayButton = createButton("CloseDisplayButton", "Close", dataDisplayFrame, UDim2.new(1, 0, 0, 30))
 	closeDisplayButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
@@ -337,9 +343,14 @@ local function CreateAdminUI()
 			coinsBox.Text = tostring(data.Inventory.Coins)
 			statusLabel.Text = "Status: Data berhasil dimuat untuk UserID " .. targetUserId
 			displayUserIdLabel.Text = "UserID: " .. targetUserId
-			displayLevelLabel.Text = "Level: " .. data.Stats.Level
-			displayXpLabel.Text = "XP: " .. data.Stats.XP
-			displayCoinsLabel.Text = "Koin: " .. data.Inventory.Coins
+			displayLevelLabel.Text = "Level: " .. tostring(data.Stats.Level)
+			displayXpLabel.Text = "XP: " .. tostring(data.Stats.XP)
+			displayCoinsLabel.Text = "Koin (Inventaris): " .. tostring(data.Inventory.Coins)
+			-- Update label statistik baru
+			displayTotalKillsLabel.Text = "Total Kills: " .. tostring(data.Stats.TotalKills)
+			displayTotalCoinsLabel.Text = "Total Coins (Lifetime): " .. tostring(data.Stats.TotalCoins)
+			displayTotalRevivesLabel.Text = "Total Revives: " .. tostring(data.Stats.TotalRevives)
+			displayTotalKnocksLabel.Text = "Total Knocks: " .. tostring(data.Stats.TotalKnocks)
 			dataDisplayFrame.Visible = true
 		else
 			levelBox.Text, xpBox.Text, coinsBox.Text = "", "", ""

@@ -79,6 +79,41 @@ function StatsModule.AddRevive(player)
 	incrementStat(player, "TotalRevives", 1)
 end
 
+-- Fungsi untuk mendapatkan data statistik berdasarkan UserID
+function StatsModule.GetDataByUserId(userId)
+	local data = DataStoreManager.GetDataByUserId(userId, SCOPE)
+
+	-- Jika tidak ada data di scope baru, coba migrasi dari scope lama
+	if data == nil then
+		local oldData = DataStoreManager.GetDataByUserId(userId, OLD_SCOPE)
+		if oldData then
+			warn("Migrating data for userId " .. tostring(userId) .. " from " .. OLD_SCOPE .. " to " .. SCOPE)
+			DataStoreManager.SaveDataByUserId(userId, SCOPE, oldData)
+			DataStoreManager.RemoveDataByUserId(userId, OLD_SCOPE) -- Hapus data lama
+			data = oldData
+		end
+	end
+
+	if data == nil then
+		return table.clone(DEFAULT_DATA) -- Return a copy to prevent mutation
+	end
+
+	-- Isi nilai default yang mungkin hilang
+	local hasChanges = false
+	for key, value in pairs(DEFAULT_DATA) do
+		if data[key] == nil then
+			data[key] = value
+			hasChanges = true
+		end
+	end
+
+	if hasChanges then
+		DataStoreManager.SaveDataByUserId(userId, SCOPE, data)
+	end
+
+	return data
+end
+
 -- Setup saat pemain bergabung untuk memastikan data di-cache
 local function onPlayerAdded(player)
 	-- Memuat data awal untuk mengisi cache
