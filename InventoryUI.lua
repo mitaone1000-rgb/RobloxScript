@@ -82,36 +82,72 @@ local backCorner = Instance.new("UICorner", backButton)
 backCorner.CornerRadius = UDim.new(0, 6)
 
 -- Layout Frame untuk menampung weaponList dan rightPanel
+-- Layout Frame untuk menampung kolom
 local contentFrame = Instance.new("Frame", mainFrame)
 contentFrame.Name = "ContentFrame"
-contentFrame.Size = UDim2.new(0.95, 0, 0.88, 0) -- Mengisi sisa area di bawah title
-contentFrame.Position = UDim2.new(0.5, 0, 0.54, 0) -- Diposisikan di bawah title
+contentFrame.Size = UDim2.new(0.95, 0, 0.88, 0)
+contentFrame.Position = UDim2.new(0.5, 0, 0.54, 0)
 contentFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 contentFrame.BackgroundTransparency = 1
+local contentLayout = Instance.new("UIListLayout", contentFrame)
+contentLayout.FillDirection = Enum.FillDirection.Horizontal
+contentLayout.Padding = UDim.new(0.01, 0)
+contentLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
--- Weapon List (Left Side)
-local weaponListFrame = Instance.new("ScrollingFrame", contentFrame)
+-- Kolom Kiri: Daftar Senjata (20%)
+local leftColumn = Instance.new("Frame", contentFrame)
+leftColumn.Name = "LeftColumn"
+leftColumn.Size = UDim2.new(0.2, 0, 1, 0)
+leftColumn.BackgroundTransparency = 1
+leftColumn.LayoutOrder = 1
+
+local weaponListFrame = Instance.new("ScrollingFrame", leftColumn)
 weaponListFrame.Name = "WeaponListFrame"
-weaponListFrame.Size = UDim2.new(0.25, 0, 1, 0) -- 25% dari lebar contentFrame
-weaponListFrame.Position = UDim2.new(0, 0, 0, 0)
+weaponListFrame.Size = UDim2.new(1, 0, 1, 0)
 weaponListFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+local wl_corner = Instance.new("UICorner", weaponListFrame)
+wl_corner.CornerRadius = UDim.new(0, 8)
 local wl_layout = Instance.new("UIListLayout", weaponListFrame)
 wl_layout.Padding = UDim.new(0, 5)
 wl_layout.SortOrder = Enum.SortOrder.Name
 
--- Area Kanan (Pratinjau + Daftar Skin)
-local rightPanel = Instance.new("Frame", contentFrame)
-rightPanel.Name = "RightPanel"
-rightPanel.Size = UDim2.new(0.74, 0, 1, 0) -- 74% dari lebar contentFrame (menyisakan 1% gap)
-rightPanel.Position = UDim2.new(0.26, 0, 0, 0) -- Diposisikan di sebelah kanan weaponList
-rightPanel.BackgroundTransparency = 1
+-- Pemisah 1
+local separator1 = Instance.new("Frame", contentFrame)
+separator1.Name = "Separator1"
+separator1.Size = UDim2.new(0, 2, 1, 0)
+separator1.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+separator1.BorderSizePixel = 0
+separator1.LayoutOrder = 2
 
--- Placeholder untuk ViewportFrame
+-- Kolom Tengah: Pratinjau 3D (50%)
+local middleColumn = Instance.new("Frame", contentFrame)
+middleColumn.Name = "MiddleColumn"
+middleColumn.Size = UDim2.new(0.48, 0, 1, 0)
+middleColumn.BackgroundTransparency = 1
+middleColumn.LayoutOrder = 3
+
+-- Pemisah 2
+local separator2 = Instance.new("Frame", contentFrame)
+separator2.Name = "Separator2"
+separator2.Size = UDim2.new(0, 2, 1, 0)
+separator2.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+separator2.BorderSizePixel = 0
+separator2.LayoutOrder = 4
+
+-- Kolom Kanan: Info & Aksi (30%)
+local rightColumn = Instance.new("Frame", contentFrame)
+rightColumn.Name = "RightColumn"
+rightColumn.Size = UDim2.new(0.3, 0, 1, 0)
+rightColumn.BackgroundTransparency = 1
+rightColumn.LayoutOrder = 5
+local rightColumnLayout = Instance.new("UIListLayout", rightColumn)
+rightColumnLayout.Padding = UDim.new(0, 10)
+rightColumnLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
 -- ViewportFrame untuk Pratinjau
-local viewportFrame = Instance.new("ViewportFrame", rightPanel)
+local viewportFrame = Instance.new("ViewportFrame", middleColumn)
 viewportFrame.Name = "ViewportFrame"
-viewportFrame.Size = UDim2.new(1, 0, 0.5, 0) -- 50% tinggi dari rightPanel
-viewportFrame.Position = UDim2.new(0, 0, 0, 0)
+viewportFrame.Size = UDim2.new(1, 0, 1, 0) -- Mengisi seluruh kolom tengah
 viewportFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 viewportFrame.BorderSizePixel = 0
 viewportFrame.LightColor = Color3.new(1, 1, 1)
@@ -120,9 +156,6 @@ local viewportCorner = Instance.new("UICorner", viewportFrame)
 viewportCorner.CornerRadius = UDim.new(0, 8)
 
 -- Slider untuk Zoom
--- Slider untuk Zoom (Vertikal)
--- Slider untuk Zoom (Horizontal, di dalam Viewport)
--- Komponen Slider Kustom
 local sliderTrack = Instance.new("Frame", viewportFrame)
 sliderTrack.Name = "SliderTrack"
 sliderTrack.Size = UDim2.new(0.8, 0, 0, 10)
@@ -135,8 +168,8 @@ sliderTrack.Visible = false
 
 local sliderFill = Instance.new("Frame", sliderTrack)
 sliderFill.Name = "SliderFill"
-sliderFill.Size = UDim2.new(0.5, 0, 1, 0) -- Mulai di 50%
-sliderFill.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+sliderFill.Size = UDim2.new(0.5, 0, 1, 0)
+sliderFill.BackgroundColor3 = Color3.fromRGB(180, 20, 20)
 sliderFill.BorderSizePixel = 0
 local fillCorner = Instance.new("UICorner", sliderFill)
 fillCorner.CornerRadius = UDim.new(0, 5)
@@ -149,39 +182,34 @@ sliderHandle.Position = UDim2.new(0.5, 0, 0.5, 0)
 sliderHandle.BackgroundColor3 = Color3.new(1, 1, 1)
 sliderHandle.BorderSizePixel = 0
 local handleCorner = Instance.new("UICorner", sliderHandle)
-handleCorner.CornerRadius = UDim.new(1, 0) -- Lingkaran
+handleCorner.CornerRadius = UDim.new(1, 0)
 
--- WorldModel untuk mengelola lingkungan 3D di dalam ViewportFrame
+-- WorldModel & Kamera
 local worldModel = Instance.new("WorldModel", viewportFrame)
-
--- Kamera untuk ViewportFrame
 local viewportCamera = Instance.new("Camera")
 viewportCamera.Parent = viewportFrame
 viewportCamera.FieldOfView = 30
 viewportFrame.CurrentCamera = viewportCamera
 
--- NEW: Frame untuk Statistik Senjata
-local statsFrame = Instance.new("Frame", rightPanel)
+-- Frame untuk Statistik Senjata
+local statsFrame = Instance.new("Frame", rightColumn)
 statsFrame.Name = "StatsFrame"
-statsFrame.Size = UDim2.new(1, 0, 0.2, 0) -- 20% tinggi, beri ruang untuk skin list
-statsFrame.Position = UDim2.new(0, 0, 0.5, 5) -- Di bawah viewport, dengan 5px gap
+statsFrame.Size = UDim2.new(1, 0, 0, 120)
 statsFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 statsFrame.BorderSizePixel = 0
-statsFrame.Visible = false -- Sembunyikan awalnya
+statsFrame.Visible = false
+statsFrame.LayoutOrder = 1
 local statsCorner = Instance.new("UICorner", statsFrame)
 statsCorner.CornerRadius = UDim.new(0, 8)
 
--- Layout untuk statistik
+-- ... (elemen di dalam statsFrame tidak berubah, hanya parent-nya)
 local statsLayout = Instance.new("UIPadding", statsFrame)
 statsLayout.PaddingLeft = UDim.new(0, 10)
 statsLayout.PaddingRight = UDim.new(0, 10)
 statsLayout.PaddingTop = UDim.new(0, 5)
 statsLayout.PaddingBottom = UDim.new(0, 5)
-
 local statsListLayout = Instance.new("UIListLayout", statsFrame)
 statsListLayout.Padding = UDim.new(0, 8)
-
--- Judul Statistik
 local statsTitle = Instance.new("TextLabel", statsFrame)
 statsTitle.Name = "StatsTitle"
 statsTitle.Size = UDim2.new(1, 0, 0, 20)
@@ -190,8 +218,6 @@ statsTitle.Font = Enum.Font.SourceSansBold
 statsTitle.TextSize = 18
 statsTitle.TextColor3 = Color3.fromRGB(200, 200, 200)
 statsTitle.BackgroundTransparency = 1
-
--- Frame untuk baris Damage
 local damageFrame = Instance.new("Frame", statsFrame)
 damageFrame.BackgroundTransparency = 1
 damageFrame.Size = UDim2.new(1, 0, 0, 20)
@@ -199,13 +225,11 @@ local damageLayout = Instance.new("UIListLayout", damageFrame)
 damageLayout.FillDirection = Enum.FillDirection.Horizontal
 damageLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 damageLayout.Padding = UDim.new(0, 5)
-
 local damageIcon = Instance.new("ImageLabel", damageFrame)
 damageIcon.Size = UDim2.new(0, 20, 0, 20)
 damageIcon.BackgroundTransparency = 1
-damageIcon.Image = "rbxassetid://13858487184" -- Placeholder ID Ikon Target
+damageIcon.Image = "rbxassetid://13858487184"
 damageIcon.ImageColor3 = Color3.fromRGB(220, 220, 220)
-
 local damageLabel = Instance.new("TextLabel", damageFrame)
 damageLabel.Font = Enum.Font.SourceSans
 damageLabel.TextSize = 16
@@ -214,8 +238,6 @@ damageLabel.BackgroundTransparency = 1
 damageLabel.TextXAlignment = Enum.TextXAlignment.Left
 damageLabel.Size = UDim2.new(1, -25, 1, 0)
 damageLabel.Text = "Damage: -"
-
--- Frame untuk baris Amunisi
 local ammoFrame = Instance.new("Frame", statsFrame)
 ammoFrame.BackgroundTransparency = 1
 ammoFrame.Size = UDim2.new(1, 0, 0, 20)
@@ -223,13 +245,11 @@ local ammoLayout = Instance.new("UIListLayout", ammoFrame)
 ammoLayout.FillDirection = Enum.FillDirection.Horizontal
 ammoLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 ammoLayout.Padding = UDim.new(0, 5)
-
 local ammoIcon = Instance.new("ImageLabel", ammoFrame)
 ammoIcon.Size = UDim2.new(0, 20, 0, 20)
 ammoIcon.BackgroundTransparency = 1
-ammoIcon.Image = "rbxassetid://13858484964" -- Placeholder ID Ikon Peluru
+ammoIcon.Image = "rbxassetid://13858484964"
 ammoIcon.ImageColor3 = Color3.fromRGB(220, 220, 220)
-
 local ammoLabel = Instance.new("TextLabel", ammoFrame)
 ammoLabel.Font = Enum.Font.SourceSans
 ammoLabel.TextSize = 16
@@ -238,8 +258,6 @@ ammoLabel.BackgroundTransparency = 1
 ammoLabel.TextXAlignment = Enum.TextXAlignment.Left
 ammoLabel.Size = UDim2.new(1, -25, 1, 0)
 ammoLabel.Text = "Ammunition: -"
-
--- Frame untuk baris Recoil
 local recoilFrame = Instance.new("Frame", statsFrame)
 recoilFrame.BackgroundTransparency = 1
 recoilFrame.Size = UDim2.new(1, 0, 0, 20)
@@ -247,7 +265,6 @@ local recoilLayout = Instance.new("UIListLayout", recoilFrame)
 recoilLayout.FillDirection = Enum.FillDirection.Horizontal
 recoilLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 recoilLayout.Padding = UDim.new(0, 5)
-
 local recoilLabel = Instance.new("TextLabel", recoilFrame)
 recoilLabel.Font = Enum.Font.SourceSans
 recoilLabel.TextSize = 16
@@ -256,89 +273,51 @@ recoilLabel.BackgroundTransparency = 1
 recoilLabel.TextXAlignment = Enum.TextXAlignment.Left
 recoilLabel.Size = UDim2.new(0, 55, 1, 0)
 recoilLabel.Text = "Recoil:"
-
 local recoilBarTrack = Instance.new("Frame", recoilFrame)
 recoilBarTrack.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 recoilBarTrack.Size = UDim2.new(1, -60, 0, 12)
 recoilBarTrack.LayoutOrder = 2
 local recoilTrackCorner = Instance.new("UICorner", recoilBarTrack)
 recoilTrackCorner.CornerRadius = UDim.new(0, 6)
-
 local recoilBarFill = Instance.new("Frame", recoilBarTrack)
-recoilBarFill.BackgroundColor3 = Color3.fromRGB(80, 180, 80) -- Hijau untuk rekoil rendah
-recoilBarFill.Size = UDim2.new(0.2, 0, 1, 0) -- Mulai dengan nilai rendah
+recoilBarFill.BackgroundColor3 = Color3.fromRGB(80, 180, 80)
+recoilBarFill.Size = UDim2.new(0.2, 0, 1, 0)
 local recoilFillCorner = Instance.new("UICorner", recoilBarFill)
 recoilFillCorner.CornerRadius = UDim.new(0, 6)
 
--- Garis Pemisah
-local separator = Instance.new("Frame", rightPanel)
-separator.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-separator.BorderSizePixel = 0
-separator.Size = UDim2.new(1, 0, 0, 2)
-separator.Position = UDim2.new(0, 0, 0.7, 4)
-
--- Skin List (Bawah Kanan) - Diubah menjadi list horizontal
-local skinListFrame = Instance.new("ScrollingFrame", rightPanel)
+-- Daftar Skin
+local skinListFrame = Instance.new("ScrollingFrame", rightColumn)
 skinListFrame.Name = "SkinListFrame"
-skinListFrame.Size = UDim2.new(1, 0, 0.3, 0) -- 30% tinggi dari rightPanel
-skinListFrame.Position = UDim2.new(0, 0, 0.7, 10) -- Diposisikan di bawah statsFrame
+skinListFrame.Size = UDim2.new(1, 0, 1, -170) -- Mengisi sisa ruang
 skinListFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 skinListFrame.BackgroundTransparency = 0.5
 skinListFrame.BorderSizePixel = 0
-skinListFrame.CanvasSize = UDim2.new(2, 0, 0, 0) -- Aktifkan scrolling horizontal
-local sl_layout = Instance.new("UIListLayout", skinListFrame)
-sl_layout.Padding = UDim.new(0, 10)
-sl_layout.FillDirection = Enum.FillDirection.Horizontal
-sl_layout.VerticalAlignment = Enum.VerticalAlignment.Center
+skinListFrame.LayoutOrder = 2
+skinListFrame.CanvasSize = UDim2.new(0, 0, 2, 0) -- Aktifkan scrolling vertikal
+skinListFrame.ScrollBarThickness = 6
 
--- Equip Button
-local equipButton = Instance.new("TextButton", rightPanel) -- Parent diubah ke rightPanel
+local sl_layout = Instance.new("UIGridLayout", skinListFrame)
+sl_layout.CellPadding = UDim2.new(0, 5, 0, 5)
+sl_layout.CellSize = UDim2.new(0.5, -5, 0, 80)
+sl_layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Tombol Equip
+local equipButton = Instance.new("TextButton", rightColumn)
 equipButton.Name = "EquipButton"
-equipButton.AnchorPoint = Vector2.new(0.5, 0) -- Jangkar di tengah atas
-equipButton.Size = UDim2.new(1, 0, 0.1, 0) -- Lebar 100% dari rightPanel, tinggi 10% dari rightPanel
-equipButton.Position = UDim2.new(0.5, 0, 1.02, 0) -- Diposisikan sedikit di bawah rightPanel
+equipButton.Size = UDim2.new(1, 0, 0, 40)
 equipButton.Text = "Equip Skin"
 equipButton.Font = Enum.Font.SourceSansBold
 equipButton.TextSize = 18
-equipButton.BackgroundColor3 = Color3.fromRGB(130, 130, 130) -- Disabled
+equipButton.BackgroundColor3 = Color3.fromRGB(130, 130, 130)
 equipButton.TextColor3 = Color3.new(1, 1, 1)
+equipButton.LayoutOrder = 3
 local equipCorner = Instance.new("UICorner", equipButton)
 equipCorner.CornerRadius = UDim.new(0, 8)
 equipButton.AutoButtonColor = false
 
--- Layout Adaptif
-local mobileLayout = Instance.new("UIListLayout")
-mobileLayout.Name = "MobileLayout"
-mobileLayout.FillDirection = Enum.FillDirection.Vertical
-mobileLayout.SortOrder = Enum.SortOrder.LayoutOrder
-mobileLayout.Padding = UDim.new(0, 10)
--- Parent diatur ke nil pada awalnya untuk menonaktifkannya
-
-local function updateLayout()
-	local screenSize = inventoryScreenGui.AbsoluteSize
-	local isMobile = screenSize.X < 720 -- Ambang batas untuk layout mobile
-
-	if isMobile then
-		-- Layout Vertikal untuk Mobile
-		mobileLayout.Parent = contentFrame -- Aktifkan layout dengan mengatur Parent
-		weaponListFrame.Size = UDim2.new(1, 0, 0.4, 0)
-		rightPanel.Size = UDim2.new(1, 0, 0.58, 0)
-		rightPanel.Position = UDim2.new(0, 0, 0, 0) -- Dikelola oleh ListLayout
-	else
-		-- Layout Horizontal untuk Desktop
-		mobileLayout.Parent = nil -- Nonaktifkan layout dengan menghapus Parent
-		weaponListFrame.Size = UDim2.new(0.25, 0, 1, 0)
-		rightPanel.Size = UDim2.new(0.74, 0, 1, 0)
-		rightPanel.Position = UDim2.new(0.26, 0, 0, 0)
-	end
-end
-
--- Panggil fungsi penyesuaian layout setiap kali ukuran layar berubah
-inventoryScreenGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateLayout)
-
+-- Hapus fungsi updateLayout yang lama karena tidak lagi digunakan
 -- Panggil sekali di awal untuk mengatur layout awal
 task.wait() -- Tunggu sejenak agar ukuran awal UI dihitung dengan benar
-updateLayout()
 
 -- State variables
 local inventoryData = nil
@@ -464,7 +443,7 @@ end
 
 local function updateSkinList()
 	for _, child in ipairs(skinListFrame:GetChildren()) do
-		if not child:IsA("UIListLayout") then -- Diubah dari UIGridLayout
+		if not child:IsA("UILayout") then
 			child:Destroy()
 		end
 	end
@@ -485,9 +464,9 @@ local function updateSkinList()
 	end)
 
 	for _, skinName in ipairs(ownedSkins) do
-		local skinButton = Instance.new("ImageButton") -- Diubah ke ImageButton untuk pratinjau mini
+		local skinButton = Instance.new("ImageButton")
 		skinButton.Name = skinName
-		skinButton.Size = UDim2.new(0, 100, 0, 100) -- Ukuran persegi
+		-- Ukuran diatur oleh UIGridLayout.CellSize
 		skinButton.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
 		skinButton.Parent = skinListFrame
 		local skinCorner = Instance.new("UICorner", skinButton)
