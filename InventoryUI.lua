@@ -5,6 +5,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 
@@ -37,8 +38,8 @@ btnCorner.CornerRadius = UDim.new(0, 8)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
 mainFrame.Parent = inventoryScreenGui
-mainFrame.Size = UDim2.new(0, 500, 0, 350)
-mainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
+mainFrame.Size = UDim2.new(0, 800, 0, 500) -- Ukuran diperbesar
+mainFrame.Position = UDim2.new(0.5, -400, 0.5, -250) -- Disesuaikan agar tetap di tengah
 mainFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
@@ -72,26 +73,61 @@ backCorner.CornerRadius = UDim.new(0, 6)
 
 -- Weapon List (Left Side)
 local weaponListFrame = Instance.new("ScrollingFrame", mainFrame)
-weaponListFrame.Size = UDim2.new(0.4, -15, 1, -60)
+weaponListFrame.Size = UDim2.new(0, 200, 1, -60) -- Lebar tetap
 weaponListFrame.Position = UDim2.new(0, 10, 0, 50)
 weaponListFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 local wl_layout = Instance.new("UIListLayout", weaponListFrame)
 wl_layout.Padding = UDim.new(0, 5)
 wl_layout.SortOrder = Enum.SortOrder.Name
 
--- Skin List (Right Side)
-local skinListFrame = Instance.new("ScrollingFrame", mainFrame)
-skinListFrame.Size = UDim2.new(0.6, -15, 1, -110)
-skinListFrame.Position = UDim2.new(0.4, 0, 0, 50)
+-- Area Kanan (Pratinjau + Daftar Skin)
+local rightPanel = Instance.new("Frame", mainFrame)
+rightPanel.Name = "RightPanel"
+rightPanel.Size = UDim2.new(1, -225, 1, -60)
+rightPanel.Position = UDim2.new(0, 215, 0, 50)
+rightPanel.BackgroundTransparency = 1
+
+-- Placeholder untuk ViewportFrame
+-- ViewportFrame untuk Pratinjau
+local viewportFrame = Instance.new("ViewportFrame", rightPanel)
+viewportFrame.Name = "ViewportFrame"
+viewportFrame.Size = UDim2.new(1, 0, 1, -130) -- Mengisi bagian atas rightPanel
+viewportFrame.Position = UDim2.new(0, 0, 0, 0)
+viewportFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+viewportFrame.BorderSizePixel = 0
+viewportFrame.AmbientColor3 = Color3.new(0.5, 0.5, 0.5) -- Pencahayaan dasar
+viewportFrame.LightColor = Color3.new(1, 1, 1)
+viewportFrame.LightDirection = Vector3.new(-1, -1, -1)
+local viewportCorner = Instance.new("UICorner", viewportFrame)
+viewportCorner.CornerRadius = UDim.new(0, 8)
+
+-- WorldModel untuk mengelola lingkungan 3D di dalam ViewportFrame
+local worldModel = Instance.new("WorldModel", viewportFrame)
+
+-- Kamera untuk ViewportFrame
+local viewportCamera = Instance.new("Camera")
+viewportCamera.Parent = viewportFrame
+viewportCamera.FieldOfView = 30
+viewportFrame.CurrentCamera = viewportCamera
+
+-- Skin List (Bawah Kanan) - Diubah menjadi list horizontal
+local skinListFrame = Instance.new("ScrollingFrame", rightPanel)
+skinListFrame.Name = "SkinListFrame"
+skinListFrame.Size = UDim2.new(1, 0, 0, 120) -- Tinggi tetap
+skinListFrame.Position = UDim2.new(0, 0, 1, -120) -- Di bagian bawah rightPanel
 skinListFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-local sl_layout = Instance.new("UIGridLayout", skinListFrame)
-sl_layout.CellPadding = UDim2.new(0, 5, 0, 5)
-sl_layout.CellSize = UDim2.new(0, 100, 0, 120)
+skinListFrame.BackgroundTransparency = 0.5
+skinListFrame.BorderSizePixel = 0
+skinListFrame.CanvasSize = UDim2.new(2, 0, 0, 0) -- Aktifkan scrolling horizontal
+local sl_layout = Instance.new("UIListLayout", skinListFrame)
+sl_layout.Padding = UDim.new(0, 10)
+sl_layout.FillDirection = Enum.FillDirection.Horizontal
+sl_layout.VerticalAlignment = Enum.VerticalAlignment.Center
 
 -- Equip Button
 local equipButton = Instance.new("TextButton", mainFrame)
-equipButton.Size = UDim2.new(0.6, -15, 0, 40)
-equipButton.Position = UDim2.new(0.4, 0, 1, -50)
+equipButton.Size = UDim2.new(1, -225, 0, 40)
+equipButton.Position = UDim2.new(0, 215, 1, -50)
 equipButton.Text = "Equip Skin"
 equipButton.Font = Enum.Font.SourceSansBold
 equipButton.TextSize = 18
@@ -105,10 +141,70 @@ equipButton.AutoButtonColor = false
 local inventoryData = nil
 local selectedWeapon = nil
 local selectedSkin = nil
+local currentPreviewModel = nil
+local rotationConnection = nil
+
+-- Fungsi untuk menghentikan rotasi model
+local function stopRotation()
+	if rotationConnection then
+		rotationConnection:Disconnect()
+		rotationConnection = nil
+	end
+end
+
+-- Fungsi untuk memulai rotasi model
+local function startRotation()
+	stopRotation() -- Pastikan tidak ada koneksi ganda
+	rotationConnection = RunService.RenderStepped:Connect(function(dt)
+		if currentPreviewModel then
+			currentPreviewModel.CFrame = currentPreviewModel.CFrame * CFrame.Angles(0, dt * 1, 0) -- Putar 1 radian per detik
+		end
+	end)
+end
+
+-- Fungsi untuk menampilkan model senjata di ViewportFrame
+local function updatePreview(weaponName, skinName)
+	-- Hapus model lama jika ada
+	if currentPreviewModel then
+		currentPreviewModel:Destroy()
+		currentPreviewModel = nil
+	end
+
+	if not weaponName or not skinName then return end
+
+	local weaponConfig = WeaponModule.Weapons[weaponName]
+	if not weaponConfig or not weaponConfig.Skins[skinName] then return end
+
+	local skinData = weaponConfig.Skins[skinName]
+
+	-- Buat model baru
+	local modelPart = Instance.new("Part")
+	modelPart.Name = "WeaponPreview"
+	modelPart.Anchored = true
+	modelPart.CanCollide = false
+	modelPart.Size = Vector3.new(1, 1, 1) -- Ukuran awal, akan disesuaikan oleh mesh
+	modelPart.CFrame = CFrame.new(0, 0, 0)
+	modelPart.Parent = worldModel
+
+	local mesh = Instance.new("SpecialMesh")
+	mesh.MeshType = Enum.MeshType.FileMesh
+	mesh.MeshId = skinData.MeshId
+	mesh.TextureId = skinData.TextureId
+	mesh.Scale = Vector3.new(1, 1, 1) -- Sesuaikan skala jika perlu
+	mesh.Parent = modelPart
+
+	currentPreviewModel = modelPart
+
+	-- Atur posisi kamera untuk melihat model
+	local modelSize = modelPart:GetExtentsSize()
+	local maxDim = math.max(modelSize.X, modelSize.Y, modelSize.Z)
+	local camDistance = maxDim * 2.5 -- Jarak kamera berdasarkan ukuran model
+	viewportCamera.CFrame = CFrame.new(Vector3.new(0, 0, camDistance), modelPart.Position)
+end
 
 local function updateSkinList()
 	for _, child in ipairs(skinListFrame:GetChildren()) do
-		if not child:IsA("UIGridLayout") then
+		if not child:IsA("UIListLayout") then -- Diubah dari UIGridLayout
 			child:Destroy()
 		end
 	end
@@ -121,13 +217,21 @@ local function updateSkinList()
 	local ownedSkins = inventoryData.Skins.Owned[selectedWeapon]
 	local equippedSkin = inventoryData.Skins.Equipped[selectedWeapon]
 
+	-- Urutkan skin agar yang di-equip muncul pertama
+	table.sort(ownedSkins, function(a, b)
+		if a == equippedSkin then return true end
+		if b == equippedSkin then return false end
+		return a < b
+	end)
+
 	for _, skinName in ipairs(ownedSkins) do
-		local skinButton = Instance.new("TextButton")
+		local skinButton = Instance.new("ImageButton") -- Diubah ke ImageButton untuk pratinjau mini
 		skinButton.Name = skinName
-		skinButton.LayoutOrder = (skinName == equippedSkin) and 0 or 1
-		skinButton.Size = UDim2.new(0, 100, 0, 120)
+		skinButton.Size = UDim2.new(0, 100, 0, 100) -- Ukuran persegi
 		skinButton.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
 		skinButton.Parent = skinListFrame
+		local skinCorner = Instance.new("UICorner", skinButton)
+		skinCorner.CornerRadius = UDim.new(0, 6)
 
 		local skinLabel = Instance.new("TextLabel", skinButton)
 		skinLabel.Size = UDim2.new(1, 0, 0, 20)
@@ -137,6 +241,7 @@ local function updateSkinList()
 		skinLabel.TextSize = 14
 		skinLabel.TextColor3 = Color3.new(1, 1, 1)
 		skinLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+		skinLabel.BackgroundTransparency = 0.3
 
 		if skinName == equippedSkin then
 			skinButton.BackgroundColor3 = Color3.fromRGB(0, 170, 81)
@@ -144,8 +249,11 @@ local function updateSkinList()
 
 		skinButton.MouseButton1Click:Connect(function()
 			selectedSkin = skinName
+			-- Update preview
+			updatePreview(selectedWeapon, selectedSkin)
+
 			for _, btn in ipairs(skinListFrame:GetChildren()) do
-				if btn:IsA("TextButton") then
+				if btn:IsA("ImageButton") then
 					if inventoryData.Skins.Equipped[selectedWeapon] == btn.Name then
 						btn.BackgroundColor3 = Color3.fromRGB(0, 170, 81)
 					else
@@ -153,7 +261,7 @@ local function updateSkinList()
 					end
 				end
 			end
-			skinButton.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+			skinButton.BackgroundColor3 = Color3.fromRGB(255, 165, 0) -- Warna oranye untuk yang dipilih
 
 			if selectedSkin ~= equippedSkin then
 				equipButton.AutoButtonColor = true
@@ -199,6 +307,10 @@ local function updateWeaponList()
 			end
 			weaponButton.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
 			updateSkinList()
+
+			-- Tampilkan pratinjau skin yang sedang digunakan saat senjata dipilih
+			local equippedSkin = inventoryData.Skins.Equipped[selectedWeapon]
+			updatePreview(selectedWeapon, equippedSkin)
 		end)
 	end
 end
@@ -213,12 +325,16 @@ inventoryButton.MouseButton1Click:Connect(function()
 
 	inventoryButton.Visible = false
 	mainFrame.Visible = true
+	startRotation() -- Mulai rotasi saat menu dibuka
 end)
 
 -- Tombol untuk kembali dari menu inventaris
 backButton.MouseButton1Click:Connect(function()
 	mainFrame.Visible = false
 	inventoryButton.Visible = true
+	-- Hapus model dari pratinjau saat menu ditutup
+	updatePreview(nil, nil)
+	stopRotation() -- Hentikan rotasi saat menu ditutup
 end)
 
 -- Tombol untuk memasang skin
