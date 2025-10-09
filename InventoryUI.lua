@@ -92,45 +92,65 @@ contentFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 contentFrame.BackgroundTransparency = 1
 local contentLayout = Instance.new("UIListLayout", contentFrame)
 contentLayout.FillDirection = Enum.FillDirection.Horizontal
-contentLayout.Padding = UDim.new(0.01, 0)
+contentLayout.Padding = UDim.new(0, 0) -- Padding diatur ke 0
 contentLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
--- Kolom Kiri: Daftar Senjata (20%)
+-- Kolom Kiri: Daftar Senjata (25%)
 local leftColumn = Instance.new("Frame", contentFrame)
 leftColumn.Name = "LeftColumn"
-leftColumn.Size = UDim2.new(0.2, 0, 1, 0)
+leftColumn.Size = UDim2.new(0.25, 0, 1, 0) -- Lebar disesuaikan
 leftColumn.BackgroundTransparency = 1
 leftColumn.LayoutOrder = 1
+-- Menggunakan UIListLayout untuk mengatur frame filter dan daftar senjata
+local leftColumnLayout = Instance.new("UIListLayout", leftColumn)
+leftColumnLayout.FillDirection = Enum.FillDirection.Vertical
+leftColumnLayout.Padding = UDim.new(0, 10)
+
+-- Frame untuk tombol filter kategori
+local categoryFilterFrame = Instance.new("Frame", leftColumn)
+categoryFilterFrame.Name = "CategoryFilterFrame"
+categoryFilterFrame.Size = UDim2.new(1, 0, 0, 70) -- Tinggi ditambah untuk 2 baris
+categoryFilterFrame.BackgroundTransparency = 1
+local cf_layout = Instance.new("UIGridLayout", categoryFilterFrame)
+cf_layout.CellPadding = UDim2.new(0, 5, 0, 5)
+cf_layout.CellSize = UDim2.new(0.45, 0, 0.45, 0)
+cf_layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+cf_layout.VerticalAlignment = Enum.VerticalAlignment.Center
 
 local weaponListFrame = Instance.new("ScrollingFrame", leftColumn)
 weaponListFrame.Name = "WeaponListFrame"
-weaponListFrame.Size = UDim2.new(1, 0, 1, 0)
+weaponListFrame.Size = UDim2.new(1, 0, 1, -80) -- Ukuran disesuaikan untuk memberi ruang pada filter
 weaponListFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 local wl_corner = Instance.new("UICorner", weaponListFrame)
 wl_corner.CornerRadius = UDim.new(0, 8)
 local wl_layout = Instance.new("UIListLayout", weaponListFrame)
 wl_layout.Padding = UDim.new(0, 5)
 wl_layout.SortOrder = Enum.SortOrder.Name
+local wl_padding = Instance.new("UIPadding", weaponListFrame)
+wl_padding.PaddingLeft = UDim.new(0, 10)
+wl_padding.PaddingRight = UDim.new(0, 10)
+wl_padding.PaddingTop = UDim.new(0, 5)
+wl_padding.PaddingBottom = UDim.new(0, 5)
 
 -- Pemisah 1
 local separator1 = Instance.new("Frame", contentFrame)
 separator1.Name = "Separator1"
-separator1.Size = UDim2.new(0, 2, 1, 0)
+separator1.Size = UDim2.new(0.005, 0, 1, 0) -- Lebar 0.5%
 separator1.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 separator1.BorderSizePixel = 0
 separator1.LayoutOrder = 2
 
--- Kolom Tengah: Pratinjau 3D (50%)
+-- Kolom Tengah: Pratinjau 3D (44%)
 local middleColumn = Instance.new("Frame", contentFrame)
 middleColumn.Name = "MiddleColumn"
-middleColumn.Size = UDim2.new(0.48, 0, 1, 0)
+middleColumn.Size = UDim2.new(0.44, 0, 1, 0) -- Lebar disesuaikan
 middleColumn.BackgroundTransparency = 1
 middleColumn.LayoutOrder = 3
 
 -- Pemisah 2
 local separator2 = Instance.new("Frame", contentFrame)
 separator2.Name = "Separator2"
-separator2.Size = UDim2.new(0, 2, 1, 0)
+separator2.Size = UDim2.new(0.005, 0, 1, 0) -- Lebar 0.5%
 separator2.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 separator2.BorderSizePixel = 0
 separator2.LayoutOrder = 4
@@ -307,6 +327,102 @@ local selectedSkin = nil
 local currentPreviewModel = nil
 local rotationConnection = nil
 local currentZoomDistance = 5 -- Jarak zoom default
+local selectedCategory = "All" -- Kategori default
+local categoryButtons = {}
+
+-- Forward declare functions to avoid nil errors on callbacks
+local updateWeaponList
+
+function updateWeaponList(categoryFilter)
+	for _, child in ipairs(weaponListFrame:GetChildren()) do
+		if not child:IsA("UIListLayout") then
+			child:Destroy()
+		end
+	end
+
+	local weaponNames = {}
+	for name, data in pairs(WeaponModule.Weapons) do
+		if categoryFilter == "All" or (data.Category and data.Category == categoryFilter) then
+			table.insert(weaponNames, name)
+		end
+	end
+	table.sort(weaponNames)
+
+	for _, weaponName in ipairs(weaponNames) do
+		local weaponButton = Instance.new("TextButton")
+		weaponButton.Name = weaponName
+		weaponButton.Size = UDim2.new(1, -10, 0, 40)
+		weaponButton.Text = weaponName
+		weaponButton.Font = Enum.Font.SourceSans
+		weaponButton.TextSize = 16
+		weaponButton.TextColor3 = Color3.new(1, 1, 1)
+		weaponButton.BackgroundColor3 = Color3.fromRGB(85, 85, 85)
+		weaponButton.Parent = weaponListFrame
+
+		weaponButton.MouseButton1Click:Connect(function()
+			selectedWeapon = weaponName
+			for _, btn in ipairs(weaponListFrame:GetChildren()) do
+				if btn:IsA("TextButton") then
+					btn.BackgroundColor3 = Color3.fromRGB(85, 85, 85)
+				end
+			end
+			weaponButton.BackgroundColor3 = Color3.fromRGB(80, 25, 25) -- Warna sorotan merah gelap
+
+			updateStatsDisplay(weaponName)
+			updateSkinList()
+
+			local equippedSkin = inventoryData.Skins.Equipped[selectedWeapon]
+			updatePreview(selectedWeapon, equippedSkin)
+		end)
+	end
+end
+
+
+-- [BARU] Fungsi untuk membuat dan mengelola tombol kategori
+local function createCategoryButtons()
+	local categories = {"All", "Pistol", "Assault Rifle", "SMG", "Shotgun", "Sniper", "LMG"}
+
+	-- Fungsi untuk menyorot tombol aktif
+	local function highlightActiveButton()
+		for name, button in pairs(categoryButtons) do
+			if name == selectedCategory then
+				button.BackgroundColor3 = Color3.fromRGB(180, 20, 20) -- Warna aktif
+				button.TextColor3 = Color3.new(1, 1, 1)
+			else
+				button.BackgroundColor3 = Color3.fromRGB(85, 85, 85) -- Warna non-aktif
+				button.TextColor3 = Color3.new(0.8, 0.8, 0.8)
+			end
+		end
+	end
+
+	-- Hanya buat tombol jika belum ada
+	if #categoryFilterFrame:GetChildren() > 1 then
+		highlightActiveButton()
+		return
+	end
+
+	for _, categoryName in ipairs(categories) do
+		local categoryButton = Instance.new("TextButton")
+		categoryButton.Name = categoryName
+		-- Ukuran tidak diatur secara eksplisit, biarkan UIGridLayout yang mengatur
+		categoryButton.Text = categoryName
+		categoryButton.Font = Enum.Font.SourceSans
+		categoryButton.TextSize = 12 -- Ukuran font disesuaikan
+		local btnCorner = Instance.new("UICorner", categoryButton)
+		btnCorner.CornerRadius = UDim.new(0, 6)
+		categoryButton.Parent = categoryFilterFrame
+
+		categoryButtons[categoryName] = categoryButton
+
+		categoryButton.MouseButton1Click:Connect(function()
+			selectedCategory = categoryName
+			highlightActiveButton()
+			updateWeaponList(selectedCategory)
+		end)
+	end
+
+	highlightActiveButton()
+end
 
 -- Fungsi untuk menghentikan rotasi model
 local function stopRotation()
@@ -461,7 +577,7 @@ local function updateSkinList()
 		if not selectedSkin then
 			equipButton.Text = "SELECT A SKIN"
 			equipButton.AutoButtonColor = false
-			equipButton.BackgroundColor3 = Color3.fromRGB(130, 130, 130)
+			equipButton.BackgroundColor3 = Color3.fromRGB(85, 85, 85) -- Warna diseragamkan
 		elseif selectedSkin == equippedSkin then
 			equipButton.Text = "EQUIPPED"
 			equipButton.AutoButtonColor = false
@@ -540,54 +656,13 @@ local function updateSkinList()
 	end)
 end
 
-local function updateWeaponList()
-	for _, child in ipairs(weaponListFrame:GetChildren()) do
-		if not child:IsA("UIListLayout") then
-			child:Destroy()
-		end
-	end
-
-	local weaponNames = {}
-	for name, _ in pairs(WeaponModule.Weapons) do
-		table.insert(weaponNames, name)
-	end
-	table.sort(weaponNames)
-
-	for _, weaponName in ipairs(weaponNames) do
-		local weaponButton = Instance.new("TextButton")
-		weaponButton.Name = weaponName
-		weaponButton.Size = UDim2.new(1, -10, 0, 40)
-		weaponButton.Text = weaponName
-		weaponButton.Font = Enum.Font.SourceSans
-		weaponButton.TextSize = 16
-		weaponButton.TextColor3 = Color3.new(1, 1, 1)
-		weaponButton.BackgroundColor3 = Color3.fromRGB(85, 85, 85)
-		weaponButton.Parent = weaponListFrame
-
-		weaponButton.MouseButton1Click:Connect(function()
-			selectedWeapon = weaponName
-			for _, btn in ipairs(weaponListFrame:GetChildren()) do
-				if btn:IsA("TextButton") then
-					btn.BackgroundColor3 = Color3.fromRGB(85, 85, 85)
-				end
-			end
-			weaponButton.BackgroundColor3 = Color3.fromRGB(80, 25, 25) -- Warna sorotan merah gelap
-
-			updateStatsDisplay(weaponName)
-			updateSkinList()
-
-			local equippedSkin = inventoryData.Skins.Equipped[selectedWeapon]
-			updatePreview(selectedWeapon, equippedSkin)
-		end)
-	end
-end
-
 -- Tombol untuk membuka menu inventaris
 inventoryButton.MouseButton1Click:Connect(function()
 	if not inventoryData then
 		inventoryData = inventoryRemote:InvokeServer()
 	end
-	updateWeaponList()
+	createCategoryButtons() -- Buat tombol filter
+	updateWeaponList(selectedCategory) -- Tampilkan daftar senjata awal
 	updateSkinList()
 
 	inventoryButton.Visible = false

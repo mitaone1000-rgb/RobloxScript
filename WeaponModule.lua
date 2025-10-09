@@ -6,6 +6,7 @@ local WeaponModule = {}
 
 WeaponModule.Weapons = {
 	["M1911"] = {
+		Category = "Pistol",
 		Damage = 28,
 		HeadshotMultiplier = 2,
 		MaxAmmo = 7,
@@ -68,6 +69,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["AK-47"] = {
+		Category = "Assault Rifle",
 		Damage = 35,
 		HeadshotMultiplier = 2,
 		MaxAmmo = 30,
@@ -130,6 +132,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["P90"] = {
+		Category = "SMG",
 		Damage = 22,
 		HeadshotMultiplier = 2,
 		MaxAmmo = 50,
@@ -192,6 +195,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["M590A1"] = {
+		Category = "Shotgun",
 		Damage = 10,
 		HeadshotMultiplier = 1.5,
 		MaxAmmo = 8,
@@ -255,6 +259,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["L115A1"] = {
+		Category = "Sniper",
 		Damage = 95,
 		HeadshotMultiplier = 3,
 		MaxAmmo = 5,
@@ -317,6 +322,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["Desert-Eagle"] = {
+		Category = "Pistol",
 		Damage = 45,
 		HeadshotMultiplier = 2.5,
 		MaxAmmo = 7,
@@ -379,6 +385,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["Glock-19"] = {
+		Category = "Pistol",
 		Damage = 25,
 		HeadshotMultiplier = 2,
 		MaxAmmo = 15,
@@ -441,6 +448,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["MP5"] = {
+		Category = "SMG",
 		Damage = 20,
 		HeadshotMultiplier = 2,
 		MaxAmmo = 30,
@@ -503,6 +511,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["UZI"] = {
+		Category = "SMG",
 		Damage = 18,
 		HeadshotMultiplier = 2,
 		MaxAmmo = 32,
@@ -565,6 +574,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["SCAR"] = {
+		Category = "Assault Rifle",
 		Damage = 38,
 		HeadshotMultiplier = 2,
 		MaxAmmo = 30,
@@ -627,6 +637,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["M4A1"] = {
+		Category = "Assault Rifle",
 		Damage = 32,
 		HeadshotMultiplier = 2,
 		MaxAmmo = 30,
@@ -689,6 +700,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["AA-12"] = {
+		Category = "Shotgun",
 		Damage = 8,
 		HeadshotMultiplier = 1.5,
 		MaxAmmo = 8,
@@ -752,6 +764,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["SPAS-12"] = {
+		Category = "Shotgun",
 		Damage = 12,
 		HeadshotMultiplier = 1.5,
 		MaxAmmo = 6,
@@ -815,6 +828,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["DSR"] = {
+		Category = "Sniper",
 		Damage = 110,
 		HeadshotMultiplier = 3.2,
 		MaxAmmo = 5,
@@ -877,6 +891,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["Barrett-M82"] = {
+		Category = "Sniper",
 		Damage = 150,
 		HeadshotMultiplier = 3.5,
 		MaxAmmo = 5,
@@ -939,6 +954,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["RPD"] = {
+		Category = "LMG",
 		Damage = 30,
 		HeadshotMultiplier = 2,
 		MaxAmmo = 100,
@@ -1001,6 +1017,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["PKP"] = {
+		Category = "LMG",
 		Damage = 35,
 		HeadshotMultiplier = 2,
 		MaxAmmo = 100,
@@ -1063,6 +1080,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["M249"] = {
+		Category = "LMG",
 		Damage = 28,
 		HeadshotMultiplier = 2,
 		MaxAmmo = 200,
@@ -1125,6 +1143,7 @@ WeaponModule.Weapons = {
 		VisualRecoilRecovery = 15
 	},
 	["Minigun"] = {
+		Category = "LMG",
 		Damage = 28,
 		HeadshotMultiplier = 2,
 		MaxAmmo = 999999999,
