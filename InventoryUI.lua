@@ -1,6 +1,6 @@
 -- InventoryUI.lua (LocalScript)
 -- Path: StarterGui/InventoryUI.lua
--- Deskripsi: Mengelola UI inventaris skin secara mandiri, termasuk tombol pembukanya.
+-- Script Place: Lobby
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -95,7 +95,6 @@ viewportFrame.Size = UDim2.new(1, 0, 1, -130) -- Mengisi bagian atas rightPanel
 viewportFrame.Position = UDim2.new(0, 0, 0, 0)
 viewportFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 viewportFrame.BorderSizePixel = 0
-viewportFrame.AmbientColor3 = Color3.new(0.5, 0.5, 0.5) -- Pencahayaan dasar
 viewportFrame.LightColor = Color3.new(1, 1, 1)
 viewportFrame.LightDirection = Vector3.new(-1, -1, -1)
 local viewportCorner = Instance.new("UICorner", viewportFrame)
