@@ -246,14 +246,14 @@ local function updatePreview(weaponName, skinName)
 
 	currentPreviewModel = previewModel
 
-	-- Atur jarak zoom awal dan posisi slider kustom
-	currentZoomDistance = weaponConfig.PreviewDistance or 5 -- Fallback ke 5 jika tidak ada
+	-- Atur zoom default ke yang terdekat (paling besar)
+	local minValue, maxValue = 2, 10
+	currentZoomDistance = minValue -- Mulai dari jarak terdekat
 
 	sliderTrack.Visible = true
-	local minValue, maxValue = 2, 10
-	local percent = (currentZoomDistance - minValue) / (maxValue - minValue)
-	sliderHandle.Position = UDim2.new(percent, 0, 0.5, 0)
-	sliderFill.Size = UDim2.new(percent, 0, 1, 0)
+	-- Atur posisi visual slider ke awal (0%) untuk mencerminkan zoom terdekat
+	sliderHandle.Position = UDim2.new(0, 0, 0.5, 0)
+	sliderFill.Size = UDim2.new(0, 0, 1, 0)
 end
 
 local function updateSkinList()
