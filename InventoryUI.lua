@@ -285,14 +285,25 @@ recoilBarFill.Size = UDim2.new(0.2, 0, 1, 0)
 local recoilFillCorner = Instance.new("UICorner", recoilBarFill)
 recoilFillCorner.CornerRadius = UDim.new(0, 6)
 
+-- Judul untuk Daftar Skin
+local skinsTitle = Instance.new("TextLabel", rightColumn)
+skinsTitle.Name = "SkinsTitle"
+skinsTitle.Size = UDim2.new(1, 0, 0, 20)
+skinsTitle.Text = "SKINS"
+skinsTitle.Font = Enum.Font.SourceSansBold
+skinsTitle.TextSize = 18
+skinsTitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+skinsTitle.BackgroundTransparency = 1
+skinsTitle.LayoutOrder = 2 -- Tampil setelah statsFrame
+
 -- Daftar Skin
 local skinListFrame = Instance.new("ScrollingFrame", rightColumn)
 skinListFrame.Name = "SkinListFrame"
-skinListFrame.Size = UDim2.new(1, 0, 1, -170) -- Mengisi sisa ruang
+skinListFrame.Size = UDim2.new(1, 0, 1, -210) -- Disesuaikan untuk judul baru
 skinListFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 skinListFrame.BackgroundTransparency = 0.5
 skinListFrame.BorderSizePixel = 0
-skinListFrame.LayoutOrder = 2
+skinListFrame.LayoutOrder = 3 -- Disesuaikan
 skinListFrame.CanvasSize = UDim2.new(0, 0, 2, 0) -- Aktifkan scrolling vertikal
 skinListFrame.ScrollBarThickness = 6
 
@@ -310,7 +321,7 @@ equipButton.Font = Enum.Font.SourceSansBold
 equipButton.TextSize = 18
 equipButton.BackgroundColor3 = Color3.fromRGB(130, 130, 130)
 equipButton.TextColor3 = Color3.new(1, 1, 1)
-equipButton.LayoutOrder = 3
+equipButton.LayoutOrder = 4 -- Disesuaikan
 local equipCorner = Instance.new("UICorner", equipButton)
 equipCorner.CornerRadius = UDim.new(0, 8)
 equipButton.AutoButtonColor = false
