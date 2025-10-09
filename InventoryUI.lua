@@ -24,8 +24,9 @@ inventoryScreenGui.Parent = player:WaitForChild("PlayerGui")
 local inventoryButton = Instance.new("TextButton")
 inventoryButton.Name = "InventoryButton"
 inventoryButton.Parent = inventoryScreenGui
-inventoryButton.Size = UDim2.new(0, 150, 0, 50)
-inventoryButton.Position = UDim2.new(0.5, -75, 0.85, 0)
+inventoryButton.AnchorPoint = Vector2.new(0.5, 1) -- Jangkar di tengah bawah
+inventoryButton.Size = UDim2.new(0.2, 0, 0.1, 0) -- 20% lebar, 10% tinggi
+inventoryButton.Position = UDim2.new(0.5, 0, 0.98, 0) -- Posisi di tengah bawah dengan sedikit padding
 inventoryButton.Text = "Inventory"
 inventoryButton.Font = Enum.Font.SourceSansBold
 inventoryButton.TextSize = 20
@@ -38,8 +39,10 @@ btnCorner.CornerRadius = UDim.new(0, 8)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
 mainFrame.Parent = inventoryScreenGui
-mainFrame.Size = UDim2.new(0, 800, 0, 500) -- Ukuran diperbesar
-mainFrame.Position = UDim2.new(0.5, -400, 0.5, -250) -- Disesuaikan agar tetap di tengah
+-- Menggunakan Scale agar responsif, AnchorPoint di tengah
+mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+mainFrame.Size = UDim2.new(0.8, 0, 0.8, 0) -- 80% lebar, 80% tinggi
+mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0) -- Tepat di tengah layar
 mainFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
@@ -49,8 +52,14 @@ local frameCorner = Instance.new("UICorner")
 frameCorner.CornerRadius = UDim.new(0, 8)
 frameCorner.Parent = mainFrame
 
+-- Menjaga aspek rasio agar frame tidak gepeng/terlalu lebar
+local aspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+aspectRatioConstraint.AspectRatio = 1.6 -- Rasio dari ukuran asli (800/500)
+aspectRatioConstraint.DominantAxis = Enum.DominantAxis.Width -- Ukuran disesuaikan berdasarkan lebar
+aspectRatioConstraint.Parent = mainFrame
+
 local title = Instance.new("TextLabel", mainFrame)
-title.Size = UDim2.new(1, 0, 0, 50)
+title.Size = UDim2.new(1, 0, 0.1, 0) -- 10% tinggi dari parent (mainFrame)
 title.Text = "Inventory"
 title.Font = Enum.Font.SourceSansBold
 title.TextSize = 20
@@ -61,8 +70,8 @@ titleCorner.CornerRadius = UDim.new(0, 8)
 titleCorner.Parent = title
 
 local backButton = Instance.new("TextButton", mainFrame)
-backButton.Size = UDim2.new(0, 50, 0, 30)
-backButton.Position = UDim2.new(0, 10, 0, 10)
+backButton.Size = UDim2.new(0.1, 0, 0.08, 0) -- 10% lebar, 8% tinggi
+backButton.Position = UDim2.new(0.02, 0, 0.01, 0) -- Sedikit padding dari atas kiri
 backButton.Text = "Back"
 backButton.Font = Enum.Font.SourceSans
 backButton.TextSize = 16
@@ -71,27 +80,36 @@ backButton.TextColor3 = Color3.new(1, 1, 1)
 local backCorner = Instance.new("UICorner", backButton)
 backCorner.CornerRadius = UDim.new(0, 6)
 
+-- Layout Frame untuk menampung weaponList dan rightPanel
+local contentFrame = Instance.new("Frame", mainFrame)
+contentFrame.Name = "ContentFrame"
+contentFrame.Size = UDim2.new(0.95, 0, 0.88, 0) -- Mengisi sisa area di bawah title
+contentFrame.Position = UDim2.new(0.5, 0, 0.54, 0) -- Diposisikan di bawah title
+contentFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+contentFrame.BackgroundTransparency = 1
+
 -- Weapon List (Left Side)
-local weaponListFrame = Instance.new("ScrollingFrame", mainFrame)
-weaponListFrame.Size = UDim2.new(0, 200, 1, -60) -- Lebar tetap
-weaponListFrame.Position = UDim2.new(0, 10, 0, 50)
+local weaponListFrame = Instance.new("ScrollingFrame", contentFrame)
+weaponListFrame.Name = "WeaponListFrame"
+weaponListFrame.Size = UDim2.new(0.25, 0, 1, 0) -- 25% dari lebar contentFrame
+weaponListFrame.Position = UDim2.new(0, 0, 0, 0)
 weaponListFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 local wl_layout = Instance.new("UIListLayout", weaponListFrame)
 wl_layout.Padding = UDim.new(0, 5)
 wl_layout.SortOrder = Enum.SortOrder.Name
 
 -- Area Kanan (Pratinjau + Daftar Skin)
-local rightPanel = Instance.new("Frame", mainFrame)
+local rightPanel = Instance.new("Frame", contentFrame)
 rightPanel.Name = "RightPanel"
-rightPanel.Size = UDim2.new(1, -225, 1, -60)
-rightPanel.Position = UDim2.new(0, 215, 0, 50)
+rightPanel.Size = UDim2.new(0.74, 0, 1, 0) -- 74% dari lebar contentFrame (menyisakan 1% gap)
+rightPanel.Position = UDim2.new(0.26, 0, 0, 0) -- Diposisikan di sebelah kanan weaponList
 rightPanel.BackgroundTransparency = 1
 
 -- Placeholder untuk ViewportFrame
 -- ViewportFrame untuk Pratinjau
 local viewportFrame = Instance.new("ViewportFrame", rightPanel)
 viewportFrame.Name = "ViewportFrame"
-viewportFrame.Size = UDim2.new(1, 0, 1, -130) -- Mengisi bagian atas rightPanel
+viewportFrame.Size = UDim2.new(1, 0, 0.7, 0) -- 70% tinggi dari rightPanel
 viewportFrame.Position = UDim2.new(0, 0, 0, 0)
 viewportFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 viewportFrame.BorderSizePixel = 0
@@ -144,8 +162,8 @@ viewportFrame.CurrentCamera = viewportCamera
 -- Skin List (Bawah Kanan) - Diubah menjadi list horizontal
 local skinListFrame = Instance.new("ScrollingFrame", rightPanel)
 skinListFrame.Name = "SkinListFrame"
-skinListFrame.Size = UDim2.new(1, 0, 0, 120) -- Tinggi tetap
-skinListFrame.Position = UDim2.new(0, 0, 1, -120) -- Di bagian bawah rightPanel
+skinListFrame.Size = UDim2.new(1, 0, 0.3, 0) -- 30% tinggi dari rightPanel
+skinListFrame.Position = UDim2.new(0, 0, 0.7, 0) -- Diposisikan di bawah viewportFrame
 skinListFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 skinListFrame.BackgroundTransparency = 0.5
 skinListFrame.BorderSizePixel = 0
@@ -156,9 +174,11 @@ sl_layout.FillDirection = Enum.FillDirection.Horizontal
 sl_layout.VerticalAlignment = Enum.VerticalAlignment.Center
 
 -- Equip Button
-local equipButton = Instance.new("TextButton", mainFrame)
-equipButton.Size = UDim2.new(1, -225, 0, 40)
-equipButton.Position = UDim2.new(0, 215, 1, -50)
+local equipButton = Instance.new("TextButton", rightPanel) -- Parent diubah ke rightPanel
+equipButton.Name = "EquipButton"
+equipButton.AnchorPoint = Vector2.new(0.5, 0) -- Jangkar di tengah atas
+equipButton.Size = UDim2.new(1, 0, 0.1, 0) -- Lebar 100% dari rightPanel, tinggi 10% dari rightPanel
+equipButton.Position = UDim2.new(0.5, 0, 1.02, 0) -- Diposisikan sedikit di bawah rightPanel
 equipButton.Text = "Equip Skin"
 equipButton.Font = Enum.Font.SourceSansBold
 equipButton.TextSize = 18
@@ -167,6 +187,40 @@ equipButton.TextColor3 = Color3.new(1, 1, 1)
 local equipCorner = Instance.new("UICorner", equipButton)
 equipCorner.CornerRadius = UDim.new(0, 8)
 equipButton.AutoButtonColor = false
+
+-- Layout Adaptif
+local mobileLayout = Instance.new("UIListLayout")
+mobileLayout.Name = "MobileLayout"
+mobileLayout.FillDirection = Enum.FillDirection.Vertical
+mobileLayout.SortOrder = Enum.SortOrder.LayoutOrder
+mobileLayout.Padding = UDim.new(0, 10)
+-- Parent diatur ke nil pada awalnya untuk menonaktifkannya
+
+local function updateLayout()
+	local screenSize = inventoryScreenGui.AbsoluteSize
+	local isMobile = screenSize.X < 720 -- Ambang batas untuk layout mobile
+
+	if isMobile then
+		-- Layout Vertikal untuk Mobile
+		mobileLayout.Parent = contentFrame -- Aktifkan layout dengan mengatur Parent
+		weaponListFrame.Size = UDim2.new(1, 0, 0.4, 0)
+		rightPanel.Size = UDim2.new(1, 0, 0.58, 0)
+		rightPanel.Position = UDim2.new(0, 0, 0, 0) -- Dikelola oleh ListLayout
+	else
+		-- Layout Horizontal untuk Desktop
+		mobileLayout.Parent = nil -- Nonaktifkan layout dengan menghapus Parent
+		weaponListFrame.Size = UDim2.new(0.25, 0, 1, 0)
+		rightPanel.Size = UDim2.new(0.74, 0, 1, 0)
+		rightPanel.Position = UDim2.new(0.26, 0, 0, 0)
+	end
+end
+
+-- Panggil fungsi penyesuaian layout setiap kali ukuran layar berubah
+inventoryScreenGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateLayout)
+
+-- Panggil sekali di awal untuk mengatur layout awal
+task.wait() -- Tunggu sejenak agar ukuran awal UI dihitung dengan benar
+updateLayout()
 
 -- State variables
 local inventoryData = nil
@@ -285,6 +339,11 @@ local function updateSkinList()
 		skinButton.Parent = skinListFrame
 		local skinCorner = Instance.new("UICorner", skinButton)
 		skinCorner.CornerRadius = UDim.new(0, 6)
+
+		-- Menjaga agar tombol skin tetap persegi
+		local skinAspect = Instance.new("UIAspectRatioConstraint")
+		skinAspect.AspectRatio = 1.0
+		skinAspect.Parent = skinButton
 
 		local skinLabel = Instance.new("TextLabel", skinButton)
 		skinLabel.Size = UDim2.new(1, 0, 0, 20)
