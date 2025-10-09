@@ -101,6 +101,38 @@ viewportFrame.LightDirection = Vector3.new(-1, -1, -1)
 local viewportCorner = Instance.new("UICorner", viewportFrame)
 viewportCorner.CornerRadius = UDim.new(0, 8)
 
+-- Slider untuk Zoom
+-- Slider untuk Zoom (Vertikal)
+-- Slider untuk Zoom (Horizontal, di dalam Viewport)
+-- Komponen Slider Kustom
+local sliderTrack = Instance.new("Frame", viewportFrame)
+sliderTrack.Name = "SliderTrack"
+sliderTrack.Size = UDim2.new(0.8, 0, 0, 10)
+sliderTrack.Position = UDim2.new(0.1, 0, 1, -25)
+sliderTrack.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+sliderTrack.BorderSizePixel = 0
+local trackCorner = Instance.new("UICorner", sliderTrack)
+trackCorner.CornerRadius = UDim.new(0, 5)
+sliderTrack.Visible = false
+
+local sliderFill = Instance.new("Frame", sliderTrack)
+sliderFill.Name = "SliderFill"
+sliderFill.Size = UDim2.new(0.5, 0, 1, 0) -- Mulai di 50%
+sliderFill.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+sliderFill.BorderSizePixel = 0
+local fillCorner = Instance.new("UICorner", sliderFill)
+fillCorner.CornerRadius = UDim.new(0, 5)
+
+local sliderHandle = Instance.new("ImageButton", sliderTrack)
+sliderHandle.Name = "SliderHandle"
+sliderHandle.Size = UDim2.new(0, 20, 0, 20)
+sliderHandle.AnchorPoint = Vector2.new(0.5, 0.5)
+sliderHandle.Position = UDim2.new(0.5, 0, 0.5, 0)
+sliderHandle.BackgroundColor3 = Color3.new(1, 1, 1)
+sliderHandle.BorderSizePixel = 0
+local handleCorner = Instance.new("UICorner", sliderHandle)
+handleCorner.CornerRadius = UDim.new(1, 0) -- Lingkaran
+
 -- WorldModel untuk mengelola lingkungan 3D di dalam ViewportFrame
 local worldModel = Instance.new("WorldModel", viewportFrame)
 
@@ -143,6 +175,7 @@ local selectedWeapon = nil
 local selectedSkin = nil
 local currentPreviewModel = nil
 local rotationConnection = nil
+local currentZoomDistance = 5 -- Jarak zoom default
 
 -- Fungsi untuk menghentikan rotasi model
 local function stopRotation()
@@ -153,11 +186,19 @@ local function stopRotation()
 end
 
 -- Fungsi untuk memulai rotasi model
+-- Fungsi untuk memulai rotasi model (dengan memutar kamera)
 local function startRotation()
 	stopRotation() -- Pastikan tidak ada koneksi ganda
+	local cameraAngle = 0
 	rotationConnection = RunService.RenderStepped:Connect(function(dt)
 		if currentPreviewModel and currentPreviewModel.PrimaryPart then
-			currentPreviewModel:SetPrimaryPartCFrame(currentPreviewModel.PrimaryPart.CFrame * CFrame.Angles(0, dt * 1, 0)) -- Putar 1 radian per detik
+			cameraAngle = cameraAngle + (dt * 0.8) -- Kecepatan rotasi
+
+			local rotation = CFrame.Angles(0, cameraAngle, 0)
+			local offset = Vector3.new(0, 0, currentZoomDistance)
+			local cameraPosition = currentPreviewModel.PrimaryPart.Position + rotation:VectorToWorldSpace(offset)
+
+			viewportCamera.CFrame = CFrame.new(cameraPosition, currentPreviewModel.PrimaryPart.Position)
 		end
 	end)
 end
@@ -170,7 +211,11 @@ local function updatePreview(weaponName, skinName)
 		currentPreviewModel = nil
 	end
 
-	if not weaponName or not skinName then return end
+	-- Jika tidak ada senjata/skin, sembunyikan slider dan keluar
+	if not weaponName or not skinName then
+		sliderTrack.Visible = false
+		return
+	end
 
 	local weaponConfig = WeaponModule.Weapons[weaponName]
 	if not weaponConfig or not weaponConfig.Skins[skinName] then return end
@@ -201,9 +246,14 @@ local function updatePreview(weaponName, skinName)
 
 	currentPreviewModel = previewModel
 
-	-- Atur posisi kamera menggunakan jarak yang sudah dikonfigurasi
-	local camDistance = weaponConfig.PreviewDistance or 5 -- Fallback ke 5 jika tidak ada
-	viewportCamera.CFrame = CFrame.new(Vector3.new(0, 0, camDistance), previewModel.PrimaryPart.Position)
+	-- Atur jarak zoom awal dan posisi slider kustom
+	currentZoomDistance = weaponConfig.PreviewDistance or 5 -- Fallback ke 5 jika tidak ada
+
+	sliderTrack.Visible = true
+	local minValue, maxValue = 2, 10
+	local percent = (currentZoomDistance - minValue) / (maxValue - minValue)
+	sliderHandle.Position = UDim2.new(percent, 0, 0.5, 0)
+	sliderFill.Size = UDim2.new(percent, 0, 1, 0)
 end
 
 local function updateSkinList()
@@ -349,5 +399,41 @@ equipButton.MouseButton1Click:Connect(function()
 		skinEvent:FireServer("EquipSkin", selectedWeapon, selectedSkin)
 		inventoryData.Skins.Equipped[selectedWeapon] = selectedSkin
 		updateSkinList()
+	end
+end)
+
+-- Hubungkan logika zoom ke slider
+-- Logika Slider Kustom
+local isDragging = false
+local minValue, maxValue = 2, 10
+
+sliderHandle.MouseButton1Down:Connect(function()
+	isDragging = true
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		isDragging = false
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+		local mouseX = input.Position.X
+		local trackAbsX = sliderTrack.AbsolutePosition.X
+		local trackAbsWidth = sliderTrack.AbsoluteSize.X
+
+		-- Batasi posisi mouse agar berada di dalam batas trek
+		local clampedMouseX = math.clamp(mouseX, trackAbsX, trackAbsX + trackAbsWidth)
+
+		-- Hitung posisi baru sebagai persentase
+		local percent = (clampedMouseX - trackAbsX) / trackAbsWidth
+
+		-- Perbarui pegangan dan isian
+		sliderHandle.Position = UDim2.new(percent, 0, 0.5, 0)
+		sliderFill.Size = UDim2.new(percent, 0, 1, 0)
+
+		-- Perbarui nilai zoom yang sebenarnya
+		currentZoomDistance = minValue + (percent * (maxValue - minValue))
 	end
 end)
