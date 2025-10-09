@@ -65,7 +65,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 5
 	},
 	["AK-47"] = {
 		Damage = 35,
@@ -127,7 +128,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 6
 	},
 	["P90"] = {
 		Damage = 22,
@@ -189,7 +191,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 6
 	},
 	["M590A1"] = {
 		Damage = 10,
@@ -252,7 +255,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 7
 	},
 	["L115A1"] = {
 		Damage = 95,
@@ -314,7 +318,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 8
 	},
 	["Desert-Eagle"] = {
 		Damage = 45,
@@ -376,7 +381,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 4
 	},
 	["Glock-19"] = {
 		Damage = 25,
@@ -438,7 +444,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 4
 	},
 	["MP5"] = {
 		Damage = 20,
@@ -500,7 +507,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 5
 	},
 	["UZI"] = {
 		Damage = 18,
@@ -562,7 +570,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 5
 	},
 	["SCAR"] = {
 		Damage = 38,
@@ -624,7 +633,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 6
 	},
 	["M4A1"] = {
 		Damage = 32,
@@ -686,7 +696,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 6
 	},
 	["AA-12"] = {
 		Damage = 8,
@@ -749,7 +760,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 7
 	},
 	["SPAS-12"] = {
 		Damage = 12,
@@ -812,7 +824,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 7
 	},
 	["DSR"] = {
 		Damage = 110,
@@ -874,7 +887,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 8
 	},
 	["Barrett-M82"] = {
 		Damage = 150,
@@ -936,7 +950,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 8
 	},
 	["RPD"] = {
 		Damage = 30,
@@ -998,7 +1013,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 7
 	},
 	["PKP"] = {
 		Damage = 35,
@@ -1060,7 +1076,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 7
 	},
 	["M249"] = {
 		Damage = 28,
@@ -1122,7 +1139,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 7
 	},
 	["Minigun"] = {
 		Damage = 28,
@@ -1184,7 +1202,8 @@ WeaponModule.Weapons = {
 		BreathSpeed = 2,
 		VisualRecoilIntensity = -0.5,
 		VisualRecoilKick = -0.7,
-		VisualRecoilRecovery = 15
+		VisualRecoilRecovery = 15,
+		PreviewDistance = 8
 	}
 }
 

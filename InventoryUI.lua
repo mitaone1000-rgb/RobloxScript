@@ -156,8 +156,8 @@ end
 local function startRotation()
 	stopRotation() -- Pastikan tidak ada koneksi ganda
 	rotationConnection = RunService.RenderStepped:Connect(function(dt)
-		if currentPreviewModel then
-			currentPreviewModel.CFrame = currentPreviewModel.CFrame * CFrame.Angles(0, dt * 1, 0) -- Putar 1 radian per detik
+		if currentPreviewModel and currentPreviewModel.PrimaryPart then
+			currentPreviewModel:SetPrimaryPartCFrame(currentPreviewModel.PrimaryPart.CFrame * CFrame.Angles(0, dt * 1, 0)) -- Putar 1 radian per detik
 		end
 	end)
 end
@@ -177,29 +177,33 @@ local function updatePreview(weaponName, skinName)
 
 	local skinData = weaponConfig.Skins[skinName]
 
-	-- Buat model baru
+	-- Buat model baru untuk pratinjau
+	local previewModel = Instance.new("Model")
+	previewModel.Name = "WeaponPreviewModel"
+	previewModel.Parent = worldModel
+
 	local modelPart = Instance.new("Part")
-	modelPart.Name = "WeaponPreview"
+	modelPart.Name = "Handle" -- Nama umum untuk primary part
 	modelPart.Anchored = true
 	modelPart.CanCollide = false
-	modelPart.Size = Vector3.new(1, 1, 1) -- Ukuran awal, akan disesuaikan oleh mesh
+	modelPart.Size = Vector3.new(1, 1, 1)
 	modelPart.CFrame = CFrame.new(0, 0, 0)
-	modelPart.Parent = worldModel
+	modelPart.Parent = previewModel
+
+	previewModel.PrimaryPart = modelPart
 
 	local mesh = Instance.new("SpecialMesh")
 	mesh.MeshType = Enum.MeshType.FileMesh
 	mesh.MeshId = skinData.MeshId
 	mesh.TextureId = skinData.TextureId
-	mesh.Scale = Vector3.new(1, 1, 1) -- Sesuaikan skala jika perlu
+	mesh.Scale = Vector3.new(1, 1, 1)
 	mesh.Parent = modelPart
 
-	currentPreviewModel = modelPart
+	currentPreviewModel = previewModel
 
-	-- Atur posisi kamera untuk melihat model
-	local modelSize = modelPart:GetExtentsSize()
-	local maxDim = math.max(modelSize.X, modelSize.Y, modelSize.Z)
-	local camDistance = maxDim * 2.5 -- Jarak kamera berdasarkan ukuran model
-	viewportCamera.CFrame = CFrame.new(Vector3.new(0, 0, camDistance), modelPart.Position)
+	-- Atur posisi kamera menggunakan jarak yang sudah dikonfigurasi
+	local camDistance = weaponConfig.PreviewDistance or 5 -- Fallback ke 5 jika tidak ada
+	viewportCamera.CFrame = CFrame.new(Vector3.new(0, 0, camDistance), previewModel.PrimaryPart.Position)
 end
 
 local function updateSkinList()
