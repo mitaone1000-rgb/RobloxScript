@@ -109,7 +109,7 @@ rightPanel.BackgroundTransparency = 1
 -- ViewportFrame untuk Pratinjau
 local viewportFrame = Instance.new("ViewportFrame", rightPanel)
 viewportFrame.Name = "ViewportFrame"
-viewportFrame.Size = UDim2.new(1, 0, 0.7, 0) -- 70% tinggi dari rightPanel
+viewportFrame.Size = UDim2.new(1, 0, 0.5, 0) -- 50% tinggi dari rightPanel
 viewportFrame.Position = UDim2.new(0, 0, 0, 0)
 viewportFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 viewportFrame.BorderSizePixel = 0
@@ -159,11 +159,76 @@ viewportCamera.Parent = viewportFrame
 viewportCamera.FieldOfView = 30
 viewportFrame.CurrentCamera = viewportCamera
 
+-- NEW: Frame untuk Statistik Senjata
+local statsFrame = Instance.new("Frame", rightPanel)
+statsFrame.Name = "StatsFrame"
+statsFrame.Size = UDim2.new(1, 0, 0.2, 0) -- 20% tinggi, beri ruang untuk skin list
+statsFrame.Position = UDim2.new(0, 0, 0.5, 5) -- Di bawah viewport, dengan 5px gap
+statsFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+statsFrame.BorderSizePixel = 0
+statsFrame.Visible = false -- Sembunyikan awalnya
+local statsCorner = Instance.new("UICorner", statsFrame)
+statsCorner.CornerRadius = UDim.new(0, 8)
+
+-- Layout untuk statistik
+local statsLayout = Instance.new("UIListLayout", statsFrame)
+statsLayout.Padding = UDim.new(0, 5)
+statsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+statsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+statsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+
+-- Judul Statistik
+local statsTitle = Instance.new("TextLabel", statsFrame)
+statsTitle.Name = "StatsTitle"
+statsTitle.Size = UDim2.new(1, -20, 0, 20)
+statsTitle.Text = "Weapon Statistics"
+statsTitle.Font = Enum.Font.SourceSansBold
+statsTitle.TextSize = 16
+statsTitle.TextColor3 = Color3.new(1, 1, 1)
+statsTitle.BackgroundTransparency = 1
+statsTitle.LayoutOrder = 1
+
+-- Label untuk Damage
+local damageLabel = Instance.new("TextLabel", statsFrame)
+damageLabel.Name = "DamageLabel"
+damageLabel.Size = UDim2.new(1, -20, 0, 18)
+damageLabel.Font = Enum.Font.SourceSans
+damageLabel.TextSize = 14
+damageLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+damageLabel.BackgroundTransparency = 1
+damageLabel.TextXAlignment = Enum.TextXAlignment.Left
+damageLabel.Text = "Damage: -"
+damageLabel.LayoutOrder = 2
+
+-- Label untuk Amunisi
+local ammoLabel = Instance.new("TextLabel", statsFrame)
+ammoLabel.Name = "AmmoLabel"
+ammoLabel.Size = UDim2.new(1, -20, 0, 18)
+ammoLabel.Font = Enum.Font.SourceSans
+ammoLabel.TextSize = 14
+ammoLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+ammoLabel.BackgroundTransparency = 1
+ammoLabel.TextXAlignment = Enum.TextXAlignment.Left
+ammoLabel.Text = "Ammunition: -"
+ammoLabel.LayoutOrder = 3
+
+-- Label untuk Recoil
+local recoilLabel = Instance.new("TextLabel", statsFrame)
+recoilLabel.Name = "RecoilLabel"
+recoilLabel.Size = UDim2.new(1, -20, 0, 18)
+recoilLabel.Font = Enum.Font.SourceSans
+recoilLabel.TextSize = 14
+recoilLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+recoilLabel.BackgroundTransparency = 1
+recoilLabel.TextXAlignment = Enum.TextXAlignment.Left
+recoilLabel.Text = "Recoil: -"
+recoilLabel.LayoutOrder = 4
+
 -- Skin List (Bawah Kanan) - Diubah menjadi list horizontal
 local skinListFrame = Instance.new("ScrollingFrame", rightPanel)
 skinListFrame.Name = "SkinListFrame"
 skinListFrame.Size = UDim2.new(1, 0, 0.3, 0) -- 30% tinggi dari rightPanel
-skinListFrame.Position = UDim2.new(0, 0, 0.7, 0) -- Diposisikan di bawah viewportFrame
+skinListFrame.Position = UDim2.new(0, 0, 0.7, 10) -- Diposisikan di bawah statsFrame
 skinListFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 skinListFrame.BackgroundTransparency = 0.5
 skinListFrame.BorderSizePixel = 0
@@ -309,6 +374,30 @@ local function updatePreview(weaponName, skinName)
 	sliderFill.Size = UDim2.new(0, 0, 1, 0)
 end
 
+-- Fungsi untuk memperbarui tampilan statistik
+local function updateStatsDisplay(weaponName)
+	if not weaponName or not WeaponModule.Weapons[weaponName] then
+		statsFrame.Visible = false
+		return
+	end
+
+	local data = WeaponModule.Weapons[weaponName]
+	statsFrame.Visible = true
+
+	damageLabel.Text = "Damage: " .. tostring(data.Damage)
+	ammoLabel.Text = "Ammunition: " .. tostring(data.MaxAmmo) .. " / " .. tostring(data.ReserveAmmo)
+
+	local recoilCategory = "Rendah"
+	if data.Recoil >= 5 then
+		recoilCategory = "Sangat Tinggi"
+	elseif data.Recoil >= 3 then
+		recoilCategory = "Tinggi"
+	elseif data.Recoil >= 1.5 then
+		recoilCategory = "Sedang"
+	end
+	recoilLabel.Text = "Recoil: " .. recoilCategory
+end
+
 local function updateSkinList()
 	for _, child in ipairs(skinListFrame:GetChildren()) do
 		if not child:IsA("UIListLayout") then -- Diubah dari UIGridLayout
@@ -419,6 +508,7 @@ local function updateWeaponList()
 			end
 			weaponButton.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
 			updateSkinList()
+			updateStatsDisplay(weaponName) -- Tampilkan statistik
 
 			-- Tampilkan pratinjau skin yang sedang digunakan saat senjata dipilih
 			local equippedSkin = inventoryData.Skins.Equipped[selectedWeapon]
@@ -447,6 +537,7 @@ backButton.MouseButton1Click:Connect(function()
 	-- Hapus model dari pratinjau saat menu ditutup
 	updatePreview(nil, nil)
 	stopRotation() -- Hentikan rotasi saat menu ditutup
+	updateStatsDisplay(nil) -- Sembunyikan statistik
 end)
 
 -- Tombol untuk memasang skin
