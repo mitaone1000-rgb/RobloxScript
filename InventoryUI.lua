@@ -408,7 +408,7 @@ local function updatePreview(weaponName, skinName)
 	currentPreviewModel = previewModel
 
 	-- Atur zoom default ke yang terdekat (paling besar)
-	local minValue, maxValue = 4, 10 -- Diubah dari 2 ke 4
+	local minValue, maxValue = 2.5, 10 -- Diubah dari 2 ke 4
 	currentZoomDistance = minValue -- Mulai dari jarak terdekat
 
 	sliderTrack.Visible = true
@@ -608,7 +608,7 @@ end)
 -- Hubungkan logika zoom ke slider
 -- Logika Slider Kustom
 local isDragging = false
-local minValue, maxValue = 4, 10 -- Diubah dari 2 ke 4
+local minValue, maxValue = 2.5, 10 -- Diubah dari 2 ke 4
 
 sliderHandle.MouseButton1Down:Connect(function()
 	isDragging = true
