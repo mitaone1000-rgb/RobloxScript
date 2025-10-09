@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
 
@@ -144,6 +145,108 @@ local rightColumnLayout = Instance.new("UIListLayout", rightColumn)
 rightColumnLayout.Padding = UDim.new(0, 10)
 rightColumnLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
+-- [BARU] Judul Senjata di Kolom Kanan
+local weaponTitleLabel = Instance.new("TextLabel", rightColumn)
+weaponTitleLabel.Name = "WeaponTitleLabel"
+weaponTitleLabel.Size = UDim2.new(1, 0, 0, 40)
+weaponTitleLabel.Font = Enum.Font.Creepster
+weaponTitleLabel.Text = "SELECT A WEAPON"
+weaponTitleLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+weaponTitleLabel.TextSize = 32
+weaponTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+weaponTitleLabel.BackgroundTransparency = 1
+weaponTitleLabel.LayoutOrder = 1
+weaponTitleLabel.Visible = true
+
+-- [BARU] Frame untuk Statistik Visual
+local statsFrame = Instance.new("Frame", rightColumn)
+statsFrame.Name = "StatsFrame"
+statsFrame.Size = UDim2.new(1, 0, 0, 100) -- Ukuran disesuaikan untuk bilah progres
+statsFrame.BackgroundTransparency = 1
+statsFrame.LayoutOrder = 2
+local statsLayout = Instance.new("UIListLayout", statsFrame)
+statsLayout.Padding = UDim.new(0, 8)
+
+-- Fungsi helper untuk membuat bilah statistik
+local function createStatBar(name, parent)
+	local statFrame = Instance.new("Frame", parent)
+	statFrame.Name = name .. "Stat"
+	statFrame.Size = UDim2.new(1, 0, 0, 24)
+	statFrame.BackgroundTransparency = 1
+	local layout = Instance.new("UIListLayout", statFrame)
+	layout.FillDirection = Enum.FillDirection.Vertical
+	layout.Padding = UDim.new(0, 2)
+
+	local title = Instance.new("TextLabel", statFrame)
+	title.Size = UDim2.new(1, 0, 0, 12)
+	title.Text = string.upper(name)
+	title.Font = Enum.Font.SourceSansBold
+	title.TextColor3 = Color3.fromRGB(180, 180, 180)
+	title.TextXAlignment = Enum.TextXAlignment.Left
+	title.BackgroundTransparency = 1
+
+	local barTrack = Instance.new("Frame", statFrame)
+	barTrack.Size = UDim2.new(1, 0, 0, 8)
+	barTrack.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+	local trackCorner = Instance.new("UICorner", barTrack)
+	trackCorner.CornerRadius = UDim.new(1, 0)
+
+	local barFill = Instance.new("Frame", barTrack)
+	barFill.Name = "Fill"
+	barFill.Size = UDim2.new(0, 0, 1, 0)
+	barFill.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+	local fillCorner = Instance.new("UICorner", barFill)
+	fillCorner.CornerRadius = UDim.new(1, 0)
+
+	return barFill
+end
+
+local damageBar = createStatBar("Damage", statsFrame)
+local ammoBar = createStatBar("Ammo", statsFrame)
+local recoilBar = createStatBar("Recoil", statsFrame)
+
+-- [BARU] Judul untuk daftar skin
+local skinsTitle = Instance.new("TextLabel", rightColumn)
+skinsTitle.Name = "SkinsTitle"
+skinsTitle.Size = UDim2.new(1, 0, 0, 20)
+skinsTitle.Text = "AVAILABLE SKINS"
+skinsTitle.Font = Enum.Font.SourceSansBold
+skinsTitle.TextSize = 16
+skinsTitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+skinsTitle.BackgroundTransparency = 1
+skinsTitle.LayoutOrder = 3
+
+-- [BARU] ScrollingFrame Horizontal untuk Skins
+local skinListFrame = Instance.new("ScrollingFrame", rightColumn)
+skinListFrame.Name = "SkinListFrame"
+skinListFrame.Size = UDim2.new(1, 0, 0, 100) -- Ukuran untuk thumbnail
+skinListFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+skinListFrame.BackgroundTransparency = 0.5
+skinListFrame.BorderSizePixel = 0
+skinListFrame.LayoutOrder = 4
+skinListFrame.CanvasSize = UDim2.new(2, 0, 0, 0) -- Aktifkan scrolling horizontal
+skinListFrame.ScrollBarThickness = 4
+skinListFrame.ScrollingDirection = Enum.ScrollingDirection.X
+
+local sl_layout = Instance.new("UIListLayout", skinListFrame)
+sl_layout.FillDirection = Enum.FillDirection.Horizontal
+sl_layout.Padding = UDim.new(0, 10)
+sl_layout.VerticalAlignment = Enum.VerticalAlignment.Center
+
+-- [BARU] Tombol Equip yang Didesain Ulang
+local equipButton = Instance.new("TextButton", rightColumn)
+equipButton.Name = "EquipButton"
+equipButton.Size = UDim2.new(1, 0, 0, 40)
+equipButton.Text = "EQUIP SKIN"
+equipButton.Font = Enum.Font.SourceSansBold
+equipButton.TextSize = 18
+equipButton.BackgroundColor3 = Color3.fromRGB(130, 130, 130) -- Warna non-aktif
+equipButton.TextColor3 = Color3.new(1, 1, 1)
+equipButton.LayoutOrder = 5
+local equipCorner = Instance.new("UICorner", equipButton)
+equipCorner.CornerRadius = UDim.new(0, 8)
+equipButton.AutoButtonColor = false
+
 -- ViewportFrame untuk Pratinjau
 local viewportFrame = Instance.new("ViewportFrame", middleColumn)
 viewportFrame.Name = "ViewportFrame"
@@ -192,139 +295,6 @@ viewportCamera.FieldOfView = 30
 viewportFrame.CurrentCamera = viewportCamera
 
 -- Frame untuk Statistik Senjata
-local statsFrame = Instance.new("Frame", rightColumn)
-statsFrame.Name = "StatsFrame"
-statsFrame.Size = UDim2.new(1, 0, 0, 120)
-statsFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-statsFrame.BorderSizePixel = 0
-statsFrame.Visible = false
-statsFrame.LayoutOrder = 1
-local statsCorner = Instance.new("UICorner", statsFrame)
-statsCorner.CornerRadius = UDim.new(0, 8)
-
--- ... (elemen di dalam statsFrame tidak berubah, hanya parent-nya)
-local statsLayout = Instance.new("UIPadding", statsFrame)
-statsLayout.PaddingLeft = UDim.new(0, 10)
-statsLayout.PaddingRight = UDim.new(0, 10)
-statsLayout.PaddingTop = UDim.new(0, 5)
-statsLayout.PaddingBottom = UDim.new(0, 5)
-local statsListLayout = Instance.new("UIListLayout", statsFrame)
-statsListLayout.Padding = UDim.new(0, 8)
-local statsTitle = Instance.new("TextLabel", statsFrame)
-statsTitle.Name = "StatsTitle"
-statsTitle.Size = UDim2.new(1, 0, 0, 20)
-statsTitle.Text = "STATISTICS"
-statsTitle.Font = Enum.Font.SourceSansBold
-statsTitle.TextSize = 18
-statsTitle.TextColor3 = Color3.fromRGB(200, 200, 200)
-statsTitle.BackgroundTransparency = 1
-local damageFrame = Instance.new("Frame", statsFrame)
-damageFrame.BackgroundTransparency = 1
-damageFrame.Size = UDim2.new(1, 0, 0, 20)
-local damageLayout = Instance.new("UIListLayout", damageFrame)
-damageLayout.FillDirection = Enum.FillDirection.Horizontal
-damageLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-damageLayout.Padding = UDim.new(0, 5)
-local damageIcon = Instance.new("ImageLabel", damageFrame)
-damageIcon.Size = UDim2.new(0, 20, 0, 20)
-damageIcon.BackgroundTransparency = 1
-damageIcon.Image = "rbxassetid://13858487184"
-damageIcon.ImageColor3 = Color3.fromRGB(220, 220, 220)
-local damageLabel = Instance.new("TextLabel", damageFrame)
-damageLabel.Font = Enum.Font.SourceSans
-damageLabel.TextSize = 16
-damageLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
-damageLabel.BackgroundTransparency = 1
-damageLabel.TextXAlignment = Enum.TextXAlignment.Left
-damageLabel.Size = UDim2.new(1, -25, 1, 0)
-damageLabel.Text = "Damage: -"
-local ammoFrame = Instance.new("Frame", statsFrame)
-ammoFrame.BackgroundTransparency = 1
-ammoFrame.Size = UDim2.new(1, 0, 0, 20)
-local ammoLayout = Instance.new("UIListLayout", ammoFrame)
-ammoLayout.FillDirection = Enum.FillDirection.Horizontal
-ammoLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-ammoLayout.Padding = UDim.new(0, 5)
-local ammoIcon = Instance.new("ImageLabel", ammoFrame)
-ammoIcon.Size = UDim2.new(0, 20, 0, 20)
-ammoIcon.BackgroundTransparency = 1
-ammoIcon.Image = "rbxassetid://13858484964"
-ammoIcon.ImageColor3 = Color3.fromRGB(220, 220, 220)
-local ammoLabel = Instance.new("TextLabel", ammoFrame)
-ammoLabel.Font = Enum.Font.SourceSans
-ammoLabel.TextSize = 16
-ammoLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
-ammoLabel.BackgroundTransparency = 1
-ammoLabel.TextXAlignment = Enum.TextXAlignment.Left
-ammoLabel.Size = UDim2.new(1, -25, 1, 0)
-ammoLabel.Text = "Ammunition: -"
-local recoilFrame = Instance.new("Frame", statsFrame)
-recoilFrame.BackgroundTransparency = 1
-recoilFrame.Size = UDim2.new(1, 0, 0, 20)
-local recoilLayout = Instance.new("UIListLayout", recoilFrame)
-recoilLayout.FillDirection = Enum.FillDirection.Horizontal
-recoilLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-recoilLayout.Padding = UDim.new(0, 5)
-local recoilLabel = Instance.new("TextLabel", recoilFrame)
-recoilLabel.Font = Enum.Font.SourceSans
-recoilLabel.TextSize = 16
-recoilLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
-recoilLabel.BackgroundTransparency = 1
-recoilLabel.TextXAlignment = Enum.TextXAlignment.Left
-recoilLabel.Size = UDim2.new(0, 55, 1, 0)
-recoilLabel.Text = "Recoil:"
-local recoilBarTrack = Instance.new("Frame", recoilFrame)
-recoilBarTrack.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-recoilBarTrack.Size = UDim2.new(1, -60, 0, 12)
-recoilBarTrack.LayoutOrder = 2
-local recoilTrackCorner = Instance.new("UICorner", recoilBarTrack)
-recoilTrackCorner.CornerRadius = UDim.new(0, 6)
-local recoilBarFill = Instance.new("Frame", recoilBarTrack)
-recoilBarFill.BackgroundColor3 = Color3.fromRGB(80, 180, 80)
-recoilBarFill.Size = UDim2.new(0.2, 0, 1, 0)
-local recoilFillCorner = Instance.new("UICorner", recoilBarFill)
-recoilFillCorner.CornerRadius = UDim.new(0, 6)
-
--- Judul untuk Daftar Skin
-local skinsTitle = Instance.new("TextLabel", rightColumn)
-skinsTitle.Name = "SkinsTitle"
-skinsTitle.Size = UDim2.new(1, 0, 0, 20)
-skinsTitle.Text = "SKINS"
-skinsTitle.Font = Enum.Font.SourceSansBold
-skinsTitle.TextSize = 18
-skinsTitle.TextColor3 = Color3.fromRGB(200, 200, 200)
-skinsTitle.BackgroundTransparency = 1
-skinsTitle.LayoutOrder = 2 -- Tampil setelah statsFrame
-
--- Daftar Skin
-local skinListFrame = Instance.new("ScrollingFrame", rightColumn)
-skinListFrame.Name = "SkinListFrame"
-skinListFrame.Size = UDim2.new(1, 0, 1, -210) -- Disesuaikan untuk judul baru
-skinListFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-skinListFrame.BackgroundTransparency = 0.5
-skinListFrame.BorderSizePixel = 0
-skinListFrame.LayoutOrder = 3 -- Disesuaikan
-skinListFrame.CanvasSize = UDim2.new(0, 0, 2, 0) -- Aktifkan scrolling vertikal
-skinListFrame.ScrollBarThickness = 6
-
-local sl_layout = Instance.new("UIGridLayout", skinListFrame)
-sl_layout.CellPadding = UDim2.new(0, 5, 0, 5)
-sl_layout.CellSize = UDim2.new(0.5, -5, 0, 80)
-sl_layout.SortOrder = Enum.SortOrder.LayoutOrder
-
--- Tombol Equip
-local equipButton = Instance.new("TextButton", rightColumn)
-equipButton.Name = "EquipButton"
-equipButton.Size = UDim2.new(1, 0, 0, 40)
-equipButton.Text = "Equip Skin"
-equipButton.Font = Enum.Font.SourceSansBold
-equipButton.TextSize = 18
-equipButton.BackgroundColor3 = Color3.fromRGB(130, 130, 130)
-equipButton.TextColor3 = Color3.new(1, 1, 1)
-equipButton.LayoutOrder = 4 -- Disesuaikan
-local equipCorner = Instance.new("UICorner", equipButton)
-equipCorner.CornerRadius = UDim.new(0, 8)
-equipButton.AutoButtonColor = false
 
 -- Hapus fungsi updateLayout yang lama karena tidak lagi digunakan
 -- Panggil sekali di awal untuk mengatur layout awal
@@ -418,54 +388,106 @@ local function updatePreview(weaponName, skinName)
 end
 
 -- Fungsi untuk memperbarui tampilan statistik
+-- [BARU] Referensi untuk kalkulasi bar statistik
+local MAX_DAMAGE = 150
+local MAX_AMMO = 200
+local MAX_RECOIL = 10
+
+-- [DIUBAH] Fungsi untuk memperbarui tampilan statistik visual
 local function updateStatsDisplay(weaponName)
-	if not weaponName or not WeaponModule.Weapons[weaponName] then
+	local data = weaponName and WeaponModule.Weapons[weaponName]
+
+	if not data then
 		statsFrame.Visible = false
+		weaponTitleLabel.Text = "SELECT A WEAPON"
 		return
 	end
 
 	statsFrame.Visible = true
-	local data = WeaponModule.Weapons[weaponName]
+	weaponTitleLabel.Text = string.upper(weaponName)
 
-	-- Update Damage & Amunisi
-	damageLabel.Text = "Damage: " .. tostring(data.Damage)
-	ammoLabel.Text = "Ammunition: " .. tostring(data.MaxAmmo) .. " / " .. tostring(data.ReserveAmmo)
+	local damagePercent = math.clamp(data.Damage / MAX_DAMAGE, 0, 1)
+	local ammoPercent = math.clamp(data.MaxAmmo / MAX_AMMO, 0, 1)
+	-- Recoil lebih baik jika nilainya rendah, jadi kita balik persentasenya untuk bar
+	local recoilPercent = 1 - math.clamp(data.Recoil / MAX_RECOIL, 0, 1)
 
-	-- Update Bilah Recoil
-	local maxRecoil = 10 -- Nilai referensi untuk recoil maksimum
-	local recoilPercentage = math.clamp(data.Recoil / maxRecoil, 0, 1)
+	-- Tweening untuk perubahan yang mulus
+	local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
-	-- Ubah ukuran bilah
-	recoilBarFill.Size = UDim2.new(recoilPercentage, 0, 1, 0)
+	TweenService:Create(damageBar, tweenInfo, {Size = UDim2.new(damagePercent, 0, 1, 0)}):Play()
+	TweenService:Create(ammoBar, tweenInfo, {Size = UDim2.new(ammoPercent, 0, 1, 0)}):Play()
+	TweenService:Create(recoilBar, tweenInfo, {Size = UDim2.new(recoilPercent, 0, 1, 0)}):Play()
 
-	-- Ubah warna bilah berdasarkan persentase
-	local lowColor = Color3.fromRGB(80, 180, 80) -- Hijau
-	local midColor = Color3.fromRGB(220, 200, 70) -- Kuning
-	local highColor = Color3.fromRGB(180, 20, 20) -- Merah
+	-- Warna merepresentasikan "kebaikan" stat. Hijau bagus, merah jelek.
+	local lowColor = Color3.fromRGB(180, 20, 20) -- Merah (jelek)
+	local highColor = Color3.fromRGB(80, 180, 80) -- Hijau (bagus)
 
-	if recoilPercentage < 0.5 then
-		-- Transisi dari Hijau ke Kuning
-		recoilBarFill.BackgroundColor3 = lowColor:Lerp(midColor, recoilPercentage * 2)
-	else
-		-- Transisi dari Kuning ke Merah
-		recoilBarFill.BackgroundColor3 = midColor:Lerp(highColor, (recoilPercentage - 0.5) * 2)
-	end
+	damageBar.BackgroundColor3 = lowColor:Lerp(highColor, damagePercent)
+	ammoBar.BackgroundColor3 = lowColor:Lerp(highColor, ammoPercent)
+	recoilBar.BackgroundColor3 = lowColor:Lerp(highColor, recoilPercent)
 end
 
+-- [DIUBAH] Fungsi untuk memperbarui daftar skin horizontal
+-- [DIUBAH & DIPERBAIKI] Fungsi untuk memperbarui daftar skin horizontal
 local function updateSkinList()
+	-- Bersihkan daftar skin sebelum mengisi ulang
 	for _, child in ipairs(skinListFrame:GetChildren()) do
 		if not child:IsA("UILayout") then
 			child:Destroy()
 		end
 	end
-	selectedSkin = nil
-	equipButton.AutoButtonColor = false
-	equipButton.BackgroundColor3 = Color3.fromRGB(130, 130, 130)
 
-	if not selectedWeapon or not inventoryData then return end
+	selectedSkin = nil
+
+	-- Sembunyikan dan nonaktifkan elemen jika tidak ada senjata yang dipilih
+	local weaponData = selectedWeapon and WeaponModule.Weapons[selectedWeapon]
+	if not weaponData or not weaponData.Skins or not inventoryData then
+		skinListFrame.Visible = false
+		skinsTitle.Visible = false
+		equipButton.Visible = false
+		return
+	end
+
+	-- Tampilkan kembali elemen
+	skinListFrame.Visible = true
+	skinsTitle.Visible = true
+	equipButton.Visible = true
 
 	local ownedSkins = inventoryData.Skins.Owned[selectedWeapon]
 	local equippedSkin = inventoryData.Skins.Equipped[selectedWeapon]
+
+	-- Fungsi untuk mengatur status tombol Equip
+	local function setEquipButtonState()
+		if not selectedSkin then
+			equipButton.Text = "SELECT A SKIN"
+			equipButton.AutoButtonColor = false
+			equipButton.BackgroundColor3 = Color3.fromRGB(130, 130, 130)
+		elseif selectedSkin == equippedSkin then
+			equipButton.Text = "EQUIPPED"
+			equipButton.AutoButtonColor = false
+			equipButton.BackgroundColor3 = Color3.fromRGB(0, 170, 81) -- Warna hijau untuk equipped
+		else
+			equipButton.Text = "EQUIP " .. string.upper(selectedSkin)
+			equipButton.AutoButtonColor = true
+			equipButton.BackgroundColor3 = Color3.fromRGB(180, 20, 20) -- Warna merah untuk equip
+		end
+	end
+
+	-- Fungsi untuk mengatur ulang border semua thumbnail skin
+	local function resetAllBorders()
+		for _, btn in ipairs(skinListFrame:GetChildren()) do
+			if btn:IsA("ImageButton") and btn:FindFirstChild("UIStroke") then
+				local btnBorder = btn:FindFirstChild("UIStroke")
+				if btn.Name == equippedSkin then
+					btnBorder.Color = Color3.fromRGB(0, 200, 100) -- Hijau untuk yang terpasang
+					btnBorder.Thickness = 3
+				else
+					btnBorder.Color = Color3.fromRGB(80, 80, 80) -- Abu-abu standar
+					btnBorder.Thickness = 2
+				end
+			end
+		end
+	end
 
 	-- Urutkan skin agar yang di-equip muncul pertama
 	table.sort(ownedSkins, function(a, b)
@@ -474,59 +496,48 @@ local function updateSkinList()
 		return a < b
 	end)
 
-	for _, skinName in ipairs(ownedSkins) do
-		local skinButton = Instance.new("ImageButton")
-		skinButton.Name = skinName
-		-- Ukuran diatur oleh UIGridLayout.CellSize
-		skinButton.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
-		skinButton.Parent = skinListFrame
-		local skinCorner = Instance.new("UICorner", skinButton)
-		skinCorner.CornerRadius = UDim.new(0, 6)
+	-- Buat thumbnail untuk setiap skin
+	for i, skinName in ipairs(ownedSkins) do
+		local skinData = WeaponModule.Weapons[selectedWeapon].Skins[skinName]
+		if skinData then
+			local thumbButton = Instance.new("ImageButton")
+			thumbButton.Name = skinName
+			thumbButton.Size = UDim2.new(0, 80, 0, 80)
+			thumbButton.Image = skinData.TextureId or ""
+			thumbButton.ScaleType = Enum.ScaleType.Fit
+			thumbButton.LayoutOrder = i
+			thumbButton.Parent = skinListFrame
 
-		-- Menjaga agar tombol skin tetap persegi
-		local skinAspect = Instance.new("UIAspectRatioConstraint")
-		skinAspect.AspectRatio = 1.0
-		skinAspect.Parent = skinButton
+			local corner = Instance.new("UICorner", thumbButton)
+			corner.CornerRadius = UDim.new(0, 6)
 
-		local skinLabel = Instance.new("TextLabel", skinButton)
-		skinLabel.Size = UDim2.new(1, 0, 0, 20)
-		skinLabel.Position = UDim2.new(0, 0, 1, -20)
-		skinLabel.Text = skinName
-		skinLabel.Font = Enum.Font.SourceSans
-		skinLabel.TextSize = 14
-		skinLabel.TextColor3 = Color3.new(1, 1, 1)
-		skinLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-		skinLabel.BackgroundTransparency = 0.3
+			local border = Instance.new("UIStroke", thumbButton)
+			border.Thickness = 2
+			border.Color = Color3.fromRGB(80, 80, 80)
 
-		if skinName == equippedSkin then
-			skinButton.BackgroundColor3 = Color3.fromRGB(0, 170, 81)
+			thumbButton.MouseButton1Click:Connect(function()
+				selectedSkin = skinName
+				updatePreview(selectedWeapon, selectedSkin)
+				resetAllBorders()
+
+				-- Sorot thumbnail yang dipilih
+				border.Color = Color3.fromRGB(220, 50, 50) -- Merah untuk pilihan
+				border.Thickness = 3
+
+				setEquipButtonState()
+			end)
 		end
-
-		skinButton.MouseButton1Click:Connect(function()
-			selectedSkin = skinName
-			-- Update preview
-			updatePreview(selectedWeapon, selectedSkin)
-
-			for _, btn in ipairs(skinListFrame:GetChildren()) do
-				if btn:IsA("ImageButton") then
-					if inventoryData.Skins.Equipped[selectedWeapon] == btn.Name then
-						btn.BackgroundColor3 = Color3.fromRGB(0, 170, 81)
-					else
-						btn.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
-					end
-				end
-			end
-			skinButton.BackgroundColor3 = Color3.fromRGB(180, 20, 20) -- Warna merah darah untuk yang dipilih
-
-			if selectedSkin ~= equippedSkin then
-				equipButton.AutoButtonColor = true
-				equipButton.BackgroundColor3 = Color3.fromRGB(180, 20, 20) -- Merah darah
-			else
-				equipButton.AutoButtonColor = false
-				equipButton.BackgroundColor3 = Color3.fromRGB(130, 130, 130)
-			end
-		end)
 	end
+
+	-- Inisialisasi state awal
+	resetAllBorders()
+	setEquipButtonState()
+
+	-- Update CanvasSize setelah semua item ditambahkan
+	-- Menggunakan GetPropertyChangedSignal untuk menunggu perubahan ukuran konten
+	sl_layout:GetPropertyChangedSignal("AbsoluteContentSize"):Once(function()
+		skinListFrame.CanvasSize = UDim2.new(0, sl_layout.AbsoluteContentSize.X, 0, 0)
+	end)
 end
 
 local function updateWeaponList()
@@ -561,10 +572,10 @@ local function updateWeaponList()
 				end
 			end
 			weaponButton.BackgroundColor3 = Color3.fromRGB(80, 25, 25) -- Warna sorotan merah gelap
-			updateSkinList()
-			updateStatsDisplay(weaponName) -- Tampilkan statistik
 
-			-- Tampilkan pratinjau skin yang sedang digunakan saat senjata dipilih
+			updateStatsDisplay(weaponName)
+			updateSkinList()
+
 			local equippedSkin = inventoryData.Skins.Equipped[selectedWeapon]
 			updatePreview(selectedWeapon, equippedSkin)
 		end)
