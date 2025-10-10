@@ -98,7 +98,7 @@ function GachaModule.Roll(player)
 		CoinsManager.AddSkin(player, prize.Weapon, prize.Skin)
 
 		-- Kirim pengumuman global
-		GachaSkinWonEvent:FireAllClients(player, prize.SkinName)
+		GachaSkinWonEvent:FireAllClients(player, prize.Skin)
 
 		return {
 			Success = true,
