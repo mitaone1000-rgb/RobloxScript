@@ -333,6 +333,212 @@ local categoryButtons = {}
 -- Forward declare functions to avoid nil errors on callbacks
 local updateWeaponList
 
+-- Fungsi untuk memperbarui tampilan statistik
+-- [BARU] Referensi untuk kalkulasi bar statistik
+local MAX_DAMAGE = 150
+local MAX_AMMO = 200
+local MAX_RECOIL = 10
+
+-- [DIUBAH] Fungsi untuk memperbarui tampilan statistik visual
+local function updateStatsDisplay(weaponName)
+	local data = weaponName and WeaponModule.Weapons[weaponName]
+
+	if not data then
+		statsFrame.Visible = false
+		weaponTitleLabel.Text = "SELECT A WEAPON"
+		return
+	end
+
+	statsFrame.Visible = true
+	weaponTitleLabel.Text = string.upper(weaponName)
+
+	local damagePercent = math.clamp(data.Damage / MAX_DAMAGE, 0, 1)
+	local ammoPercent = math.clamp(data.MaxAmmo / MAX_AMMO, 0, 1)
+	-- Recoil lebih baik jika nilainya rendah, jadi kita balik persentasenya untuk bar
+	local recoilPercent = 1 - math.clamp(data.Recoil / MAX_RECOIL, 0, 1)
+
+	-- Tweening untuk perubahan yang mulus
+	local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+	TweenService:Create(damageBar, tweenInfo, {Size = UDim2.new(damagePercent, 0, 1, 0)}):Play()
+	TweenService:Create(ammoBar, tweenInfo, {Size = UDim2.new(ammoPercent, 0, 1, 0)}):Play()
+	TweenService:Create(recoilBar, tweenInfo, {Size = UDim2.new(recoilPercent, 0, 1, 0)}):Play()
+
+	-- Warna merepresentasikan "kebaikan" stat. Hijau bagus, merah jelek.
+	local lowColor = Color3.fromRGB(180, 20, 20) -- Merah (jelek)
+	local highColor = Color3.fromRGB(80, 180, 80) -- Hijau (bagus)
+
+	damageBar.BackgroundColor3 = lowColor:Lerp(highColor, damagePercent)
+	ammoBar.BackgroundColor3 = lowColor:Lerp(highColor, ammoPercent)
+	recoilBar.BackgroundColor3 = lowColor:Lerp(highColor, recoilPercent)
+end
+
+-- Fungsi untuk menampilkan model senjata di ViewportFrame
+local function updatePreview(weaponName, skinName)
+	-- Hapus model lama jika ada
+	if currentPreviewModel then
+		currentPreviewModel:Destroy()
+		currentPreviewModel = nil
+	end
+
+	-- Jika tidak ada senjata/skin, sembunyikan slider dan keluar
+	if not weaponName or not skinName then
+		sliderTrack.Visible = false
+		return
+	end
+
+	local weaponConfig = WeaponModule.Weapons[weaponName]
+	if not weaponConfig or not weaponConfig.Skins[skinName] then return end
+
+	local skinData = weaponConfig.Skins[skinName]
+
+	-- Buat model baru untuk pratinjau
+	local previewModel = Instance.new("Model")
+	previewModel.Name = "WeaponPreviewModel"
+	previewModel.Parent = worldModel
+
+	local modelPart = Instance.new("Part")
+	modelPart.Name = "Handle" -- Nama umum untuk primary part
+	modelPart.Anchored = true
+	modelPart.CanCollide = false
+	modelPart.Size = Vector3.new(1, 1, 1)
+	modelPart.CFrame = CFrame.new(0, 0, 0)
+	modelPart.Parent = previewModel
+
+	previewModel.PrimaryPart = modelPart
+
+	local mesh = Instance.new("SpecialMesh")
+	mesh.MeshType = Enum.MeshType.FileMesh
+	mesh.MeshId = skinData.MeshId
+	mesh.TextureId = skinData.TextureId
+	mesh.Scale = Vector3.new(1, 1, 1)
+	mesh.Parent = modelPart
+
+	currentPreviewModel = previewModel
+
+	-- Atur zoom default ke yang terdekat (paling besar)
+	local minValue, maxValue = 2.5, 10 -- Diubah dari 2 ke 4
+	currentZoomDistance = minValue -- Mulai dari jarak terdekat
+
+	sliderTrack.Visible = true
+	-- Atur posisi visual slider ke awal (0%) untuk mencerminkan zoom terdekat
+	sliderHandle.Position = UDim2.new(0, 0, 0.5, 0)
+	sliderFill.Size = UDim2.new(0, 0, 1, 0)
+end
+
+-- [DIUBAH] Fungsi untuk memperbarui daftar skin horizontal
+-- [DIUBAH & DIPERBAIKI] Fungsi untuk memperbarui daftar skin horizontal
+local function updateSkinList()
+	-- Bersihkan daftar skin sebelum mengisi ulang
+	for _, child in ipairs(skinListFrame:GetChildren()) do
+		if not child:IsA("UILayout") then
+			child:Destroy()
+		end
+	end
+
+	selectedSkin = nil
+
+	-- Sembunyikan dan nonaktifkan elemen jika tidak ada senjata yang dipilih
+	local weaponData = selectedWeapon and WeaponModule.Weapons[selectedWeapon]
+	if not weaponData or not weaponData.Skins or not inventoryData then
+		skinListFrame.Visible = false
+		skinsTitle.Visible = false
+		equipButton.Visible = false
+		return
+	end
+
+	-- Tampilkan kembali elemen
+	skinListFrame.Visible = true
+	skinsTitle.Visible = true
+	equipButton.Visible = true
+
+	local ownedSkins = inventoryData.Skins.Owned[selectedWeapon]
+	local equippedSkin = inventoryData.Skins.Equipped[selectedWeapon]
+
+	-- Fungsi untuk mengatur status tombol Equip
+	local function setEquipButtonState()
+		if not selectedSkin then
+			equipButton.Text = "SELECT A SKIN"
+			equipButton.AutoButtonColor = false
+			equipButton.BackgroundColor3 = Color3.fromRGB(85, 85, 85) -- Warna diseragamkan
+		elseif selectedSkin == equippedSkin then
+			equipButton.Text = "EQUIPPED"
+			equipButton.AutoButtonColor = false
+			equipButton.BackgroundColor3 = Color3.fromRGB(0, 170, 81) -- Warna hijau untuk equipped
+		else
+			equipButton.Text = "EQUIP " .. string.upper(selectedSkin)
+			equipButton.AutoButtonColor = true
+			equipButton.BackgroundColor3 = Color3.fromRGB(180, 20, 20) -- Warna merah untuk equip
+		end
+	end
+
+	-- Fungsi untuk mengatur ulang border semua thumbnail skin
+	local function resetAllBorders()
+		for _, btn in ipairs(skinListFrame:GetChildren()) do
+			if btn:IsA("ImageButton") and btn:FindFirstChild("UIStroke") then
+				local btnBorder = btn:FindFirstChild("UIStroke")
+				if btn.Name == equippedSkin then
+					btnBorder.Color = Color3.fromRGB(0, 200, 100) -- Hijau untuk yang terpasang
+					btnBorder.Thickness = 3
+				else
+					btnBorder.Color = Color3.fromRGB(80, 80, 80) -- Abu-abu standar
+					btnBorder.Thickness = 2
+				end
+			end
+		end
+	end
+
+	-- Urutkan skin agar yang di-equip muncul pertama
+	table.sort(ownedSkins, function(a, b)
+		if a == equippedSkin then return true end
+		if b == equippedSkin then return false end
+		return a < b
+	end)
+
+	-- Buat thumbnail untuk setiap skin
+	for i, skinName in ipairs(ownedSkins) do
+		local skinData = WeaponModule.Weapons[selectedWeapon].Skins[skinName]
+		if skinData then
+			local thumbButton = Instance.new("ImageButton")
+			thumbButton.Name = skinName
+			thumbButton.Size = UDim2.new(0, 80, 0, 80)
+			thumbButton.Image = skinData.TextureId or ""
+			thumbButton.ScaleType = Enum.ScaleType.Fit
+			thumbButton.LayoutOrder = i
+			thumbButton.Parent = skinListFrame
+
+			local corner = Instance.new("UICorner", thumbButton)
+			corner.CornerRadius = UDim.new(0, 6)
+
+			local border = Instance.new("UIStroke", thumbButton)
+			border.Thickness = 2
+			border.Color = Color3.fromRGB(80, 80, 80)
+
+			thumbButton.MouseButton1Click:Connect(function()
+				selectedSkin = skinName
+				updatePreview(selectedWeapon, selectedSkin)
+				resetAllBorders()
+
+				-- Sorot thumbnail yang dipilih
+				border.Color = Color3.fromRGB(220, 50, 50) -- Merah untuk pilihan
+				border.Thickness = 3
+
+				setEquipButtonState()
+			end)
+		end
+	end
+
+	-- Inisialisasi state awal
+	resetAllBorders()
+	setEquipButtonState()
+
+	-- Update CanvasSize setelah semua item ditambahkan
+	-- Menggunakan GetPropertyChangedSignal untuk menunggu perubahan ukuran konten
+	sl_layout:GetPropertyChangedSignal("AbsoluteContentSize"):Once(function()
+		skinListFrame.CanvasSize = UDim2.new(0, sl_layout.AbsoluteContentSize.X, 0, 0)
+	end)
+end
+
 function updateWeaponList(categoryFilter)
 	for _, child in ipairs(weaponListFrame:GetChildren()) do
 		if not child:IsA("UIListLayout") then
@@ -450,211 +656,7 @@ local function startRotation()
 	end)
 end
 
--- Fungsi untuk menampilkan model senjata di ViewportFrame
-local function updatePreview(weaponName, skinName)
-	-- Hapus model lama jika ada
-	if currentPreviewModel then
-		currentPreviewModel:Destroy()
-		currentPreviewModel = nil
-	end
 
-	-- Jika tidak ada senjata/skin, sembunyikan slider dan keluar
-	if not weaponName or not skinName then
-		sliderTrack.Visible = false
-		return
-	end
-
-	local weaponConfig = WeaponModule.Weapons[weaponName]
-	if not weaponConfig or not weaponConfig.Skins[skinName] then return end
-
-	local skinData = weaponConfig.Skins[skinName]
-
-	-- Buat model baru untuk pratinjau
-	local previewModel = Instance.new("Model")
-	previewModel.Name = "WeaponPreviewModel"
-	previewModel.Parent = worldModel
-
-	local modelPart = Instance.new("Part")
-	modelPart.Name = "Handle" -- Nama umum untuk primary part
-	modelPart.Anchored = true
-	modelPart.CanCollide = false
-	modelPart.Size = Vector3.new(1, 1, 1)
-	modelPart.CFrame = CFrame.new(0, 0, 0)
-	modelPart.Parent = previewModel
-
-	previewModel.PrimaryPart = modelPart
-
-	local mesh = Instance.new("SpecialMesh")
-	mesh.MeshType = Enum.MeshType.FileMesh
-	mesh.MeshId = skinData.MeshId
-	mesh.TextureId = skinData.TextureId
-	mesh.Scale = Vector3.new(1, 1, 1)
-	mesh.Parent = modelPart
-
-	currentPreviewModel = previewModel
-
-	-- Atur zoom default ke yang terdekat (paling besar)
-	local minValue, maxValue = 2.5, 10 -- Diubah dari 2 ke 4
-	currentZoomDistance = minValue -- Mulai dari jarak terdekat
-
-	sliderTrack.Visible = true
-	-- Atur posisi visual slider ke awal (0%) untuk mencerminkan zoom terdekat
-	sliderHandle.Position = UDim2.new(0, 0, 0.5, 0)
-	sliderFill.Size = UDim2.new(0, 0, 1, 0)
-end
-
--- Fungsi untuk memperbarui tampilan statistik
--- [BARU] Referensi untuk kalkulasi bar statistik
-local MAX_DAMAGE = 150
-local MAX_AMMO = 200
-local MAX_RECOIL = 10
-
--- [DIUBAH] Fungsi untuk memperbarui tampilan statistik visual
-local function updateStatsDisplay(weaponName)
-	local data = weaponName and WeaponModule.Weapons[weaponName]
-
-	if not data then
-		statsFrame.Visible = false
-		weaponTitleLabel.Text = "SELECT A WEAPON"
-		return
-	end
-
-	statsFrame.Visible = true
-	weaponTitleLabel.Text = string.upper(weaponName)
-
-	local damagePercent = math.clamp(data.Damage / MAX_DAMAGE, 0, 1)
-	local ammoPercent = math.clamp(data.MaxAmmo / MAX_AMMO, 0, 1)
-	-- Recoil lebih baik jika nilainya rendah, jadi kita balik persentasenya untuk bar
-	local recoilPercent = 1 - math.clamp(data.Recoil / MAX_RECOIL, 0, 1)
-
-	-- Tweening untuk perubahan yang mulus
-	local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
-	TweenService:Create(damageBar, tweenInfo, {Size = UDim2.new(damagePercent, 0, 1, 0)}):Play()
-	TweenService:Create(ammoBar, tweenInfo, {Size = UDim2.new(ammoPercent, 0, 1, 0)}):Play()
-	TweenService:Create(recoilBar, tweenInfo, {Size = UDim2.new(recoilPercent, 0, 1, 0)}):Play()
-
-	-- Warna merepresentasikan "kebaikan" stat. Hijau bagus, merah jelek.
-	local lowColor = Color3.fromRGB(180, 20, 20) -- Merah (jelek)
-	local highColor = Color3.fromRGB(80, 180, 80) -- Hijau (bagus)
-
-	damageBar.BackgroundColor3 = lowColor:Lerp(highColor, damagePercent)
-	ammoBar.BackgroundColor3 = lowColor:Lerp(highColor, ammoPercent)
-	recoilBar.BackgroundColor3 = lowColor:Lerp(highColor, recoilPercent)
-end
-
--- [DIUBAH] Fungsi untuk memperbarui daftar skin horizontal
--- [DIUBAH & DIPERBAIKI] Fungsi untuk memperbarui daftar skin horizontal
-local function updateSkinList()
-	-- Bersihkan daftar skin sebelum mengisi ulang
-	for _, child in ipairs(skinListFrame:GetChildren()) do
-		if not child:IsA("UILayout") then
-			child:Destroy()
-		end
-	end
-
-	selectedSkin = nil
-
-	-- Sembunyikan dan nonaktifkan elemen jika tidak ada senjata yang dipilih
-	local weaponData = selectedWeapon and WeaponModule.Weapons[selectedWeapon]
-	if not weaponData or not weaponData.Skins or not inventoryData then
-		skinListFrame.Visible = false
-		skinsTitle.Visible = false
-		equipButton.Visible = false
-		return
-	end
-
-	-- Tampilkan kembali elemen
-	skinListFrame.Visible = true
-	skinsTitle.Visible = true
-	equipButton.Visible = true
-
-	local ownedSkins = inventoryData.Skins.Owned[selectedWeapon]
-	local equippedSkin = inventoryData.Skins.Equipped[selectedWeapon]
-
-	-- Fungsi untuk mengatur status tombol Equip
-	local function setEquipButtonState()
-		if not selectedSkin then
-			equipButton.Text = "SELECT A SKIN"
-			equipButton.AutoButtonColor = false
-			equipButton.BackgroundColor3 = Color3.fromRGB(85, 85, 85) -- Warna diseragamkan
-		elseif selectedSkin == equippedSkin then
-			equipButton.Text = "EQUIPPED"
-			equipButton.AutoButtonColor = false
-			equipButton.BackgroundColor3 = Color3.fromRGB(0, 170, 81) -- Warna hijau untuk equipped
-		else
-			equipButton.Text = "EQUIP " .. string.upper(selectedSkin)
-			equipButton.AutoButtonColor = true
-			equipButton.BackgroundColor3 = Color3.fromRGB(180, 20, 20) -- Warna merah untuk equip
-		end
-	end
-
-	-- Fungsi untuk mengatur ulang border semua thumbnail skin
-	local function resetAllBorders()
-		for _, btn in ipairs(skinListFrame:GetChildren()) do
-			if btn:IsA("ImageButton") and btn:FindFirstChild("UIStroke") then
-				local btnBorder = btn:FindFirstChild("UIStroke")
-				if btn.Name == equippedSkin then
-					btnBorder.Color = Color3.fromRGB(0, 200, 100) -- Hijau untuk yang terpasang
-					btnBorder.Thickness = 3
-				else
-					btnBorder.Color = Color3.fromRGB(80, 80, 80) -- Abu-abu standar
-					btnBorder.Thickness = 2
-				end
-			end
-		end
-	end
-
-	-- Urutkan skin agar yang di-equip muncul pertama
-	table.sort(ownedSkins, function(a, b)
-		if a == equippedSkin then return true end
-		if b == equippedSkin then return false end
-		return a < b
-	end)
-
-	-- Buat thumbnail untuk setiap skin
-	for i, skinName in ipairs(ownedSkins) do
-		local skinData = WeaponModule.Weapons[selectedWeapon].Skins[skinName]
-		if skinData then
-			local thumbButton = Instance.new("ImageButton")
-			thumbButton.Name = skinName
-			thumbButton.Size = UDim2.new(0, 80, 0, 80)
-			thumbButton.Image = skinData.TextureId or ""
-			thumbButton.ScaleType = Enum.ScaleType.Fit
-			thumbButton.LayoutOrder = i
-			thumbButton.Parent = skinListFrame
-
-			local corner = Instance.new("UICorner", thumbButton)
-			corner.CornerRadius = UDim.new(0, 6)
-
-			local border = Instance.new("UIStroke", thumbButton)
-			border.Thickness = 2
-			border.Color = Color3.fromRGB(80, 80, 80)
-
-			thumbButton.MouseButton1Click:Connect(function()
-				selectedSkin = skinName
-				updatePreview(selectedWeapon, selectedSkin)
-				resetAllBorders()
-
-				-- Sorot thumbnail yang dipilih
-				border.Color = Color3.fromRGB(220, 50, 50) -- Merah untuk pilihan
-				border.Thickness = 3
-
-				setEquipButtonState()
-			end)
-		end
-	end
-
-	-- Inisialisasi state awal
-	resetAllBorders()
-	setEquipButtonState()
-
-	-- Update CanvasSize setelah semua item ditambahkan
-	-- Menggunakan GetPropertyChangedSignal untuk menunggu perubahan ukuran konten
-	sl_layout:GetPropertyChangedSignal("AbsoluteContentSize"):Once(function()
-		skinListFrame.CanvasSize = UDim2.new(0, sl_layout.AbsoluteContentSize.X, 0, 0)
-	end)
-end
 
 -- Tombol untuk membuka menu inventaris
 inventoryButton.MouseButton1Click:Connect(function()
