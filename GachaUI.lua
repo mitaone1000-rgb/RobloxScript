@@ -1,5 +1,6 @@
 -- GachaUI.lua (LocalScript)
--- Path: StarterPlayer/StarterPlayerScripts/GachaUI.lua
+-- Path: StarterGui/GachaUI.lua
+-- Script Place: Lobby
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
