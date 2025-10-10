@@ -114,6 +114,46 @@ function CoinsManager.AddCoins(player, amount)
 	return data.Coins
 end
 
+-- Fungsi untuk mengurangi koin
+function CoinsManager.SubtractCoins(player, amount)
+	if not player or type(amount) ~= "number" or amount <= 0 then return false end
+
+	local data = CoinsManager.GetData(player)
+	if data.Coins < amount then
+		return false -- Koin tidak cukup
+	end
+
+	data.Coins = data.Coins - amount
+	DataStoreManager.SaveData(player, NEW_SCOPE, data)
+
+	-- Kirim pembaruan ke client
+	CoinsUpdateEvent:FireClient(player, data.Coins)
+	return true -- Pengurangan berhasil
+end
+
+-- Fungsi untuk menambahkan skin ke inventaris pemain
+function CoinsManager.AddSkin(player, weaponName, skinName)
+	if not player or not weaponName or not skinName then return false end
+
+	local data = CoinsManager.GetData(player)
+	if not data.Skins.Owned[weaponName] then
+		-- Ini seharusnya tidak terjadi karena GetData() menginisialisasi semua senjata
+		-- Tapi sebagai pengaman, kita bisa buat tabelnya di sini
+		data.Skins.Owned[weaponName] = {"Default Skin"}
+	end
+
+	-- Cek apakah skin sudah dimiliki
+	if table.find(data.Skins.Owned[weaponName], skinName) then
+		return false -- Skin sudah dimiliki
+	end
+
+	-- Tambahkan skin baru dan simpan
+	table.insert(data.Skins.Owned[weaponName], skinName)
+	DataStoreManager.SaveData(player, NEW_SCOPE, data)
+
+	return true -- Berhasil menambahkan skin
+end
+
 -- Fungsi untuk mendapatkan data koin berdasarkan UserID (untuk admin, mengembalikan tabel)
 function CoinsManager.GetDataByUserId(userId)
 	local data = DataStoreManager.GetDataByUserId(userId, NEW_SCOPE)
