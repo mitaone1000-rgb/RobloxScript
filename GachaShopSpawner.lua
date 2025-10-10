@@ -2,6 +2,7 @@
 -- Path: ServerScriptService/GachaShopSpawner.lua
 
 local Workspace = game:GetService("Workspace")
+local gachaPart = Workspace:FindFirstChild("GachaShopSkin")
 
 -- Buat part hanya jika belum ada
 local gachaShopPart = Workspace:FindFirstChild("GachaShopSkin")
@@ -9,7 +10,7 @@ if not gachaShopPart then
 	gachaShopPart = Instance.new("Part")
 	gachaShopPart.Name = "GachaShopSkin"
 	gachaShopPart.Size = Vector3.new(5, 1, 5)
-	gachaShopPart.Position = Vector3.new(0, 0.5, 20) -- Atur posisi sesuai kebutuhan
+	gachaShopPart.Position = gachaPart
 	gachaShopPart.Anchored = true
 	gachaShopPart.CanCollide = false
 	gachaShopPart.BrickColor = BrickColor.new("Magenta")
