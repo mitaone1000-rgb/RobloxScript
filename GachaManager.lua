@@ -19,12 +19,23 @@ end
 
 -- Fungsi yang akan dieksekusi saat ProximityPrompt dipicu
 local function onGachaRollTriggered(player)
-	-- Panggil fungsi Roll dari GachaModule
-	local result = GachaModule.Roll(player)
+	-- Panggil fungsi Roll dari GachaModule secara aman menggunakan pcall
+	local success, resultOrError = pcall(GachaModule.Roll, player)
 
-	-- Kirim hasilnya kembali ke client yang bersangkutan
-	if result then
-		GachaRollEvent:FireClient(player, result)
+	if success then
+		-- Jika pcall berhasil, 'resultOrError' berisi hasil dari GachaModule.Roll
+		GachaRollEvent:FireClient(player, resultOrError)
+	else
+		-- Jika pcall gagal, 'resultOrError' berisi pesan error.
+		-- Ini mencegah server crash dan memastikan klien selalu mendapat respons.
+		warn("GachaManager Error: Terjadi error saat menjalankan GachaModule.Roll - " .. tostring(resultOrError))
+
+		-- Kirim pesan error yang jelas ke klien
+		local errorResult = {
+			Success = false,
+			Message = "Terjadi kesalahan internal pada server. Silakan coba lagi nanti."
+		}
+		GachaRollEvent:FireClient(player, errorResult)
 	end
 end
 
