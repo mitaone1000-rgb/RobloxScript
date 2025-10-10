@@ -50,6 +50,13 @@ local function getAvailableSkins(player)
 	return allSkins
 end
 
+-- RemoteEvent untuk pengumuman global
+local GachaSkinWonEvent = ReplicatedStorage.RemoteEvents:FindFirstChild("GachaSkinWonEvent")
+if not GachaSkinWonEvent then
+	GachaSkinWonEvent = Instance.new("RemoteEvent", ReplicatedStorage.RemoteEvents)
+	GachaSkinWonEvent.Name = "GachaSkinWonEvent"
+end
+
 -- Fungsi inti untuk melakukan roll gacha
 function GachaModule.Roll(player)
 	local playerData = CoinsManager.GetData(player)
@@ -89,6 +96,9 @@ function GachaModule.Roll(player)
 		local prize = availableSkins[randomSkinIndex]
 
 		CoinsManager.AddSkin(player, prize.Weapon, prize.Skin)
+
+		-- Kirim pengumuman global
+		GachaSkinWonEvent:FireAllClients(player, prize.SkinName)
 
 		return {
 			Success = true,
