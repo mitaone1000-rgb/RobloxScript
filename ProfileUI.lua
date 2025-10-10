@@ -59,17 +59,17 @@ titleLabel.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 
 -- Helper function to create a stat label
 local function createStatLabel(name, positionY)
-    local label = Instance.new("TextLabel")
-    label.Name = name .. "Label"
-    label.Parent = mainFrame
-    label.Size = UDim2.new(1, -20, 0, 30)
-    label.Position = UDim2.new(0, 10, 0, positionY)
-    label.Text = name .. ": "
-    label.Font = Enum.Font.SourceSans
-    label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    label.TextSize = 18
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    return label
+	local label = Instance.new("TextLabel")
+	label.Name = name .. "Label"
+	label.Parent = mainFrame
+	label.Size = UDim2.new(1, -20, 0, 30)
+	label.Position = UDim2.new(0, 10, 0, positionY)
+	label.Text = name .. ": "
+	label.Font = Enum.Font.SourceSans
+	label.TextColor3 = Color3.fromRGB(255, 255, 255)
+	label.TextSize = 18
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	return label
 end
 
 -- Create all labels
