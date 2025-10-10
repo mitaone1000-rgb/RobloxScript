@@ -46,7 +46,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.15, -0.37, -1),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Frostfang"] = {
 				MeshId = "rbxassetid://133865573871863",
 				TextureId = "rbxassetid://77597734282220",
 				ADS_Position = Vector3.new(0.15, -0.32, -1),
@@ -109,7 +109,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.5, -0.45, -1),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Magma Wyrm"] = {
 				MeshId = "rbxassetid://86320221349682",
 				TextureId = "rbxassetid://79174709237539",
 				ADS_Position = Vector3.new(0.5, -0.42, -1.2),
@@ -172,7 +172,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.3, -0.46, -1),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Ember-Stinger"] = {
 				MeshId = "rbxassetid://121935121387960",
 				TextureId = "rbxassetid://74165754312654",
 				ADS_Position = Vector3.new(0.3, -0.4, -1),
@@ -236,7 +236,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.5, -0.25, -1),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Earthshatter"] = {
 				MeshId = "rbxassetid://138496874472635",
 				TextureId = "rbxassetid://128746964491824",
 				ADS_Position = Vector3.new(0.5, -0.25, -1),
@@ -299,7 +299,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.15, 10, -1),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Tiamat's Gaze"] = {
 				MeshId = "rbxassetid://105308918653480",
 				TextureId = "rbxassetid://92815788833196",
 				ADS_Position = Vector3.new(0.15, 10, -1),
@@ -362,7 +362,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.15, -0.35, -1),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Imperial Dragon"] = {
 				MeshId = "rbxassetid://124923572099909",
 				TextureId = "rbxassetid://134958579707457",
 				ADS_Position = Vector3.new(0.15, -0.33, -1),
@@ -425,7 +425,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.15, -0.37, -1),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Toxic Fang"] = {
 				MeshId = "rbxassetid://90503068060048",
 				TextureId = "rbxassetid://96006022728808",
 				ADS_Position = Vector3.new(0.15, -0.37, -1),
@@ -488,7 +488,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.3, -0.52, -1),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Abyssal Watcher"] = {
 				MeshId = "rbxassetid://101613325015275",
 				TextureId = "rbxassetid://92446147800521",
 				ADS_Position = Vector3.new(0.3, -0.52, -1.2),
@@ -551,7 +551,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.3, -0.46, -0.8),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Dragon's Sting"] = {
 				MeshId = "rbxassetid://94474076960084",
 				TextureId = "rbxassetid://114488545177685",
 				ADS_Position = Vector3.new(0.3, -0.46, -0.8),
@@ -614,7 +614,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.5, -0.75, -1.4),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Jade Serpent"] = {
 				MeshId = "rbxassetid://95796827607716",
 				TextureId = "rbxassetid://118591800907782",
 				ADS_Position = Vector3.new(0.5, -0.75, -1.4),
@@ -677,7 +677,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.5, -0.5, -1.1),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Cataclysm"] = {
 				MeshId = "rbxassetid://108029015161411",
 				TextureId = "rbxassetid://122488026885264",
 				ADS_Position = Vector3.new(0.5, -0.5, -1.1),
@@ -741,7 +741,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.5, -0.46, -1),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Celtic Guardian"] = {
 				MeshId = "rbxassetid://74630551326118",
 				TextureId = "rbxassetid://121590063980368",
 				ADS_Position = Vector3.new(0.5, -0.46, -1),
@@ -805,7 +805,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.5, -0.53, -1),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Leviathan"] = {
 				MeshId = "rbxassetid://71271748638119",
 				TextureId = "rbxassetid://96726719275318",
 				ADS_Position = Vector3.new(0.5, -0.53, -1),
@@ -868,7 +868,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.15, 10, -1),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Hell's Longview"] = {
 				MeshId = "rbxassetid://88085754055541",
 				TextureId = "rbxassetid://114891981963144",
 				ADS_Position = Vector3.new(0.15, 10, -1),
@@ -931,7 +931,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.15, 10, -1),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Final Judgment"] = {
 				MeshId = "rbxassetid://102032883320717",
 				TextureId = "rbxassetid://122464756416307",
 				ADS_Position = Vector3.new(0.15, 10, -1),
@@ -994,7 +994,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.5, -0.6, -0.5),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Volcanic Pulse"] = {
 				MeshId = "rbxassetid://82779836747791",
 				TextureId = "rbxassetid://88845012995250",
 				ADS_Position = Vector3.new(0.5, -0.6, -0.5),
@@ -1057,7 +1057,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.5, -0.3, -1.3),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Thunderbolt"] = {
 				MeshId = "rbxassetid://94719330573417",
 				TextureId = "rbxassetid://85145782052041",
 				ADS_Position = Vector3.new(0.5, -0.3, -1.3),
@@ -1120,7 +1120,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.51, -0.52, -0.5),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Winter's Heart"] = {
 				MeshId = "rbxassetid://95864328372543",
 				TextureId = "rbxassetid://112324004688194",
 				ADS_Position = Vector3.new(0.51, -0.52, -0.5),
@@ -1183,7 +1183,7 @@ WeaponModule.Weapons = {
 				ADS_Position_Mobile = Vector3.new(0.51, -0.52, -0.5),
 				ADS_Rotation_Mobile = Vector3.new(0, 0, 0),
 			},
-			["NewSkin"] = {
+			["Hydra"] = {
 				MeshId = "rbxassetid://75877903567420",
 				TextureId = "rbxassetid://112390601306926",
 				ADS_Position = Vector3.new(0.51, -0.52, -0.5),
