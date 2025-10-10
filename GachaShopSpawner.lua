@@ -1,5 +1,6 @@
 -- GachaShopSpawner.lua (Script)
--- Path: ServerScriptService/GachaShopSpawner.lua
+-- Path: ServerScriptService/Script/GachaShopSpawner.lua
+-- Script Place: Lobby
 
 local Workspace = game:GetService("Workspace")
 local gachaPart = Workspace:FindFirstChild("GachaShopSkin")
