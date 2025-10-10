@@ -1,5 +1,6 @@
 -- GachaModule.lua (ModuleScript)
 -- Path: ServerScriptService/ModuleScript/GachaModule.lua
+-- Script Place: Lobby
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
