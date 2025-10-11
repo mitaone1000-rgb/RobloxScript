@@ -7,7 +7,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Memuat modul yang diperlukan
 local CoinsManager = require(ServerScriptService.ModuleScript:WaitForChild("CoinsModule"))
-local GachaConfig = require(ReplicatedStorage.ModuleScript:WaitForChild("GachaConfig"))
+local GachaConfig = require(ServerScriptService.ModuleScript:WaitForChild("GachaConfig"))
 local WeaponModule = require(ReplicatedStorage.ModuleScript:WaitForChild("WeaponModule"))
 
 local GachaModule = {}
@@ -66,17 +66,21 @@ function GachaModule.Roll(player)
 		return {Success = false, Message = "Gagal mengurangi BloodCoins."}
 	end
 
-	-- 3. Tentukan hadiah berdasarkan peluang
+	-- 3. Logika Pity
+	playerData.PityCount = (playerData.PityCount or 0) + 1
+	local isPityTriggered = playerData.PityCount >= GachaConfig.PITY_THRESHOLD
+
+	-- 4. Tentukan hadiah berdasarkan peluang
 	local randomNumber = math.random(1, 100)
 	local chosenRarity
 
-	if randomNumber <= GachaConfig.RARITY_CHANCES.Legendary then
+	if isPityTriggered or randomNumber <= GachaConfig.RARITY_CHANCES.Legendary then
 		chosenRarity = "Legendary"
 	else
 		chosenRarity = "Common"
 	end
 
-	-- 4. Proses hadiah berdasarkan kelangkaan
+	-- 5. Proses hadiah berdasarkan kelangkaan
 	local availableSkins = getAvailableSkins(player)
 
 	-- Jika pemain memilih Legendary TAPI sudah punya semua skin, beri hadiah Common
@@ -86,6 +90,9 @@ function GachaModule.Roll(player)
 
 	if chosenRarity == "Legendary" then
 		-- Beri hadiah skin
+		playerData.PityCount = 0 -- Reset pity
+		CoinsManager.UpdatePityCount(player, playerData.PityCount)
+
 		local randomSkinIndex = math.random(1, #availableSkins)
 		local prize = availableSkins[randomSkinIndex]
 
@@ -104,6 +111,7 @@ function GachaModule.Roll(player)
 		}
 	else
 		-- Beri hadiah koin
+		CoinsManager.UpdatePityCount(player, playerData.PityCount)
 		local prizeAmount = math.random(GachaConfig.COMMON_REWARD_RANGE.Min, GachaConfig.COMMON_REWARD_RANGE.Max)
 		CoinsManager.AddCoins(player, prizeAmount)
 
