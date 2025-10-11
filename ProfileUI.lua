@@ -128,6 +128,27 @@ profileButton.MouseButton1Click:Connect(function()
 	mainFrame.Visible = true
 end)
 
+-- Skill Tree Button
+local skillTreeButton = Instance.new("TextButton")
+skillTreeButton.Name = "SkillTreeButton"
+skillTreeButton.Parent = mainFrame
+skillTreeButton.Size = UDim2.new(0.4, 0, 0, 40)
+skillTreeButton.Position = UDim2.new(0.05, 0, 1, -50)
+skillTreeButton.Text = "Skill Tree"
+skillTreeButton.Font = Enum.Font.SourceSansBold
+skillTreeButton.TextSize = 20
+skillTreeButton.BackgroundColor3 = Color3.fromRGB(80, 80, 255)
+skillTreeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+skillTreeButton.MouseButton1Click:Connect(function()
+	if _G.ToggleSkillTreeUI then
+		_G.ToggleSkillTreeUI(true)
+	end
+end)
+
 closeButton.MouseButton1Click:Connect(function()
 	mainFrame.Visible = false
+	if _G.ToggleSkillTreeUI then
+		_G.ToggleSkillTreeUI(false)
+	end
 end)

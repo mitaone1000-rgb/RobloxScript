@@ -14,6 +14,7 @@ local WeaponModule = require(ModuleScriptReplicatedStorage:WaitForChild("WeaponM
 local PointsSystem = require(ModuleScriptServerScriptService:WaitForChild("PointsModule"))
 local ElementModule = require(ModuleScriptServerScriptService:WaitForChild("ElementConfigModule"))
 local CoinsManager = require(ModuleScriptServerScriptService:WaitForChild("CoinsModule"))
+local LevelManager = require(ServerScriptService.ModuleScript:WaitForChild("LevelModule"))
 
 local ShootEvent = RemoteEvents:WaitForChild("ShootEvent")
 local ReloadEvent = RemoteEvents:WaitForChild("ReloadEvent")
@@ -189,8 +190,12 @@ ShootEvent.OnServerEvent:Connect(function(player, tool, hitPosition, isAiming)
 					local isHeadshotPellet = false
 
 					if hitModel:FindFirstChild("IsZombie") and targetHumanoid.Health > 0 then
+						local statsData = LevelManager.GetData(player)
+						local headshotSkillLevel = statsData and statsData.Skills and statsData.Skills.DamageHeadshot or 0
+
 						if hitPart.Name == "Head" or hitPart.Parent and hitPart.Parent.Name == "Head" then
 							damage *= weaponStats.HeadshotMultiplier
+							damage += headshotSkillLevel -- Tambahkan bonus damage dari skill
 							isHeadshotPellet = true
 							if not immune then hasHeadshot = true end
 						else
@@ -267,9 +272,12 @@ ShootEvent.OnServerEvent:Connect(function(player, tool, hitPosition, isAiming)
 				local isHeadshot = false
 
 				if hitModel:FindFirstChild("IsZombie") and targetHumanoid.Health > 0 then
+					local statsData = LevelManager.GetData(player)
+					local headshotSkillLevel = statsData and statsData.Skills and statsData.Skills.DamageHeadshot or 0
 
 					if hitPart.Name == "Head" or hitPart.Parent and hitPart.Parent.Name == "Head" then
 						damage *= weaponStats.HeadshotMultiplier
+						damage += headshotSkillLevel -- Tambahkan bonus damage dari skill
 						if not hitModel:GetAttribute("Immune") then
 							PointsSystem.AddPoints(player, 20)
 						end
