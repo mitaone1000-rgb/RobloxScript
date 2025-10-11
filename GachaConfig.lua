@@ -14,7 +14,11 @@ local GachaConfig = {
 		Max = 50
 	},
 
-	PITY_THRESHOLD = 50 -- The number of rolls to guarantee a Legendary prize
+	PITY_THRESHOLD = 50, -- The number of rolls to guarantee a Legendary prize
+
+	-- Multi-Roll Settings
+	MULTI_ROLL_COST_MULTIPLIER = 10, -- The player pays for this many rolls
+	MULTI_ROLL_COUNT = 11 -- The player receives this many rolls (10 + 1 free)
 }
 
 return GachaConfig
