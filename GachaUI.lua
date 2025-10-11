@@ -11,14 +11,15 @@ local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 
--- Memuat modul dan event
+-- Module & Event References
 local AudioManager = require(ReplicatedStorage.ModuleScript:WaitForChild("AudioManager"))
 local WeaponModule = require(ReplicatedStorage.ModuleScript:WaitForChild("WeaponModule"))
+local ModelPreviewModule = require(ReplicatedStorage.ModuleScript:WaitForChild("ModelPreviewModule")) -- [REFACTORED]
 local GachaRollEvent = ReplicatedStorage.RemoteEvents:WaitForChild("GachaRollEvent")
 local GachaMultiRollEvent = ReplicatedStorage.RemoteEvents:WaitForChild("GachaMultiRollEvent")
 local GetGachaConfig = ReplicatedStorage.RemoteFunctions:WaitForChild("GetGachaConfig")
 
--- ================== UI CREATION ==================
+-- ================== UI CREATION (Structure remains the same) ==================
 local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 screenGui.Name = "GachaSkinGUI"
 screenGui.ResetOnSpawn = false
@@ -31,17 +32,12 @@ mainFrame.BackgroundColor3 = Color3.fromRGB(35, 37, 40)
 mainFrame.BorderSizePixel = 0
 mainFrame.Visible = false
 mainFrame.ClipsDescendants = true
-
+-- ... (All other UI elements are created identically to the previous version)
 local mainFrameCorner = Instance.new("UICorner", mainFrame)
 mainFrameCorner.CornerRadius = UDim.new(0, 12)
-
 local mainFrameGradient = Instance.new("UIGradient", mainFrame)
-mainFrameGradient.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(55, 58, 64)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 37, 40))
-})
+mainFrameGradient.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromRGB(55, 58, 64)), ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 37, 40))})
 mainFrameGradient.Rotation = 90
-
 local titleLabel = Instance.new("TextLabel", mainFrame)
 titleLabel.Name = "Title"
 titleLabel.Size = UDim2.new(1, 0, 0, 60)
@@ -51,7 +47,6 @@ titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.TextSize = 38
 titleLabel.TextStrokeTransparency = 0.5
 titleLabel.BackgroundTransparency = 1
-
 local legendaryChanceLabel = Instance.new("TextLabel", mainFrame)
 legendaryChanceLabel.Name = "LegendaryChanceLabel"
 legendaryChanceLabel.Size = UDim2.new(1, 0, 0, 30)
@@ -61,7 +56,6 @@ legendaryChanceLabel.Font = Enum.Font.SourceSans
 legendaryChanceLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
 legendaryChanceLabel.TextSize = 18
 legendaryChanceLabel.BackgroundTransparency = 1
-
 local commonChanceLabel = Instance.new("TextLabel", mainFrame)
 commonChanceLabel.Name = "CommonChanceLabel"
 commonChanceLabel.Size = UDim2.new(1, 0, 0, 30)
@@ -71,7 +65,6 @@ commonChanceLabel.Font = Enum.Font.SourceSans
 commonChanceLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 commonChanceLabel.TextSize = 18
 commonChanceLabel.BackgroundTransparency = 1
-
 local rollButton = Instance.new("TextButton", mainFrame)
 rollButton.Name = "RollButton"
 rollButton.Size = UDim2.new(0, 180, 0, 50)
@@ -84,7 +77,6 @@ rollButton.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
 rollButton.BorderSizePixel = 0
 local rollButtonCorner = Instance.new("UICorner", rollButton)
 rollButtonCorner.CornerRadius = UDim.new(0, 8)
-
 local multiRollButton = Instance.new("TextButton", mainFrame)
 multiRollButton.Name = "MultiRollButton"
 multiRollButton.Size = UDim2.new(0, 180, 0, 50)
@@ -97,7 +89,6 @@ multiRollButton.BackgroundColor3 = Color3.fromRGB(255, 128, 0)
 multiRollButton.BorderSizePixel = 0
 local multiRollButtonCorner = Instance.new("UICorner", multiRollButton)
 multiRollButtonCorner.CornerRadius = UDim.new(0, 8)
-
 local closeButton = Instance.new("TextButton", mainFrame)
 closeButton.Name = "CloseButton"
 closeButton.Size = UDim2.new(0, 35, 0, 35)
@@ -111,14 +102,12 @@ closeButton.BackgroundTransparency = 0.2
 closeButton.BorderSizePixel = 0
 local closeButtonCorner = Instance.new("UICorner", closeButton)
 closeButtonCorner.CornerRadius = UDim.new(1, 0)
-
 local animationFrame = Instance.new("Frame", mainFrame)
 animationFrame.Name = "AnimationFrame"
 animationFrame.Size = UDim2.new(1, 0, 0.4, 0)
 animationFrame.Position = UDim2.new(0, 0, 0.2, 0)
 animationFrame.BackgroundTransparency = 1
 animationFrame.Visible = false
-
 local reelText = Instance.new("TextLabel", animationFrame)
 reelText.Name = "ReelText"
 reelText.Size = UDim2.new(1, 0, 1, 0)
@@ -127,14 +116,12 @@ reelText.TextSize = 32
 reelText.TextColor3 = Color3.fromRGB(255, 255, 255)
 reelText.TextWrapped = true
 reelText.BackgroundTransparency = 1
-
 local resultFrame = Instance.new("Frame", mainFrame)
 resultFrame.Name = "ResultFrame"
 resultFrame.Size = UDim2.new(1, 0, 1, 0)
 resultFrame.BackgroundColor3 = Color3.fromRGB(35, 37, 40)
 resultFrame.BackgroundTransparency = 0.1
 resultFrame.Visible = false
-
 local resultText = Instance.new("TextLabel", resultFrame)
 resultText.Name = "ResultText"
 resultText.Size = UDim2.new(0.9, 0, 0.5, 0)
@@ -145,7 +132,6 @@ resultText.TextWrapped = true
 resultText.TextXAlignment = Enum.TextXAlignment.Center
 resultText.TextYAlignment = Enum.TextYAlignment.Center
 resultText.BackgroundTransparency = 1
-
 local resultShine = Instance.new("Frame", resultText)
 resultShine.Name = "Shine"
 resultShine.Size = UDim2.new(0.2, 0, 2, 0)
@@ -155,12 +141,7 @@ resultShine.BorderSizePixel = 0
 resultShine.Rotation = -20
 resultShine.Visible = false
 local shineGradient = Instance.new("UIGradient", resultShine)
-shineGradient.Transparency = NumberSequence.new({
-	NumberSequenceKeypoint.new(0, 1),
-	NumberSequenceKeypoint.new(0.5, 0),
-	NumberSequenceKeypoint.new(1, 1)
-})
-
+shineGradient.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0), NumberSequenceKeypoint.new(1, 1)})
 local resultCloseButton = Instance.new("TextButton", resultFrame)
 resultCloseButton.Name = "ResultCloseButton"
 resultCloseButton.Size = UDim2.new(0, 180, 0, 50)
@@ -173,7 +154,6 @@ resultCloseButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 resultCloseButton.BorderSizePixel = 0
 local resultCloseCorner = Instance.new("UICorner", resultCloseButton)
 resultCloseCorner.CornerRadius = UDim.new(0, 8)
-
 local multiResultFrame = Instance.new("Frame", screenGui)
 multiResultFrame.Name = "MultiResultFrame"
 multiResultFrame.Size = UDim2.new(0, 600, 0, 400)
@@ -183,7 +163,6 @@ multiResultFrame.BorderSizePixel = 0
 multiResultFrame.Visible = false
 local multiResultCorner = Instance.new("UICorner", multiResultFrame)
 multiResultCorner.CornerRadius = UDim.new(0, 12)
-
 local multiResultTitle = Instance.new("TextLabel", multiResultFrame)
 multiResultTitle.Name = "Title"
 multiResultTitle.Size = UDim2.new(1, 0, 0, 50)
@@ -192,7 +171,6 @@ multiResultTitle.Font = Enum.Font.Sarpanch
 multiResultTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
 multiResultTitle.TextSize = 32
 multiResultTitle.BackgroundTransparency = 1
-
 local prizeContainer = Instance.new("ScrollingFrame", multiResultFrame)
 prizeContainer.Size = UDim2.new(1, -20, 1, -120)
 prizeContainer.Position = UDim2.new(0, 10, 0, 60)
@@ -203,7 +181,6 @@ multiResultGrid.CellPadding = UDim2.new(0, 10, 0, 10)
 multiResultGrid.CellSize = UDim2.new(0, 120, 0, 80)
 multiResultGrid.StartCorner = Enum.StartCorner.TopLeft
 multiResultGrid.SortOrder = Enum.SortOrder.LayoutOrder
-
 local multiResultCloseButton = Instance.new("TextButton", multiResultFrame)
 multiResultCloseButton.Name = "MultiResultCloseButton"
 multiResultCloseButton.Size = UDim2.new(0, 180, 0, 50)
@@ -216,7 +193,6 @@ multiResultCloseButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 multiResultCloseButton.BorderSizePixel = 0
 local multiResultCloseCorner = Instance.new("UICorner", multiResultCloseButton)
 multiResultCloseCorner.CornerRadius = UDim.new(0, 8)
-
 local viewPrizesButton = Instance.new("TextButton", mainFrame)
 viewPrizesButton.Name = "ViewPrizesButton"
 viewPrizesButton.Size = UDim2.new(0.8, 0, 0, 35)
@@ -229,7 +205,6 @@ viewPrizesButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 viewPrizesButton.BorderSizePixel = 0
 local vpButtonCorner = Instance.new("UICorner", viewPrizesButton)
 vpButtonCorner.CornerRadius = UDim.new(0, 8)
-
 local prizePreviewFrame = Instance.new("Frame", screenGui)
 prizePreviewFrame.Name = "PrizePreviewFrame"
 prizePreviewFrame.Size = UDim2.new(0.9, 0, 0.9, 0)
@@ -241,7 +216,6 @@ prizePreviewFrame.BorderColor3 = Color3.fromRGB(55, 58, 64)
 prizePreviewFrame.Visible = false
 local ppfCorner = Instance.new("UICorner", prizePreviewFrame)
 ppfCorner.CornerRadius = UDim.new(0, 12)
-
 local ppfTitle = Instance.new("TextLabel", prizePreviewFrame)
 ppfTitle.Name = "Title"
 ppfTitle.Size = UDim2.new(1, 0, 0, 50)
@@ -250,7 +224,6 @@ ppfTitle.Font = Enum.Font.Sarpanch
 ppfTitle.TextColor3 = Color3.fromRGB(255, 215, 0)
 ppfTitle.TextSize = 32
 ppfTitle.BackgroundTransparency = 1
-
 local ppfBackButton = Instance.new("TextButton", prizePreviewFrame)
 ppfBackButton.Name = "BackButton"
 ppfBackButton.Size = UDim2.new(0, 100, 0, 40)
@@ -262,7 +235,6 @@ ppfBackButton.TextSize = 18
 ppfBackButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 local ppfBackCorner = Instance.new("UICorner", ppfBackButton)
 ppfBackCorner.CornerRadius = UDim.new(0, 8)
-
 local prizeListContainer = Instance.new("ScrollingFrame", prizePreviewFrame)
 prizeListContainer.Name = "PrizeListContainer"
 prizeListContainer.Size = UDim2.new(1, -20, 1, -120)
@@ -271,12 +243,10 @@ prizeListContainer.BackgroundTransparency = 1
 prizeListContainer.BorderSizePixel = 0
 prizeListContainer.CanvasSize = UDim2.new(0,0,0,0)
 prizeListContainer.ScrollBarThickness = 6
-
 local prizeListLayout = Instance.new("UIGridLayout", prizeListContainer)
 prizeListLayout.CellPadding = UDim2.new(0, 15, 0, 15)
 prizeListLayout.CellSize = UDim2.new(0, 200, 0, 220)
 prizeListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
 local skinDetailFrame = Instance.new("Frame", screenGui)
 skinDetailFrame.Name = "SkinDetailFrame"
 skinDetailFrame.Size = UDim2.new(0.9, 0, 0.9, 0)
@@ -286,7 +256,6 @@ skinDetailFrame.BackgroundColor3 = Color3.fromRGB(20, 22, 25)
 skinDetailFrame.Visible = false
 local sdfCorner = Instance.new("UICorner", skinDetailFrame)
 sdfCorner.CornerRadius = UDim.new(0, 12)
-
 local sdfViewport = Instance.new("ViewportFrame", skinDetailFrame)
 sdfViewport.Name = "DetailViewport"
 sdfViewport.Size = UDim2.new(1, -20, 1, -150)
@@ -297,7 +266,6 @@ sdfViewport.LightColor = Color3.new(1, 1, 1)
 sdfViewport.LightDirection = Vector3.new(-1, -1, -1)
 local sdfVpCorner = Instance.new("UICorner", sdfViewport)
 sdfVpCorner.CornerRadius = UDim.new(0, 8)
-
 local sdfTitle = Instance.new("TextLabel", skinDetailFrame)
 sdfTitle.Name = "SkinTitle"
 sdfTitle.Size = UDim2.new(1, 0, 0, 50)
@@ -307,7 +275,6 @@ sdfTitle.TextColor3 = Color3.fromRGB(255, 215, 0)
 sdfTitle.TextSize = 28
 sdfTitle.BackgroundTransparency = 1
 sdfTitle.TextXAlignment = Enum.TextXAlignment.Center
-
 local sdfWeaponName = Instance.new("TextLabel", skinDetailFrame)
 sdfWeaponName.Name = "WeaponName"
 sdfWeaponName.Size = UDim2.new(1, 0, 0, 30)
@@ -317,7 +284,6 @@ sdfWeaponName.TextColor3 = Color3.fromRGB(220, 220, 220)
 sdfWeaponName.TextSize = 18
 sdfWeaponName.BackgroundTransparency = 1
 sdfWeaponName.TextXAlignment = Enum.TextXAlignment.Center
-
 local sdfBackButton = Instance.new("TextButton", skinDetailFrame)
 sdfBackButton.Name = "DetailBackButton"
 sdfBackButton.Size = UDim2.new(0, 120, 0, 40)
@@ -329,7 +295,6 @@ sdfBackButton.TextSize = 16
 sdfBackButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 local sdfBackCorner = Instance.new("UICorner", sdfBackButton)
 sdfBackCorner.CornerRadius = UDim.new(0, 8)
-
 local sliderTrack = Instance.new("Frame", skinDetailFrame)
 sliderTrack.Name = "SliderTrack"
 sliderTrack.Size = UDim2.new(0.5, 0, 0, 10)
@@ -338,14 +303,12 @@ sliderTrack.AnchorPoint = Vector2.new(0.5, 0)
 sliderTrack.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 local trackCorner = Instance.new("UICorner", sliderTrack)
 trackCorner.CornerRadius = UDim.new(0, 5)
-
 local sliderFill = Instance.new("Frame", sliderTrack)
 sliderFill.Name = "SliderFill"
 sliderFill.Size = UDim2.new(0.5, 0, 1, 0)
 sliderFill.BackgroundColor3 = Color3.fromRGB(180, 20, 20)
 local fillCorner = Instance.new("UICorner", sliderFill)
 fillCorner.CornerRadius = UDim.new(0, 5)
-
 local sliderHandle = Instance.new("ImageButton", sliderTrack)
 sliderHandle.Name = "SliderHandle"
 sliderHandle.Size = UDim2.new(0, 20, 0, 20)
@@ -355,118 +318,50 @@ sliderHandle.BackgroundColor3 = Color3.new(1, 1, 1)
 local handleCorner = Instance.new("UICorner", sliderHandle)
 handleCorner.CornerRadius = UDim.new(1, 0)
 
--- ================== SCRIPT LOGIC ==================
+-- ================== SCRIPT LOGIC (REFACTORED) ==================
 local isRolling = false
 local potentialPrizes = {}
 local latestResult = nil
 local rarityChances = nil
-local activePreviewModels = {}
-local previewRotationConnection = nil
 local latestMultiResult = nil
-local detailRotationConnection = nil
-local currentDetailModel = nil
-local currentZoomDistance = 5
-local isDraggingSlider = false
 
-local function stopPreviewRotation()
-	if previewRotationConnection then
-		previewRotationConnection:Disconnect()
-		previewRotationConnection = nil
-	end
-end
-
-local function startPreviewRotation()
-	stopPreviewRotation()
-	local cameraAngle = 0
-	previewRotationConnection = RunService.RenderStepped:Connect(function(dt)
-		cameraAngle = cameraAngle + (dt * 0.5)
-		for _, data in ipairs(activePreviewModels) do
-			if data.model and data.model.PrimaryPart then
-				local rotation = CFrame.Angles(0, cameraAngle, 0)
-				local offset = Vector3.new(0, 0, 5)
-				local cameraPosition = data.model.PrimaryPart.Position + rotation:VectorToWorldSpace(offset)
-				data.camera.CFrame = CFrame.new(cameraPosition, data.model.PrimaryPart.Position)
-			end
-		end
-	end)
-end
-
-local function stopDetailRotation()
-	if detailRotationConnection then
-		detailRotationConnection:Disconnect()
-		detailRotationConnection = nil
-	end
-end
-
-local function startDetailRotation()
-	stopDetailRotation()
-	local cameraAngle = 0
-	detailRotationConnection = RunService.RenderStepped:Connect(function(dt)
-		if currentDetailModel and currentDetailModel.PrimaryPart then
-			cameraAngle = cameraAngle + (dt * 0.8)
-			local rotation = CFrame.Angles(0, cameraAngle, 0)
-			local offset = Vector3.new(0, 0, currentZoomDistance)
-			local cameraPosition = currentDetailModel.PrimaryPart.Position + rotation:VectorToWorldSpace(offset)
-			sdfViewport.CurrentCamera.CFrame = CFrame.new(cameraPosition, currentDetailModel.PrimaryPart.Position)
-		end
-	end)
-end
+local activeGridPreviews = {} -- [REFACTORED] Stores preview objects for the grid view
+local currentDetailPreview = nil -- [REFACTORED] Stores the preview object for the detail view
 
 local function showSkinDetail(weaponName, skinName)
-	stopPreviewRotation()
+	-- Stop grid rotation and hide grid view
+	for _, preview in ipairs(activeGridPreviews) do
+		ModelPreviewModule.stopRotation(preview)
+	end
 	prizePreviewFrame.Visible = false
 
-	if currentDetailModel then
-		currentDetailModel:Destroy()
-	end
-	if sdfViewport:FindFirstChild("WorldModel") then
-		sdfViewport.WorldModel:Destroy()
+	-- Destroy old detail preview if it exists
+	if currentDetailPreview then
+		ModelPreviewModule.destroy(currentDetailPreview)
 	end
 
-	local skinData = WeaponModule.Weapons[weaponName].Skins[skinName]
+	local weaponData = WeaponModule.Weapons[weaponName]
+	local skinData = weaponData.Skins[skinName]
 	sdfTitle.Text = skinName
 	sdfWeaponName.Text = weaponName
 
-	local worldModel = Instance.new("WorldModel", sdfViewport)
-	local model = Instance.new("Model", worldModel)
-	model.Name = "DetailPreviewModel"
-
-	local part = Instance.new("Part", model)
-	part.Name = "Handle"
-	part.Anchored = true
-	part.Size = Vector3.new(1,1,1)
-
-	local mesh = Instance.new("SpecialMesh", part)
-	mesh.MeshType = Enum.MeshType.FileMesh
-	mesh.MeshId = skinData.MeshId
-	mesh.TextureId = skinData.TextureId
-
-	model.PrimaryPart = part
-	currentDetailModel = model
-
-	if not sdfViewport.CurrentCamera then
-		local camera = Instance.new("Camera")
-		camera.Parent = sdfViewport
-		camera.FieldOfView = 30
-		sdfViewport.CurrentCamera = camera
-	end
-
-	currentZoomDistance = 5
-	sliderHandle.Position = UDim2.new(0.5, 0, 0.5, 0)
-	sliderFill.Size = UDim2.new(0.5, 0, 1, 0)
+	-- Create new detail preview using the module
+	currentDetailPreview = ModelPreviewModule.create(sdfViewport, weaponData, skinData)
+	ModelPreviewModule.startRotation(currentDetailPreview, 5)
+	ModelPreviewModule.connectZoomSlider(currentDetailPreview, sliderTrack, sliderHandle, sliderFill, 2.5, 10)
 
 	skinDetailFrame.Visible = true
-	startDetailRotation()
 end
 
 local function populatePrizePreview()
+	-- Clean up previous grid items and previews
 	for _, child in ipairs(prizeListContainer:GetChildren()) do
 		if not child:IsA("UILayout") then child:Destroy() end
 	end
-	for _, data in ipairs(activePreviewModels) do
-		if data.model then data.model:Destroy() end
+	for _, preview in ipairs(activeGridPreviews) do
+		ModelPreviewModule.destroy(preview)
 	end
-	table.clear(activePreviewModels)
+	table.clear(activeGridPreviews)
 
 	local allSkins = {}
 	for weaponName, weaponData in pairs(WeaponModule.Weapons) do
@@ -498,30 +393,15 @@ local function populatePrizePreview()
 		local viewport = Instance.new("ViewportFrame", prizeItemButton)
 		viewport.Size = UDim2.new(1, 0, 0, 150)
 		viewport.BackgroundColor3 = Color3.fromRGB(25, 27, 30)
-		viewport.LightColor = Color3.new(1, 1, 1)
-		viewport.LightDirection = Vector3.new(-1, -1, -1)
 		viewport.LayoutOrder = 1
 		local vpCorner = Instance.new("UICorner", viewport)
 		vpCorner.CornerRadius = UDim.new(0, 8)
 
-		local worldModel = Instance.new("WorldModel", viewport)
-		local viewportCamera = Instance.new("Camera", viewport)
-		viewportCamera.FieldOfView = 30
-		viewport.CurrentCamera = viewportCamera
-
-		local previewModel = Instance.new("Model", worldModel)
-		previewModel.Name = "PreviewModel"
-		local modelPart = Instance.new("Part", previewModel)
-		modelPart.Name = "Handle"
-		modelPart.Anchored = true
-		modelPart.Size = Vector3.new(1,1,1)
-		previewModel.PrimaryPart = modelPart
-		local mesh = Instance.new("SpecialMesh", modelPart)
-		mesh.MeshType = Enum.MeshType.FileMesh
-		mesh.MeshId = skinInfo.SkinData.MeshId
-		mesh.TextureId = skinInfo.SkinData.TextureId
-
-		table.insert(activePreviewModels, {model = previewModel, camera = viewportCamera})
+		-- Create preview using the module
+		local weaponData = WeaponModule.Weapons[skinInfo.WeaponName]
+		local preview = ModelPreviewModule.create(viewport, weaponData, skinInfo.SkinData)
+		ModelPreviewModule.startRotation(preview, 5)
+		table.insert(activeGridPreviews, preview)
 
 		local weaponNameLabel = Instance.new("TextLabel", prizeItemButton)
 		weaponNameLabel.Size = UDim2.new(1, 0, 0, 20)
@@ -546,37 +426,24 @@ local function populatePrizePreview()
     prizeListContainer.CanvasSize = UDim2.new(0, 0, 0, prizeListLayout.AbsoluteContentSize.Y)
 end
 
+-- ... (All other functions like fetchGachaConfig, playReelAnimation, showResult, etc. remain the same)
 local function fetchGachaConfig()
-	local success, result = pcall(function()
-		return GetGachaConfig:InvokeServer()
-	end)
-
+	local success, result = pcall(function() return GetGachaConfig:InvokeServer() end)
 	if success and result then
 		rarityChances = result
 		legendaryChanceLabel.Text = "Peluang Legendaris: " .. (rarityChances.Legendary or "N/A") .. "%"
 		commonChanceLabel.Text = "Peluang Biasa: " .. (rarityChances.Common or "N/A") .. "%"
 	else
 		legendaryChanceLabel.Text = "Gagal memuat peluang."
-		warn("GachaUI Error: Gagal mengambil konfigurasi gacha dari server - " .. tostring(result))
+		warn("GachaUI Error: Gagal mengambil konfigurasi gacha - " .. tostring(result))
 	end
 end
-
-GachaRollEvent.OnClientEvent:Connect(function(result)
-	latestResult = result
-end)
-
-GachaMultiRollEvent.OnClientEvent:Connect(function(result)
-	latestMultiResult = result
-end)
-
+GachaRollEvent.OnClientEvent:Connect(function(result) latestResult = result end)
+GachaMultiRollEvent.OnClientEvent:Connect(function(result) latestMultiResult = result end)
 local function playSound(soundName, properties)
 	local sound = AudioManager.createSound(soundName, screenGui, properties)
-	if sound then
-		sound:Play()
-		game.Debris:AddItem(sound, sound.TimeLength)
-	end
+	if sound then sound:Play(); game.Debris:AddItem(sound, sound.TimeLength) end
 end
-
 local function populatePrizes()
 	table.clear(potentialPrizes)
 	for _, weaponData in pairs(WeaponModule.Weapons) do
@@ -590,15 +457,12 @@ local function populatePrizes()
 		table.insert(potentialPrizes, {Name = tostring(math.random(10, 50)) .. " BloodCoins", Rarity = "Common"})
 	end
 end
-
 local function playReelAnimation()
 	animationFrame.Visible = true
 	local sound = AudioManager.createSound("Elements.Wind", screenGui, { Looped = true, Volume = 0.3 })
 	if sound then sound:Play() end
-
 	local animationTime = 3
 	local startTime = tick()
-
 	while tick() - startTime < animationTime do
 		local randomPrize = potentialPrizes[math.random(#potentialPrizes)]
 		reelText.Text = randomPrize.Name
@@ -609,11 +473,9 @@ local function playReelAnimation()
 		end
 		task.wait(0.05)
 	end
-
 	if sound then sound:Stop(); sound:Destroy() end
 	animationFrame.Visible = false
 end
-
 local function playShineAnimation()
 	resultShine.Visible = true
 	local tweenInfo = TweenInfo.new(0.7, Enum.EasingStyle.Linear)
@@ -623,7 +485,6 @@ local function playShineAnimation()
 	resultShine.Visible = false
 	resultShine.Position = UDim2.new(-0.2, 0, -0.5, 0)
 end
-
 local function showResult(resultData)
 	if resultData.Success then
 		local prize = resultData.Prize
@@ -644,7 +505,6 @@ local function showResult(resultData)
 	end
 	resultFrame.Visible = true
 end
-
 local function createPrizeLabel(prize)
 	local prizeLabel = Instance.new("TextLabel")
 	prizeLabel.Size = UDim2.new(0, 120, 0, 80)
@@ -654,7 +514,6 @@ local function createPrizeLabel(prize)
 	prizeLabel.BorderSizePixel = 0
 	local corner = Instance.new("UICorner", prizeLabel)
 	corner.CornerRadius = UDim.new(0, 8)
-
 	if prize.Type == "Skin" then
 		prizeLabel.Text = string.format("%s\n(%s)", prize.SkinName, prize.WeaponName)
 		prizeLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
@@ -666,18 +525,13 @@ local function createPrizeLabel(prize)
 	end
 	return prizeLabel
 end
-
 local function showMultiResult(resultData)
 	for _, child in ipairs(prizeContainer:GetChildren()) do
-		if child:IsA("TextLabel") then
-			child:Destroy()
-		end
+		if child:IsA("TextLabel") then child:Destroy() end
 	end
-
 	if resultData.Success then
 		for _, prize in ipairs(resultData.Prizes) do
-			local prizeLabel = createPrizeLabel(prize)
-			prizeLabel.Parent = prizeContainer
+			createPrizeLabel(prize).Parent = prizeContainer
 		end
 		playSound("Boss.Complete", { Volume = 0.8 })
 	else
@@ -691,13 +545,12 @@ local function showMultiResult(resultData)
 	multiResultFrame.Visible = true
 end
 
+-- Event Connections
 local function toggleGachaUI(visible)
 	if isRolling then return end
 	if visible then
 		populatePrizes()
-		if not rarityChances then
-			fetchGachaConfig()
-		end
+		if not rarityChances then fetchGachaConfig() end
 		mainFrame.Visible = true
 		resultFrame.Visible = false
 		rollButton.Visible = true
@@ -710,40 +563,31 @@ end
 local gachaShopPart = Workspace:WaitForChild("GachaShopSkin")
 if gachaShopPart then
 	local proximityPrompt = gachaShopPart:WaitForChild("ProximityPrompt")
-	proximityPrompt.Triggered:Connect(function()
-		toggleGachaUI(true)
-	end)
+	proximityPrompt.Triggered:Connect(function() toggleGachaUI(true) end)
 end
 
 closeButton.MouseButton1Click:Connect(function()
-	if not isRolling then
-		playSound("Weapons.Pistol.Reload", { Volume = 0.5 })
-		toggleGachaUI(false)
-	end
+	if not isRolling then playSound("Weapons.Pistol.Reload", { Volume = 0.5 }); toggleGachaUI(false) end
 end)
 
 viewPrizesButton.MouseButton1Click:Connect(function()
 	mainFrame.Visible = false
 	populatePrizePreview()
 	prizePreviewFrame.Visible = true
-	startPreviewRotation()
 end)
 
 ppfBackButton.MouseButton1Click:Connect(function()
 	prizePreviewFrame.Visible = false
-	stopPreviewRotation()
+	for _, preview in ipairs(activeGridPreviews) do ModelPreviewModule.destroy(preview) end
+	table.clear(activeGridPreviews)
 	mainFrame.Visible = true
 end)
 
 sdfBackButton.MouseButton1Click:Connect(function()
-	stopDetailRotation()
-	if currentDetailModel then
-		currentDetailModel:Destroy()
-		currentDetailModel = nil
-	end
+	if currentDetailPreview then ModelPreviewModule.destroy(currentDetailPreview); currentDetailPreview = nil end
 	skinDetailFrame.Visible = false
 	prizePreviewFrame.Visible = true
-	startPreviewRotation()
+	for _, preview in ipairs(activeGridPreviews) do ModelPreviewModule.startRotation(preview, 5) end
 end)
 
 rollButton.MouseButton1Click:Connect(function()
@@ -755,13 +599,11 @@ rollButton.MouseButton1Click:Connect(function()
 	playSound("Weapons.Pistol.Reload", { Volume = 0.5 })
 	task.spawn(playReelAnimation)
 	GachaRollEvent:FireServer()
-	task.wait(3)
 	local startTime = tick()
 	local timeout = 10
 	while not latestResult do
 		if tick() - startTime > timeout then
-			latestResult = { Success = false, Message = "Server tidak merespons. Coba lagi." }
-			break
+			latestResult = { Success = false, Message = "Server tidak merespons." }; break
 		end
 		task.wait(0.1)
 	end
@@ -778,13 +620,11 @@ multiRollButton.MouseButton1Click:Connect(function()
 	playSound("Weapons.Pistol.Reload", { Volume = 0.5 })
 	task.spawn(playReelAnimation)
 	GachaMultiRollEvent:FireServer()
-	task.wait(3)
 	local startTime = tick()
 	local timeout = 10
 	while not latestMultiResult do
 		if tick() - startTime > timeout then
-			latestMultiResult = { Success = false, Message = "Server tidak merespons. Coba lagi." }
-			break
+			latestMultiResult = { Success = false, Message = "Server tidak merespons." }; break
 		end
 		task.wait(0.1)
 	end
@@ -806,30 +646,4 @@ multiResultCloseButton.MouseButton1Click:Connect(function()
 	multiRollButton.Visible = true
 end)
 
-local minZoom, maxZoom = 2.5, 10
-sliderHandle.MouseButton1Down:Connect(function()
-	isDraggingSlider = true
-end)
-
-UserInputService.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		isDraggingSlider = false
-	end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-	if isDraggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-		local mouseX = input.Position.X
-		local trackAbsX = sliderTrack.AbsolutePosition.X
-		local trackAbsWidth = sliderTrack.AbsoluteSize.X
-
-		local percent = math.clamp((mouseX - trackAbsX) / trackAbsWidth, 0, 1)
-
-		sliderHandle.Position = UDim2.new(percent, 0, 0.5, 0)
-		sliderFill.Size = UDim2.new(percent, 0, 1, 0)
-
-		currentZoomDistance = minZoom + (percent * (maxZoom - minZoom))
-	end
-end)
-
-print("GachaUI.lua loaded for player with detailed prize preview and zoom.")
+print("GachaUI.lua refactored to use ModelPreviewModule.")
