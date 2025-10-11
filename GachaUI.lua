@@ -423,7 +423,7 @@ local function populatePrizePreview()
 	end
 
 	task.wait()
-    prizeListContainer.CanvasSize = UDim2.new(0, 0, 0, prizeListLayout.AbsoluteContentSize.Y)
+	prizeListContainer.CanvasSize = UDim2.new(0, 0, 0, prizeListLayout.AbsoluteContentSize.Y)
 end
 
 -- ... (All other functions like fetchGachaConfig, playReelAnimation, showResult, etc. remain the same)
