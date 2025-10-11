@@ -27,7 +27,8 @@ local DEFAULT_DATA = {
 	Skins = {
 		Owned = {},
 		Equipped = {}
-	}
+	},
+	PityCount = 0
 }
 
 -- Fungsi untuk mendapatkan data inventaris pemain (mengembalikan tabel)
@@ -68,6 +69,12 @@ function CoinsManager.GetData(player)
 			Owned = {},
 			Equipped = {}
 		}
+		needsSave = true
+	end
+
+	-- Pastikan PityCount ada
+	if data.PityCount == nil then
+		data.PityCount = 0
 		needsSave = true
 	end
 
@@ -152,6 +159,16 @@ function CoinsManager.AddSkin(player, weaponName, skinName)
 	DataStoreManager.SaveData(player, NEW_SCOPE, data)
 
 	return true -- Berhasil menambahkan skin
+end
+
+-- Fungsi untuk memperbarui PityCount
+function CoinsManager.UpdatePityCount(player, newCount)
+	if not player or type(newCount) ~= "number" then return false end
+
+	local data = CoinsManager.GetData(player)
+	data.PityCount = newCount
+	DataStoreManager.SaveData(player, NEW_SCOPE, data)
+	return true
 end
 
 -- Fungsi untuk mendapatkan data koin berdasarkan UserID (untuk admin, mengembalikan tabel)
