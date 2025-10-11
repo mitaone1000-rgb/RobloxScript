@@ -8,6 +8,21 @@ local Workspace = game:GetService("Workspace")
 
 -- Memuat modul yang diperlukan
 local GachaModule = require(ServerScriptService.ModuleScript:WaitForChild("GachaModule"))
+local GachaConfig = require(ServerScriptService.ModuleScript:WaitForChild("GachaConfig"))
+
+-- Mencari RemoteFunction untuk mengambil konfigurasi
+local getConfigFuncName = "GetGachaConfig"
+local GetGachaConfig = ReplicatedStorage.RemoteFunctions:FindFirstChild(getConfigFuncName)
+if not GetGachaConfig then
+	GetGachaConfig = Instance.new("RemoteFunction", ReplicatedStorage.RemoteFunctions)
+	GetGachaConfig.Name = getConfigFuncName
+end
+
+-- Atur callback untuk RemoteFunction
+GetGachaConfig.OnServerInvoke = function(player)
+	-- Hanya kirim data yang aman untuk dilihat klien
+	return GachaConfig.RARITY_CHANCES
+end
 
 -- Mencari RemoteEvent untuk komunikasi gacha
 local gachaEventName = "GachaRollEvent"
