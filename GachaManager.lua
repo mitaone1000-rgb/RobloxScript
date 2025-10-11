@@ -57,6 +57,30 @@ end
 -- [PERUBAHAN KUNCI] Ganti listener dari ProximityPrompt ke OnServerEvent
 GachaRollEvent.OnServerEvent:Connect(onGachaRollRequested)
 
+-- Endpoint untuk Multi-Roll
+local gachaMultiRollEventName = "GachaMultiRollEvent"
+local GachaMultiRollEvent = ReplicatedStorage.RemoteEvents:FindFirstChild(gachaMultiRollEventName)
+if not GachaMultiRollEvent then
+	GachaMultiRollEvent = Instance.new("RemoteEvent", ReplicatedStorage.RemoteEvents)
+	GachaMultiRollEvent.Name = gachaMultiRollEventName
+end
+
+local function onGachaMultiRollRequested(player)
+	local success, resultOrError = pcall(GachaModule.RollMultiple, player)
+	if success then
+		GachaMultiRollEvent:FireClient(player, resultOrError)
+	else
+		warn("GachaManager Error: Terjadi error saat menjalankan GachaModule.RollMultiple - " .. tostring(resultOrError))
+		local errorResult = {
+			Success = false,
+			Message = "Terjadi kesalahan internal pada server. Silakan coba lagi nanti."
+		}
+		GachaMultiRollEvent:FireClient(player, errorResult)
+	end
+end
+
+GachaMultiRollEvent.OnServerEvent:Connect(onGachaMultiRollRequested)
+
 -- Hapus koneksi ke ProximityPrompt dari sisi server
 -- Kode di bawah ini tidak lagi diperlukan dan telah dihapus.
 -- local gachaShopPart = Workspace:WaitForChild("GachaShopSkin")
