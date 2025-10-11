@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 
@@ -238,6 +239,68 @@ multiResultCloseButton.BorderSizePixel = 0
 local multiResultCloseCorner = Instance.new("UICorner", multiResultCloseButton)
 multiResultCloseCorner.CornerRadius = UDim.new(0, 8)
 
+-- [NEW] Tombol untuk melihat hadiah
+local viewPrizesButton = Instance.new("TextButton", mainFrame)
+viewPrizesButton.Name = "ViewPrizesButton"
+viewPrizesButton.Size = UDim2.new(0.8, 0, 0, 35)
+viewPrizesButton.Position = UDim2.new(0.1, 0, 0.65, 0) -- Disesuaikan posisinya
+viewPrizesButton.Text = "Lihat Hadiah Legendaris"
+viewPrizesButton.Font = Enum.Font.SourceSans
+viewPrizesButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+viewPrizesButton.TextSize = 18
+viewPrizesButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+viewPrizesButton.BorderSizePixel = 0
+local vpButtonCorner = Instance.new("UICorner", viewPrizesButton)
+vpButtonCorner.CornerRadius = UDim.new(0, 8)
+
+-- [NEW] Frame untuk Pratinjau Hadiah
+local prizePreviewFrame = Instance.new("Frame", screenGui)
+prizePreviewFrame.Name = "PrizePreviewFrame"
+prizePreviewFrame.Size = UDim2.new(0.9, 0, 0.9, 0)
+prizePreviewFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+prizePreviewFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+prizePreviewFrame.BackgroundColor3 = Color3.fromRGB(25, 27, 30)
+prizePreviewFrame.BorderSizePixel = 1
+prizePreviewFrame.BorderColor3 = Color3.fromRGB(55, 58, 64)
+prizePreviewFrame.Visible = false
+local ppfCorner = Instance.new("UICorner", prizePreviewFrame)
+ppfCorner.CornerRadius = UDim.new(0, 12)
+
+local ppfTitle = Instance.new("TextLabel", prizePreviewFrame)
+ppfTitle.Name = "Title"
+ppfTitle.Size = UDim2.new(1, 0, 0, 50)
+ppfTitle.Text = "DAFTAR HADIAH LEGENDARIS"
+ppfTitle.Font = Enum.Font.Sarpanch
+ppfTitle.TextColor3 = Color3.fromRGB(255, 215, 0)
+ppfTitle.TextSize = 32
+ppfTitle.BackgroundTransparency = 1
+
+local ppfBackButton = Instance.new("TextButton", prizePreviewFrame)
+ppfBackButton.Name = "BackButton"
+ppfBackButton.Size = UDim2.new(0, 100, 0, 40)
+ppfBackButton.Position = UDim2.new(0.05, 0, 0.9, 0)
+ppfBackButton.Text = "Kembali"
+ppfBackButton.Font = Enum.Font.SourceSansBold
+ppfBackButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ppfBackButton.TextSize = 18
+ppfBackButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+local ppfBackCorner = Instance.new("UICorner", ppfBackButton)
+ppfBackCorner.CornerRadius = UDim.new(0, 8)
+
+local prizeListContainer = Instance.new("ScrollingFrame", prizePreviewFrame)
+prizeListContainer.Name = "PrizeListContainer"
+prizeListContainer.Size = UDim2.new(1, -20, 1, -120)
+prizeListContainer.Position = UDim2.new(0, 10, 0, 60)
+prizeListContainer.BackgroundTransparency = 1
+prizeListContainer.BorderSizePixel = 0
+prizeListContainer.CanvasSize = UDim2.new(0,0,0,0)
+prizeListContainer.ScrollBarThickness = 6
+
+local prizeListLayout = Instance.new("UIGridLayout", prizeListContainer)
+prizeListLayout.CellPadding = UDim2.new(0, 15, 0, 15)
+prizeListLayout.CellSize = UDim2.new(0, 200, 0, 220) -- Ukuran untuk ViewportFrame + label
+prizeListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
 
 -- ================== SCRIPT LOGIC (REFACTORED WITH TIMEOUT) ==================
 
@@ -245,6 +308,146 @@ local isRolling = false
 local potentialPrizes = {}
 local latestResult = nil
 local rarityChances = nil
+local activePreviewModels = {}
+local previewRotationConnection = nil
+
+-- Fungsi untuk memulai/menghentikan rotasi pratinjau
+local function stopPreviewRotation()
+	if previewRotationConnection then
+		previewRotationConnection:Disconnect()
+		previewRotationConnection = nil
+	end
+end
+
+local function startPreviewRotation()
+	stopPreviewRotation()
+	local cameraAngle = 0
+	previewRotationConnection = RunService.RenderStepped:Connect(function(dt)
+		cameraAngle = cameraAngle + (dt * 0.5)
+		for _, data in ipairs(activePreviewModels) do
+			if data.model and data.model.PrimaryPart then
+				local rotation = CFrame.Angles(0, cameraAngle, 0)
+				local offset = Vector3.new(0, 0, 5)
+				local cameraPosition = data.model.PrimaryPart.Position + rotation:VectorToWorldSpace(offset)
+				data.camera.CFrame = CFrame.new(cameraPosition, data.model.PrimaryPart.Position)
+			end
+		end
+	end)
+end
+
+-- Fungsi untuk mengisi frame pratinjau hadiah
+local function populatePrizePreview()
+	-- Bersihkan item dan model yang ada
+	for _, child in ipairs(prizeListContainer:GetChildren()) do
+		if not child:IsA("UILayout") then
+			child:Destroy()
+		end
+	end
+	for _, data in ipairs(activePreviewModels) do
+		if data.model then
+			data.model:Destroy()
+		end
+	end
+	table.clear(activePreviewModels)
+
+	local allSkins = {}
+	for weaponName, weaponData in pairs(WeaponModule.Weapons) do
+		for skinName, skinData in pairs(weaponData.Skins) do
+			if skinName ~= "Default Skin" then
+				table.insert(allSkins, {
+					WeaponName = weaponName,
+					SkinName = skinName,
+					SkinData = skinData
+				})
+			end
+		end
+	end
+
+	table.sort(allSkins, function(a, b)
+		if a.WeaponName ~= b.WeaponName then
+			return a.WeaponName < b.WeaponName
+		else
+			return a.SkinName < b.SkinName
+		end
+	end)
+
+	for _, skinInfo in ipairs(allSkins) do
+		local prizeItemFrame = Instance.new("Frame")
+		prizeItemFrame.Name = skinInfo.SkinName
+		prizeItemFrame.Size = UDim2.new(0, 200, 0, 220)
+		prizeItemFrame.BackgroundTransparency = 1
+		prizeItemFrame.Parent = prizeListContainer
+
+		local itemLayout = Instance.new("UIListLayout", prizeItemFrame)
+		itemLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		itemLayout.Padding = UDim.new(0, 5)
+
+		local viewport = Instance.new("ViewportFrame")
+		viewport.Size = UDim2.new(1, 0, 0, 150)
+		viewport.BackgroundColor3 = Color3.fromRGB(25, 27, 30)
+		viewport.LightColor = Color3.new(1, 1, 1)
+		viewport.LightDirection = Vector3.new(-1, -1, -1)
+		viewport.LayoutOrder = 1
+		viewport.Parent = prizeItemFrame
+		local vpCorner = Instance.new("UICorner", viewport)
+		vpCorner.CornerRadius = UDim.new(0, 8)
+
+		local worldModel = Instance.new("WorldModel", viewport)
+		local viewportCamera = Instance.new("Camera")
+		viewportCamera.Parent = viewport
+		viewportCamera.FieldOfView = 30
+		viewport.CurrentCamera = viewportCamera
+
+		local weaponConfig = WeaponModule.Weapons[skinInfo.WeaponName]
+		local skinData = weaponConfig.Skins[skinInfo.SkinName]
+		local previewModel = Instance.new("Model")
+		previewModel.Name = "PreviewModel"
+		previewModel.Parent = worldModel
+
+		local modelPart = Instance.new("Part")
+		modelPart.Name = "Handle"
+		modelPart.Anchored = true
+		modelPart.CanCollide = false
+		modelPart.Size = Vector3.new(1, 1, 1)
+		modelPart.CFrame = CFrame.new(0, 0, 0)
+		modelPart.Parent = previewModel
+		previewModel.PrimaryPart = modelPart
+
+		local mesh = Instance.new("SpecialMesh")
+		mesh.MeshType = Enum.MeshType.FileMesh
+		mesh.MeshId = skinData.MeshId
+		mesh.TextureId = skinData.TextureId
+		mesh.Scale = Vector3.new(1, 1, 1)
+		mesh.Parent = modelPart
+
+		table.insert(activePreviewModels, {model = previewModel, camera = viewportCamera})
+
+		local weaponNameLabel = Instance.new("TextLabel")
+		weaponNameLabel.Size = UDim2.new(1, 0, 0, 20)
+		weaponNameLabel.Text = string.upper(skinInfo.WeaponName)
+		weaponNameLabel.Font = Enum.Font.SourceSansBold
+		weaponNameLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+		weaponNameLabel.TextSize = 16
+		weaponNameLabel.BackgroundTransparency = 1
+		weaponNameLabel.LayoutOrder = 2
+		weaponNameLabel.Parent = prizeItemFrame
+
+		local skinNameLabel = Instance.new("TextLabel")
+		skinNameLabel.Size = UDim2.new(1, 0, 0, 30)
+		skinNameLabel.Text = skinInfo.SkinName
+		skinNameLabel.Font = Enum.Font.SourceSans
+		skinNameLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
+		skinNameLabel.TextSize = 20
+		skinNameLabel.BackgroundTransparency = 1
+		skinNameLabel.LayoutOrder = 3
+		skinNameLabel.Parent = prizeItemFrame
+	end
+
+    -- Update CanvasSize after populating
+	task.wait()
+    prizeListContainer.CanvasSize = UDim2.new(0, 0, 0, prizeListLayout.AbsoluteContentSize.Y)
+end
 
 -- Fungsi untuk mengambil konfigurasi dari server
 local function fetchGachaConfig()
@@ -423,6 +626,20 @@ closeButton.MouseButton1Click:Connect(function()
 	end
 end)
 
+-- Koneksi tombol baru
+viewPrizesButton.MouseButton1Click:Connect(function()
+	mainFrame.Visible = false
+	populatePrizePreview()
+	prizePreviewFrame.Visible = true
+	startPreviewRotation()
+end)
+
+ppfBackButton.MouseButton1Click:Connect(function()
+	prizePreviewFrame.Visible = false
+	mainFrame.Visible = true
+	stopPreviewRotation()
+end)
+
 rollButton.MouseButton1Click:Connect(function()
 	if isRolling then return end
 
@@ -496,4 +713,4 @@ multiResultCloseButton.MouseButton1Click:Connect(function()
 	multiRollButton.Visible = true
 end)
 
-print("GachaUI.lua loaded for player with timeout fix.")
+print("GachaUI.lua loaded for player with prize preview.")
