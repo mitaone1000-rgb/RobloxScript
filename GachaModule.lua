@@ -52,25 +52,13 @@ if not GachaSkinWonEvent then
 end
 
 -- Fungsi inti untuk melakukan roll gacha
-function GachaModule.Roll(player)
-	local playerData = CoinsManager.GetData(player)
-
-	-- 1. Validasi: Cek apakah koin cukup
-	if playerData.Coins < GachaConfig.GACHA_COST then
-		return {Success = false, Message = "BloodCoins tidak cukup."}
-	end
-
-	-- 2. Kurangi koin pemain
-	local success = CoinsManager.SubtractCoins(player, GachaConfig.GACHA_COST)
-	if not success then
-		return {Success = false, Message = "Gagal mengurangi BloodCoins."}
-	end
-
-	-- 3. Logika Pity
+-- Fungsi internal untuk satu kali roll, digunakan oleh Roll dan RollMultiple
+local function performSingleRoll(player, playerData)
+	-- 1. Logika Pity
 	playerData.PityCount = (playerData.PityCount or 0) + 1
 	local isPityTriggered = playerData.PityCount >= GachaConfig.PITY_THRESHOLD
 
-	-- 4. Tentukan hadiah berdasarkan peluang
+	-- 2. Tentukan hadiah berdasarkan peluang
 	local randomNumber = math.random(1, 100)
 	local chosenRarity
 
@@ -80,49 +68,65 @@ function GachaModule.Roll(player)
 		chosenRarity = "Common"
 	end
 
-	-- 5. Proses hadiah berdasarkan kelangkaan
+	-- 3. Proses hadiah berdasarkan kelangkaan
 	local availableSkins = getAvailableSkins(player)
 
-	-- Jika pemain memilih Legendary TAPI sudah punya semua skin, beri hadiah Common
 	if chosenRarity == "Legendary" and #availableSkins == 0 then
 		chosenRarity = "Common"
 	end
 
 	if chosenRarity == "Legendary" then
-		-- Beri hadiah skin
 		playerData.PityCount = 0 -- Reset pity
-		CoinsManager.UpdatePityCount(player, playerData.PityCount)
-
 		local randomSkinIndex = math.random(1, #availableSkins)
 		local prize = availableSkins[randomSkinIndex]
-
 		CoinsManager.AddSkin(player, prize.Weapon, prize.Skin)
-
-		-- Kirim pengumuman global
 		GachaSkinWonEvent:FireAllClients(player, prize.Skin)
-
-		return {
-			Success = true,
-			Prize = {
-				Type = "Skin",
-				WeaponName = prize.Weapon,
-				SkinName = prize.Skin
-			}
-		}
+		return { Type = "Skin", WeaponName = prize.Weapon, SkinName = prize.Skin }
 	else
-		-- Beri hadiah koin
-		CoinsManager.UpdatePityCount(player, playerData.PityCount)
 		local prizeAmount = math.random(GachaConfig.COMMON_REWARD_RANGE.Min, GachaConfig.COMMON_REWARD_RANGE.Max)
 		CoinsManager.AddCoins(player, prizeAmount)
-
-		return {
-			Success = true,
-			Prize = {
-				Type = "Coins",
-				Amount = prizeAmount
-			}
-		}
+		return { Type = "Coins", Amount = prizeAmount }
 	end
+end
+
+function GachaModule.Roll(player)
+	local playerData = CoinsManager.GetData(player)
+
+	if playerData.Coins < GachaConfig.GACHA_COST then
+		return { Success = false, Message = "BloodCoins tidak cukup." }
+	end
+
+	if not CoinsManager.SubtractCoins(player, GachaConfig.GACHA_COST) then
+		return { Success = false, Message = "Gagal mengurangi BloodCoins." }
+	end
+
+	local prize = performSingleRoll(player, playerData)
+	CoinsManager.UpdatePityCount(player, playerData.PityCount)
+
+	return { Success = true, Prize = prize }
+end
+
+function GachaModule.RollMultiple(player)
+	local playerData = CoinsManager.GetData(player)
+	local totalCost = GachaConfig.GACHA_COST * GachaConfig.MULTI_ROLL_COST_MULTIPLIER
+
+	if playerData.Coins < totalCost then
+		return { Success = false, Message = "BloodCoins tidak cukup untuk 10+1 roll." }
+	end
+
+	if not CoinsManager.SubtractCoins(player, totalCost) then
+		return { Success = false, Message = "Gagal mengurangi BloodCoins." }
+	end
+
+	local prizes = {}
+	for i = 1, GachaConfig.MULTI_ROLL_COUNT do
+		local prize = performSingleRoll(player, playerData)
+		table.insert(prizes, prize)
+	end
+
+	CoinsManager.UpdatePityCount(player, playerData.PityCount)
+
+	return { Success = true, Prizes = prizes }
 end
 
 return GachaModule
