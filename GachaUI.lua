@@ -11,9 +11,9 @@ local player = Players.LocalPlayer
 
 -- Memuat modul dan event
 local AudioManager = require(ReplicatedStorage.ModuleScript:WaitForChild("AudioManager"))
-local GachaConfig = require(ReplicatedStorage.ModuleScript:WaitForChild("GachaConfig"))
 local WeaponModule = require(ReplicatedStorage.ModuleScript:WaitForChild("WeaponModule"))
 local GachaRollEvent = ReplicatedStorage.RemoteEvents:WaitForChild("GachaRollEvent")
+local GetGachaConfig = ReplicatedStorage.RemoteFunctions:WaitForChild("GetGachaConfig")
 
 -- ================== UI CREATION ==================
 local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
@@ -34,8 +34,8 @@ mainFrameCorner.CornerRadius = UDim.new(0, 12)
 
 local mainFrameGradient = Instance.new("UIGradient", mainFrame)
 mainFrameGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(55, 58, 64)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 37, 40))
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(55, 58, 64)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 37, 40))
 })
 mainFrameGradient.Rotation = 90
 
@@ -54,7 +54,7 @@ local legendaryChanceLabel = Instance.new("TextLabel", mainFrame)
 legendaryChanceLabel.Name = "LegendaryChanceLabel"
 legendaryChanceLabel.Size = UDim2.new(1, 0, 0, 30)
 legendaryChanceLabel.Position = UDim2.new(0, 0, 0, 50)
-legendaryChanceLabel.Text = "Peluang Legendaris: " .. GachaConfig.RARITY_CHANCES.Legendary .. "%"
+legendaryChanceLabel.Text = "Memuat peluang..."
 legendaryChanceLabel.Font = Enum.Font.SourceSans
 legendaryChanceLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
 legendaryChanceLabel.TextSize = 18
@@ -64,7 +64,7 @@ local commonChanceLabel = Instance.new("TextLabel", mainFrame)
 commonChanceLabel.Name = "CommonChanceLabel"
 commonChanceLabel.Size = UDim2.new(1, 0, 0, 30)
 commonChanceLabel.Position = UDim2.new(0, 0, 0, 70)
-commonChanceLabel.Text = "Peluang Biasa: " .. GachaConfig.RARITY_CHANCES.Common .. "%"
+commonChanceLabel.Text = ""
 commonChanceLabel.Font = Enum.Font.SourceSans
 commonChanceLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 commonChanceLabel.TextSize = 18
@@ -86,8 +86,8 @@ rollButtonCorner.CornerRadius = UDim.new(0, 8)
 
 local rollButtonGradient = Instance.new("UIGradient", rollButton)
 rollButtonGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(108, 121, 252)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(88, 101, 242))
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(108, 121, 252)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(88, 101, 242))
 })
 
 local closeButton = Instance.new("TextButton", mainFrame)
@@ -173,6 +173,23 @@ resultCloseCorner.CornerRadius = UDim.new(0, 8)
 local isRolling = false
 local potentialPrizes = {}
 local latestResult = nil
+local rarityChances = nil
+
+-- Fungsi untuk mengambil konfigurasi dari server
+local function fetchGachaConfig()
+	local success, result = pcall(function()
+		return GetGachaConfig:InvokeServer()
+	end)
+
+	if success and result then
+		rarityChances = result
+		legendaryChanceLabel.Text = "Peluang Legendaris: " .. (rarityChances.Legendary or "N/A") .. "%"
+		commonChanceLabel.Text = "Peluang Biasa: " .. (rarityChances.Common or "N/A") .. "%"
+	else
+		legendaryChanceLabel.Text = "Gagal memuat peluang."
+		warn("GachaUI Error: Gagal mengambil konfigurasi gacha dari server - " .. tostring(result))
+	end
+end
 
 GachaRollEvent.OnClientEvent:Connect(function(result)
 	latestResult = result
@@ -224,13 +241,13 @@ local function playReelAnimation()
 end
 
 local function playShineAnimation()
-    resultShine.Visible = true
-    local tweenInfo = TweenInfo.new(0.7, Enum.EasingStyle.Linear)
-    local tween = TweenService:Create(resultShine, tweenInfo, { Position = UDim2.new(1, 0, -0.5, 0) })
-    tween:Play()
-    tween.Completed:Wait()
-    resultShine.Visible = false
-    resultShine.Position = UDim2.new(-0.2, 0, -0.5, 0)
+	resultShine.Visible = true
+	local tweenInfo = TweenInfo.new(0.7, Enum.EasingStyle.Linear)
+	local tween = TweenService:Create(resultShine, tweenInfo, { Position = UDim2.new(1, 0, -0.5, 0) })
+	tween:Play()
+	tween.Completed:Wait()
+	resultShine.Visible = false
+	resultShine.Position = UDim2.new(-0.2, 0, -0.5, 0)
 end
 
 local function showResult(resultData)
@@ -240,7 +257,7 @@ local function showResult(resultData)
 			resultText.Text = string.format("Selamat!\nAnda mendapatkan Skin:\n%s (%s)", prize.SkinName, prize.WeaponName)
 			resultText.TextColor3 = Color3.fromRGB(255, 215, 0)
 			playSound("Boss.Complete", { Volume = 0.8 })
-            task.spawn(playShineAnimation)
+			task.spawn(playShineAnimation)
 		elseif prize.Type == "Coins" then
 			resultText.Text = string.format("Anda mendapatkan:\n%d BloodCoins", prize.Amount)
 			resultText.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -258,6 +275,9 @@ local function toggleGachaUI(visible)
 	if isRolling then return end
 	if visible then
 		populatePrizes()
+		if not rarityChances then
+			fetchGachaConfig()
+		end
 		mainFrame.Visible = true
 		resultFrame.Visible = false
 		rollButton.Visible = true
@@ -297,16 +317,16 @@ rollButton.MouseButton1Click:Connect(function()
 
 	local startTime = tick()
 	local timeout = 10 -- detik
-    while not latestResult do
+	while not latestResult do
 		if tick() - startTime > timeout then
 			latestResult = { Success = false, Message = "Server tidak merespons. Coba lagi." }
 			break
 		end
-        task.wait(0.1)
-    end
+		task.wait(0.1)
+	end
 
-    showResult(latestResult)
-    isRolling = false
+	showResult(latestResult)
+	isRolling = false
 end)
 
 resultCloseButton.MouseButton1Click:Connect(function()
