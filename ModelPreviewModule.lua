@@ -1,6 +1,6 @@
 -- ModelPreviewModule.lua (ModuleScript)
--- A centralized module to handle the creation, animation, and interaction
--- of 3D model previews within ViewportFrames.
+-- Path: ReplicatedStorage/ModuleScript/ModelPreviewModule.lua
+-- Script Place: Lobby
 
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -113,42 +113,42 @@ end
     Connects a slider UI to control the zoom of a preview instance.
 ]]
 function ModelPreviewModule.connectZoomSlider(preview, sliderTrack, sliderHandle, sliderFill, minZoom, maxZoom)
-    local isDragging = false
+	local isDragging = false
 
-    sliderHandle.MouseButton1Down:Connect(function()
-        isDragging = true
-    end)
+	sliderHandle.MouseButton1Down:Connect(function()
+		isDragging = true
+	end)
 
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            isDragging = false
-        end
-    end)
+	UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			isDragging = false
+		end
+	end)
 
-    UserInputService.InputChanged:Connect(function(input)
-        if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            local mouseX = input.Position.X
-            local trackAbsX = sliderTrack.AbsolutePosition.X
-            local trackAbsWidth = sliderTrack.AbsoluteSize.X
+	UserInputService.InputChanged:Connect(function(input)
+		if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local mouseX = input.Position.X
+			local trackAbsX = sliderTrack.AbsolutePosition.X
+			local trackAbsWidth = sliderTrack.AbsoluteSize.X
 
-            local percent = math.clamp((mouseX - trackAbsX) / trackAbsWidth, 0, 1)
+			local percent = math.clamp((mouseX - trackAbsX) / trackAbsWidth, 0, 1)
 
-            sliderHandle.Position = UDim2.new(percent, 0, 0.5, 0)
-            if sliderFill then
-                sliderFill.Size = UDim2.new(percent, 0, 1, 0)
-            end
+			sliderHandle.Position = UDim2.new(percent, 0, 0.5, 0)
+			if sliderFill then
+				sliderFill.Size = UDim2.new(percent, 0, 1, 0)
+			end
 
-            preview.zoomDistance = minZoom + (percent * (maxZoom - minZoom))
-        end
-    end)
+			preview.zoomDistance = minZoom + (percent * (maxZoom - minZoom))
+		end
+	end)
 
-    -- Set initial state
-    local initialPercent = 0.5
-    preview.zoomDistance = minZoom + (initialPercent * (maxZoom - minZoom))
-    sliderHandle.Position = UDim2.new(initialPercent, 0, 0.5, 0)
-    if sliderFill then
-        sliderFill.Size = UDim2.new(initialPercent, 0, 1, 0)
-    end
+	-- Set initial state
+	local initialPercent = 0.5
+	preview.zoomDistance = minZoom + (initialPercent * (maxZoom - minZoom))
+	sliderHandle.Position = UDim2.new(initialPercent, 0, 0.5, 0)
+	if sliderFill then
+		sliderFill.Size = UDim2.new(initialPercent, 0, 1, 0)
+	end
 end
 
 return ModelPreviewModule
