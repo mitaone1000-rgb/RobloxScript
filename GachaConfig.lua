@@ -1,6 +1,7 @@
 -- GachaConfig.lua (ModuleScript)
 -- Path: ServerScriptService/ModuleScript/GachaConfig.lua
--- This module contains all the configuration settings for the gacha system.
+-- Script Place: Lobby
+
 local GachaConfig = {
 	GACHA_COST = 100,
 
