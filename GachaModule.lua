@@ -7,17 +7,10 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 -- Memuat modul yang diperlukan
 local CoinsManager = require(ServerScriptService.ModuleScript:WaitForChild("CoinsModule"))
+local GachaConfig = require(ReplicatedStorage.ModuleScript:WaitForChild("GachaConfig"))
 local WeaponModule = require(ReplicatedStorage.ModuleScript:WaitForChild("WeaponModule"))
 
 local GachaModule = {}
-
--- Konfigurasi Gacha
-local GACHA_COST = 100
-local RARITY_CHANCES = {
-	Legendary = 5,  -- Peluang dalam persen (5%)
-	Common = 95, -- Peluang dalam persen (95%)
-}
-local COMMON_REWARD_RANGE = {Min = 10, Max = 50}
 
 -- Fungsi untuk mendapatkan daftar semua skin yang *belum* dimiliki pemain
 local function getAvailableSkins(player)
@@ -63,12 +56,12 @@ function GachaModule.Roll(player)
 	local playerData = CoinsManager.GetData(player)
 
 	-- 1. Validasi: Cek apakah koin cukup
-	if playerData.Coins < GACHA_COST then
+	if playerData.Coins < GachaConfig.GACHA_COST then
 		return {Success = false, Message = "BloodCoins tidak cukup."}
 	end
 
 	-- 2. Kurangi koin pemain
-	local success = CoinsManager.SubtractCoins(player, GACHA_COST)
+	local success = CoinsManager.SubtractCoins(player, GachaConfig.GACHA_COST)
 	if not success then
 		return {Success = false, Message = "Gagal mengurangi BloodCoins."}
 	end
@@ -77,7 +70,7 @@ function GachaModule.Roll(player)
 	local randomNumber = math.random(1, 100)
 	local chosenRarity
 
-	if randomNumber <= RARITY_CHANCES.Legendary then
+	if randomNumber <= GachaConfig.RARITY_CHANCES.Legendary then
 		chosenRarity = "Legendary"
 	else
 		chosenRarity = "Common"
@@ -111,7 +104,7 @@ function GachaModule.Roll(player)
 		}
 	else
 		-- Beri hadiah koin
-		local prizeAmount = math.random(COMMON_REWARD_RANGE.Min, COMMON_REWARD_RANGE.Max)
+		local prizeAmount = math.random(GachaConfig.COMMON_REWARD_RANGE.Min, GachaConfig.COMMON_REWARD_RANGE.Max)
 		CoinsManager.AddCoins(player, prizeAmount)
 
 		return {

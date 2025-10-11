@@ -11,6 +11,7 @@ local player = Players.LocalPlayer
 
 -- Memuat modul dan event
 local AudioManager = require(ReplicatedStorage.ModuleScript:WaitForChild("AudioManager"))
+local GachaConfig = require(ReplicatedStorage.ModuleScript:WaitForChild("GachaConfig"))
 local WeaponModule = require(ReplicatedStorage.ModuleScript:WaitForChild("WeaponModule"))
 local GachaRollEvent = ReplicatedStorage.RemoteEvents:WaitForChild("GachaRollEvent")
 
@@ -47,6 +48,27 @@ titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.TextSize = 38
 titleLabel.TextStrokeTransparency = 0.5
 titleLabel.BackgroundTransparency = 1
+
+-- Label untuk menampilkan peluang
+local legendaryChanceLabel = Instance.new("TextLabel", mainFrame)
+legendaryChanceLabel.Name = "LegendaryChanceLabel"
+legendaryChanceLabel.Size = UDim2.new(1, 0, 0, 30)
+legendaryChanceLabel.Position = UDim2.new(0, 0, 0, 50)
+legendaryChanceLabel.Text = "Peluang Legendaris: " .. GachaConfig.RARITY_CHANCES.Legendary .. "%"
+legendaryChanceLabel.Font = Enum.Font.SourceSans
+legendaryChanceLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
+legendaryChanceLabel.TextSize = 18
+legendaryChanceLabel.BackgroundTransparency = 1
+
+local commonChanceLabel = Instance.new("TextLabel", mainFrame)
+commonChanceLabel.Name = "CommonChanceLabel"
+commonChanceLabel.Size = UDim2.new(1, 0, 0, 30)
+commonChanceLabel.Position = UDim2.new(0, 0, 0, 70)
+commonChanceLabel.Text = "Peluang Biasa: " .. GachaConfig.RARITY_CHANCES.Common .. "%"
+commonChanceLabel.Font = Enum.Font.SourceSans
+commonChanceLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+commonChanceLabel.TextSize = 18
+commonChanceLabel.BackgroundTransparency = 1
 
 local rollButton = Instance.new("TextButton", mainFrame)
 rollButton.Name = "RollButton"
